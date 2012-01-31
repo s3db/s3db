@@ -1,0 +1,28 @@
+RewriteEngine on
+
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$3</key><from>projects</from><where><project_id>$2</project_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$4</key><from>collections</from><where><project_id>$2</project_id><resource_id>$3</resource_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$5</key><from>items</from><where><project_id>$2</project_id><collection_id>$3</collection_id><resource_id>$4</resource_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?R?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$6</key><from>rules</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><resource_id>$5</resource_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?S?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$6</key><from>statements</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><resource_id>$5</resource_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?S?(\d+)?/?R?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$7</key><from>rules</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><statement_id>$5</statement_id><resource_id>$6</resource_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?R?(\d+)?/?S?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$7</key><from>statements</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><rule_id>$5</rule_id><resource_id>$6</resource_id></where></S3QL>
+RewriteRule ^(D|P|C|R|I|S|U|G)(\d+)$ URI.php?uid=$1$2&format=xml
+RewriteRule ^(P|C|R|I|S)(\d+)/(.*)$ URI.php?uid=$1$2&format=xml&key=$3
+RewriteRule ^S3QL/(key|format|query|user_id)/(\w+|\d+|.+)/?(key|format|query|user_id)?/?(\w+|\d+|.+)/?(key|format|query|user_id)/?(.+)? S3QL.php?$1=$2&$3=$4&$5=$6
+RewriteRule ^S3QL/(from|insert|update|delete)/(user|group|project|collection|item|rule|statement)/(.*)$ S3QL.php?key=$3&query=&lt;S3QL&gt;&lt;$1&gt;$2&lt;/$1&gt;&lt;/S3QL&gt;
+RewriteRule ^S3QL/(from|insert|update|delete)/(users|groups|projects|collections|items|rules|statements)/(.*)$ S3QL.php?key=$3&query=&lt;S3QL&gt;&lt;$1&gt;$2&lt;/$1&gt;&lt;/S3QL&gt;
+RewriteRule ^URI/(P|C|R|I|S)(.*)/(.*)$ URI.php?key=$3&uid=$1$2
+RewriteRule ^URI/(P|C|R|I|S)(.*)$ URI.php?&uid=$1$2
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P(.*)/$ S3QL.php?format=$1&query=<S3QL><from>projects</from><where><project_id>$2</project_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P(.*)/C(.*)/$ S3QL.php?key=$4&format=$1&query=<S3QL><from>collections</from><where><project_id>$2</project_id><collection_id>$3</collection_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P(.*)/R$ S3QL.php?key=$4&format=$1&query=<S3QL><from>rules</from><where><project_id>$2</project_id><rule_id>$3</rule_id></where></S3QL>
+RewriteRule ^(xml|json|rdf|html|n3|sif)/P(.*[^/])/C(.*)/I(.*)/*$ S3QL.php?key=$4&format=$1&query=<S3QL><from>items</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id></where></S3QL>
+RewriteRule ^S3QL/(deployment|user|group|project|collection|rule|item|statement)$ S3QL.php?query=<S3QL><from>$1</from></S3QL>
+RewriteRule ^S3QL/(deployment|user|group|project|collection|rule|item|statement)/(.*)=(.*)/(.*)=(.*)/(.*)=(.*)$ S3QL.php?query=<S3QL><from>$1</from><where><$2>$3</$2><$4>$5</$4><$6>$7</$6></where></S3QL>
+RewriteRule ^S3QL/(deployment|user|group|project|collection|rule|item|statement)/(.*)=(.*)/(.*)=(.*)$ S3QL.php?query=<S3QL><from>$1</from><where><$2>$3</$2><$4>$5</$4></where></S3QL>
+RewriteRule ^S3QL/(deployment|user|group|project|collection|rule|item|statement)/(.*)=(.*)$ S3QL.php?query=<S3QL><from>$1</from><where><$2>$3</$2></where></S3QL>
+RewriteRule ^([a-zA-Z0-9]+)/{0,1}$ msredirect.php?name=$1
+RewriteRule ^([a-zA-Z0-9]+)/(apilogin|S3QL|URI\.php) msredirect.php?name=$1&func=$2&args=$3
+RewriteRule ^([a-zA-Z0-9]+)/(\?query\=.*)$ msredirect.php?name=$1&func=S3QL&args=$2
+RewriteRule ^([a-zA-Z0-9]+)/(\?uid\=.*)$ msredirect.php?name=$1&func=URI&args=$2

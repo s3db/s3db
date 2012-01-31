@@ -1,0 +1,40 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix s3db: <http://www.s3db.org/core#> .
+@prefix s3dbpc: <http://www.s3db.org/permission_codes#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+@prefix : <http://ibl.mdanderson.org/central/> .
+
+s3db:s3dbDeployment rdfs:label "s3dbDeployment" .
+
+s3db:s3dbProject rdfs:label "s3dbProject" ;
+	rdfs:subClassOf s3db:s3dbDeployment .
+
+s3db:s3dbRule rdfs:label "s3dbRule" ;
+	rdf:subject s3db:s3dbCollection ;
+	rdf:predicate s3db:s3dbItem ;
+	rdf:object s3db:s3dbCollection ;
+	rdfs:subClassOf s3db:s3dbProject .
+
+s3db:s3dbCollection rdfs:label "s3dbCollection" ;
+	rdfs:subClassOf s3db:s3dbProject .
+
+s3db:s3dbItem rdfs:label "s3dbItem" ;
+	rdfs:subClassOf s3db:s3dbCollection .
+
+s3db:s3dbStatement rdfs:label "s3dbStatement" ;
+	rdf:subject s3db:s3dbItem ;
+	rdf:predicate s3db:s3dbRule ;
+	rdf:object s3db:s3dbItem .
+
+s3db:s3dbGroup rdfs:label "s3dbGroup" ;
+	rdfs:subClassOf s3db:s3dbDeployment .
+
+s3db:s3dbUser rdfs:label "s3dbUser" ;
+	rdfs:subClassOf s3db:s3dbDeployment ;
+	rdfs:subClassOf s3db:s3dbGroup .

@@ -1,0 +1,67 @@
+<?xml version="1.0" ?>
+
+<project name="TouchGraphLinkBrowser" default="dist" basedir=".">
+  <property name="tomcatdir" value="/usr/local/tomcat5"/>
+  <property file="common.properties"/>
+  <property name="jarfile" value="TGLinkBrowser.jar"/>
+
+  <target name="init">
+	 <mkdir dir="${build.dir}/classes"/>
+  </target>
+
+  <target name="compile" depends="init">
+     <javac srcdir="src" destdir="${build.dir}/classes">
+       <classpath>
+         <pathelement path="${classpath}"/>
+	 <pathelement path="src"/>
+	<fileset dir="${tomcatdir}/shared/lib">
+           <include name="**/*.jar"/>
+         </fileset>
+         <fileset dir="${tomcatdir}/common">
+           <include name="**/*.jar"/>
+         </fileset>
+
+	 <fileset dir="${build.dir}/classes">
+           <include name="**/*.jar"/>
+	   <exclude name="TGLinkBrowser.jar"/>
+         </fileset>
+       </classpath>
+     </javac>
+  </target>
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="TGLinkBrowser.jar" basedir="${build.dir}/classes"/>
+  </target>
+<!--
+  <target name="clean">
+   <delete>
+    <fileset dir="src/com/touchgraph/graphlayout" includes="**/*.class"/>
+    <fileset dir="src/com/touchgraph/graphlayout/interaction" includes="**/*.class"/>
+    <fileset dir="src/com/touchgraph/graphlayout/interaction" includes="**/*.class"/>
+    <fileset dir="src/com/touchgraph/linkbrowser" includes="**/*.class"/>
+    <fileset dir="src" includes="**/*.class"/>
+   </delete>
+  </target>
+-->
+  <target name="clean">
+	<delete dir="${build.dir}"/>
+	<delete file="TGLinkBrowser.jar"/>
+  </target>
+  <target name="javadoc">
+     <mkdir dir="javadoc"/>
+     <javadoc sourcepath="src" destdir="javadoc" author="true"
+              version="true" use="true" packagenames="com.touchgraph.*">
+       <classpath>
+         <pathelement path="${classpath}"/>
+	 <fileset dir="${basedir}">
+           <include name="**/*.jar"/>
+         </fileset>
+       </classpath>
+     </javadoc>
+  </target>
+</project>
+
+

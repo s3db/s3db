@@ -1,0 +1,140 @@
+<table>
+<caption><strong>Table:</strong>
+Regular expression operators</caption>
+<tbody><tr><td><table border="1" cellpadding="3">
+<tbody><tr><td colspan="1" align="center"><b>Comparison</b></td>
+
+<th align="center"><b>Operator</b><a name="3100">&nbsp;</a></th>
+</tr>
+<tr><td align="left">regular expression</td>
+<td align="center"><tt>~</tt></td>
+</tr>
+<tr><td align="left">regular expression, case-insensitive</td>
+<td align="center"><tt>~*</tt></td>
+</tr>
+<tr><td align="left">not equal to regular expression</td>
+<td align="center"><tt>!~</tt></td>
+
+</tr>
+<tr><td align="left">not equal to regular expression, case-insensitive</td>
+<td align="center"><tt>!~*</tt></td>
+</tr>
+</tbody></table>
+<br>
+
+<div align="center"><a name="20975">&nbsp;</a>
+<table>
+<caption><strong>Table:</strong>
+Regular expression
+special characters</caption>
+<tbody><tr><td><table border="1" cellpadding="3">
+<tbody><tr><td colspan="1" align="center"><b>Test</b></td>
+<th align="center"><b>Special Characters</b></th>
+</tr>
+<tr><td align="left">start</td>
+<td align="center"><tt>^</tt></td>
+</tr>
+
+<tr><td align="left">end</td>
+<td align="center"><tt>$</tt></td>
+</tr>
+<tr><td align="left">any single character</td>
+<td align="center"><tt>.</tt></td>
+</tr>
+<tr><td align="left">set of characters</td>
+<td align="center"><tt>[ccc]</tt></td>
+</tr>
+<tr><td align="left">set of characters not equal</td>
+
+<td align="center"><tt>[^ccc]</tt></td>
+</tr>
+<tr><td align="left">range of characters</td>
+<td align="center"><tt>[c-c]</tt></td>
+</tr>
+<tr><td align="left">range of characters not equal</td>
+<td align="center"><tt>[^c-c]</tt></td>
+</tr>
+<tr><td align="left">zero or one of previous character</td>
+<td align="center"><tt>?</tt></td>
+
+</tr>
+<tr><td align="left">zero or multiple of previous characters</td>
+<td align="center"><tt>*</tt></td>
+</tr>
+<tr><td align="left">one or multiple of previous characters</td>
+<td align="center"><tt>+</tt></td>
+</tr>
+<tr><td align="left"><small>OR</small> operator</td>
+<td align="center"><tt>|</tt></td>
+
+</tr>
+</tbody></table>
+<p>
+
+
+</p><p>
+</p></td></tr>
+</tbody></table>
+</div>
+Note that the caret (^) has
+a different meaning outside and inside square brackets (<tt>[
+]</tt>). 
+<br><br>
+
+<table>
+<caption><strong>Table:</strong>
+Examples of regular expressions</caption>
+<tbody><tr><td><table border="1" cellpadding="3">
+<tbody><tr><td colspan="1" align="center"><b>Test</b></td>
+<th align="center"><b>Operation</b></th>
+</tr>
+<tr><td align="left">begins with <tt>D</tt></td>
+<td align="center"><tt>~ '^D'</tt></td>
+
+</tr>
+<tr><td align="left">contains <tt>D</tt></td>
+<td align="center"><tt>~ 'D'</tt></td>
+</tr>
+<tr><td align="left"><tt>D</tt> in second position</td>
+<td align="center"><tt>~ '^.D'</tt></td>
+</tr>
+<tr><td align="left">begins with <tt>D</tt> and contains <tt>e</tt></td>
+
+<td align="center"><tt>~ '^D.*e'</tt></td>
+</tr>
+<tr><td align="left">begins with <tt>D</tt>, contains <tt>e</tt>, and then <tt>f</tt></td>
+<td align="center"><tt>~ '^D.*e.*f'</tt></td>
+</tr>
+<tr><td align="left">contains <tt>A</tt>, <tt>B</tt>, <tt>C</tt>, or <tt>D</tt></td>
+
+<td align="center"><tt>~ '[A-D]'</tt> or &nbsp;<tt>~
+'[ABCD]'</tt></td>
+</tr>
+<tr><td align="left">contains <tt>A</tt> or <tt>a</tt></td>
+<td align="center"><tt>~* 'a'</tt> or &nbsp;<tt>~ '[Aa]'</tt></td>
+
+</tr>
+<tr><td align="left">does not contain <tt>D</tt></td>
+<td align="center"><tt>!~ 'D'</tt></td>
+</tr>
+<tr><td align="left">does not begin with <tt>D</tt></td>
+<td align="center"><tt>!~ '^D'</tt> or&nbsp; <tt>~
+'^[^D]'</tt></td>
+</tr>
+
+<tr><td align="left">begins with <tt>D,</tt> with one optional leading space</td>
+<td align="center"><tt>~ '^ ?D'</tt></td>
+</tr>
+<tr><td align="left">begins with <tt>D</tt> , with optional leading spaces</td>
+<td align="center"><tt>~ '^ *D'</tt></td>
+</tr>
+<tr><td align="left">begins with <tt>D,</tt> with at least one leading space</td>
+
+<td align="center"><tt>~ '^ +D'</tt></td>
+</tr>
+<tr><td align="left">ends with <tt>G</tt>, with optional trailing spaces</td>
+<td align="center"><tt>~ 'G *$'</tt></td>
+</tr>
+</tbody></table>
+<br />
+Credit: <a href="http://www.postgresql.org/files/documentation/books/aw_pgsql/node43.html">Bruce Momjian</a>

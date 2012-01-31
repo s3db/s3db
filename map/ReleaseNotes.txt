@@ -1,0 +1,86 @@
+                         *****************************
+                         *                           *
+                         *   TouchGraph LinkBrowser  *	
+                         *          V 1.20           *
+                         *      (c) 2001-2002        *
+                         *     Alexander Shapiro,    *
+                         *       TouchGraph LLC      *
+                         *                           *
+                         *****************************
+
+
+Release Notes:
+
+V 1.20 (01/02/02):
+
+  BACKGROUND 
+  ----------
+  First official code release.   
+  Changed License to TouchGraph LLC. Apache-Style Software License.  
+  
+  FEATURES  
+  --------
+  Saving + Loading from XML files.  
+  Automatic decompression of zipped or gzipped XML files (for faster applet
+    loading).  
+
+  Node hints which appear in inner frames, and can be moved or resized.
+  Node hints have a user defined width.
+  Node hint height can be determined automatically, or set by the user.
+  Node hints are scrollable.
+  Node hints can contain html, with pictures + working hyperlinks.
+  Node hints can display external html files via the use of frames.
+  
+  Edit mode when executed as a stand alone application.
+  Dialogs for editing node and edge properties.
+  User defined node shape (rectangle, rounded-rect, oval), background color,
+    text color, and text size.
+  User defined edge type (directed arrow, bidirectional), color, and length. 
+
+  Nodes can have associated URL's, acted upon when a selected node is clicked.
+  URL's can be marked as local or remote.  Local URL's don't have to have the
+    "http://" prefix, and the associated pages can be loaded in an internal
+    frame.  Remote URLs appear in a separate browser window.
+
+  URL's can be marked as XML files.  When the node is clicked the specified
+    TG-XML file will be read, and the graph which it specifies will replace the
+    current one.  
+  A Back button for going back to a previously loaded TG-XML file.
+  Proxies for loading remote XML files when in applet mode.
+
+  Scrollbars for zooming, rotation, and changing the Locality radius.
+  
+  ISSUES
+  ------
+  Dialogs are an inconvenient way of changing node + edge properties.
+    Color, node type, and edge type selection should be done from the toolbars,
+    and hints + node labels should be editable directly on screen.
+  
+  The TGLinkBrowser class should be rewritten + trimmed down, with some
+    functionality moved out into utility classes.
+
+  Comments need to be added throughout.
+
+================================================================================
+
+Contributors
+
+  Murray Altheim:  http://www.altheim.com/murray/
+
+  Victor Volle: victor.volle@artive.de
+
+This software includes code from:
+
+  NanoXML, a compact XML parser, 
+  Copyright 2000-2001 Marc De Scheemaecker
+  nanoxml.sourceforge.net 
+
+  BrowserLauncher, a utility for launching external browsers, 
+  Copyright 1999-2001 Eric Albert
+  browserlauncher.sourceforge.net
+
+  Sun's graph layout applet:
+  java.sun.com/applets/jdk/1.2/demo/applets/GraphLayout/example1.html
+
+
+

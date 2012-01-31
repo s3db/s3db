@@ -1,0 +1,32 @@
+S3DB http://www.s3db.org
+
+INSTALLATION INSTRUCTIONS
+see http://www.s3db.org/documentation for details
+
+1. Download Source 
+The latest release of S3DB can be found at http://www.s3db.org/download 
+
+2. Unpack Source to a web accessible directory (directory at your webspace or below your web server DocumentRoot) further referred as installation directory 
+
+You can use the zip file utility, for example WinZip, to unpack the S3DB zip file.
+
+
+3. Point your browser to the url where you installed S3DB, for example: http://localhost/s3db and follow the instructions to set up the S3DB. You DO NOT need to create a database first - you DO need to make sure a database does not exist that has the same name you are trying to create (default is s3db).
+
+4. Advanced users: If you have never intalled s3db before, chances are you do not have a database called s3db. In this case, and if you have not set a password for your MySQL root user, you can go ahead and finish your installation without advanced options.
+
+Nevertheless, since MySQL and PostgresSQL work differently in terms of user privileges, if you are using PortgresSQL or you have defined a password for your MySQL root user, you will need to specify this user's username and password in the configuration page. 
+
+NOTICE: If you are a linux user, remember that the apache user will need to have read/write privileges in the s3db directory. Unless this is enabled, s3db will not function properly.
+
+NOTICE: 
+Enable the following php modules (if not already enabled):
+php_curl
+php_mysql and php_mysqli  (or php_pgsql, in case you are using postgresSQL)
+php_sockets
+	    
+And the following apache modules
+mod_rewrite (you can find the Rewrite Rules file, .htaccess, under /uri - move this file to the root of s3db if you want to be able to call perform short URI queries).
+
+NOTICE:
+Please install S3DB src and database in the same server; if you wish to use a different host, please indicate so AFTER installation and edit the config.inc.php file accordingly.

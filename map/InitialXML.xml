@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE TOUCHGRAPH_LB [
+
+<!ELEMENT TOUCHGRAPH_LB (NODESET, EDGESET, PARAMETERS)>
+<!ELEMENT NODESET (NODE+)>
+<!ELEMENT EDGESET (EDGE*)>
+<!ELEMENT PARAMETERS (PARAM*)>
+
+<!ELEMENT NODE (NODE_LOCATION?, NODE_LABEL?, NODE_URL?, NODE_HINT?)>
+
+<!ELEMENT NODE_LABEL EMPTY>
+<!ELEMENT NODE_URL EMPTY>
+<!ELEMENT NODE_HINT EMPTY>
+
+<!ATTLIST TOUCHGRAPH_LB
+  version CDATA #REQUIRED >
+
+<!ATTLIST NODE
+  nodeID CDATA #REQUIRED >
+
+<!ATTLIST NODE_LOCATION
+  visible CDATA #IMPLIED
+  x CDATA #IMPLIED
+  y CDATA #IMPLIED >
+
+<!ATTLIST NODE_LABEL
+  label CDATA #REQUIRED 
+  shape CDATA #IMPLIED
+  backColor CDATA #IMPLIED 
+  textColor CDATA #IMPLIED
+  fontSize CDATA #IMPLIED >
+
+<!ATTLIST NODE_URL 
+  url CDATA #REQUIRED 
+  urlIsLocal CDATA #IMPLIED 
+  urlIsXML CDATA #IMPLIED >
+
+<!ATTLIST NODE_HINT 
+  hint CDATA #REQUIRED 
+  height CDATA #IMPLIED 
+  width CDATA #IMPLIED 
+  isHTML CDATA #IMPLIED >  
+
+<!ELEMENT EDGE EMPTY>
+
+<!ATTLIST EDGE
+  fromID CDATA #REQUIRED
+  toID CDATA #REQUIRED 
+  label CDATA #REQUIRED 
+  length CDATA #IMPLIED 
+  color CDATA #IMPLIED 
+  type CDATA #IMPLIED
+  visible CDATA #IMPLIED >
+
+<!ELEMENT PARAM EMPTY>
+
+<!ATTLIST PARAM
+  name CDATA #REQUIRED
+  value CDATA #REQUIRED >
+]>
+
+<TOUCHGRAPH_LB version="1.20">
+	<NODESET>
+		<NODE nodeID="Testing the tigretree2">
+			<NODE_LOCATION x="0" y="0" visible="true"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+			<NODE_LABEL label="Testing the tigretree2" shape="3" backColor="0000FF" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="" urlIsLocal="false" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="testing tigre tree">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="testing tigre tree" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="../resource/queryresource_main_page.php?entity_id=22&amp;project_id=8" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="testing2">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="testing2" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="../resource/queryresource_main_page.php?entity_id=24&amp;project_id=8" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="blah">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="blah" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="../resource/queryresource_main_page.php?entity_id=32&amp;project_id=8" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+	</NODESET>
+	<EDGESET>
+		<EDGE fromID="Testing the tigretree2" toID="testing tigre tree" label="[Project Testing the tigretree2] has resource [testing tigre tree]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="Testing the tigretree2" toID="testing2" label="[Project Testing the tigretree2] has resource [testing2]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="Testing the tigretree2" toID="blah" label="[Project Testing the tigretree2] has resource [blah]" type="1" length="20" visible="false" color="A0A0A0"/>
+	</EDGESET>
+	<PARAMETERS>
+		<PARAM name="offsetX" value=""/>
+		<PARAM name="rotateSB" value="0"/>
+		<PARAM name="zoomSB" value="-7"/>
+		<PARAM name="offsetY" value=""/>
+	</PARAMETERS>
+</TOUCHGRAPH_LB>
