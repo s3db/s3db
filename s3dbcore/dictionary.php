@@ -10,7 +10,7 @@ function query_user_dictionaries($s3ql,$db, $user_id,$format='html')
 	$d['rules'] = array(
 					array('s3dbNamespaces','uses','qname'),
 					array('s3dbNamespaces','hasReference','url'),
-					array('s3dbLinks','refersToUid','uid'),
+					array('s3dbLinks','refersToUid','entity_id'),
 					array('s3dbLinks','refersToUid','s3dbNamespaces'),
 					array('s3dbLinks','refersToUid','term'),
 					array('s3dbLinks','makesUseOf','s3dbNamespaces'),
@@ -66,7 +66,7 @@ function query_user_dictionaries($s3ql,$db, $user_id,$format='html')
 				$Dict[0] = insert_new_ns($s3ql['where'],$Dict[$di],$db,$user_id);
 				$msg = "Qname inserted";
 				$error_code = '0';
-				file_put_contents('tmp/dict', serialize($Dict));
+				file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict', serialize($Dict));
 				}
 				
 			}
@@ -122,7 +122,7 @@ function query_user_dictionaries($s3ql,$db, $user_id,$format='html')
 					return ($data);
 				else{
 				
-				file_put_contents('tmp/dict', serialize($Dict));
+				file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict', serialize($Dict));
 				
 				$z = compact('data','cols', 'format');
 				return(outputFormat($z));
@@ -196,6 +196,8 @@ function query_user_dictionaries($s3ql,$db, $user_id,$format='html')
 						}
 						
 						$data[$iid]['link_id'] = $data[$iid]['item_id'];
+						$data[$iid]['uid'] = $info['s3dbLinks|refersToUid|entity_id'];
+						if($data[$iid]['uid']=='')
 						$data[$iid]['uid'] = $info['s3dbLinks|refersToUid|uid'];
 					
 					$Dict[$di]['items']['s3dbLinks'][$data[$iid]['link_id']]=$data[$iid];
@@ -223,7 +225,7 @@ function query_user_dictionaries($s3ql,$db, $user_id,$format='html')
 					}
 					else{
 					
-					file_put_contents('tmp/dict', serialize($Dict));
+					file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict', serialize($Dict));
 					$namespaces_needed=1;
 					$z = compact('data','cols', 'format','namespaces_needed','db','user_id');
 					return(outputFormat($z));
@@ -232,7 +234,7 @@ function query_user_dictionaries($s3ql,$db, $user_id,$format='html')
 			}
 			else {
 			$Dict[$di]['items']['s3dbLinks'] = array();
-			file_put_contents('tmp/dict', serialize($Dict));
+			file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict', serialize($Dict));
 			$link_id = '';
 			list($valid, $msg,$error_code) = check_notation_validity($s3ql['where'],$Dict[$di],$db,$user_id,$action);
 			
@@ -268,8 +270,8 @@ function create_dictionary_project($d,$db,$user_id)
 
 	{
 	#there is only 1 project per deployment that belongs to the Admin
-	if(is_file('tmp/dict') && !$_REQUEST['clean'])
-	$Dict = unserialize(file_get_contents('tmp/dict'));
+	if(is_file(S3DB_SERVER_ROOT.'/tmp/dict') && $_REQUEST['clean']!='dictionary')
+	$Dict = unserialize(file_get_contents(S3DB_SERVER_ROOT.'/tmp/dict'));
 	
 	if(!$Dict){
 	#start by going over this user's project in order to find s3dbDisctionary projects;
@@ -277,7 +279,7 @@ function create_dictionary_project($d,$db,$user_id)
 	$s3ql['from']='project';
 	$s3ql['where']['name']=$d['projectName'];
 	$done = S3QLaction($s3ql);
-   
+	
 	if(empty($done)){
 
 	$s3ql=array('user_id'=>'1','db'=>$db); #Admin creates the project, collections and rules, regular users have permission ynn|yny|ys; public has permission ynn|yny|n
@@ -334,7 +336,7 @@ function create_dictionary_project($d,$db,$user_id)
 				
 				
 				if($msg['collection_id']==""){
-					return (false);
+					$Dict[$di]['collections'][$name] = false;
 					}
 				else {
 					$Dict[$di]['collections'][$name] =  $collection_info['collection_id'];	
@@ -354,9 +356,10 @@ function create_dictionary_project($d,$db,$user_id)
 						{
 						$Dict[$di]['rules'][$triple[0].'|'.$triple[1].'|'.$triple[2]] = $rule_info['rule_id'];
 						}
+						
 					}
 				}
-			
+				
 				if($Dict[$di]['rules'][$triple[0].'|'.$triple[1].'|'.$triple[2]]==''){
 				$s3ql=array('user_id'=>'1','db'=>$db);
 				$s3ql['insert']='rule';
@@ -370,8 +373,10 @@ function create_dictionary_project($d,$db,$user_id)
 				$s3ql['format']='php';
 				$done = S3QLaction($s3ql);
 				$msg=unserialize($done);$msg = $msg[0];
+				
+
 				if($msg['rule_id']==""){
-				return (false);
+					$Dict[$di]['rules'][$triple[0].'|'.$triple[1].'|'.$triple[2]] = false;
 				}
 				else {
 					$Dict[$di]['rules'][$triple[0].'|'.$triple[1].'|'.$triple[2]] = $msg['rule_id'];
@@ -384,7 +389,7 @@ function create_dictionary_project($d,$db,$user_id)
 			 $s3ql['from']='items';
 			 $s3ql['where']['collection_id']=$Dict[$di]['collections']['s3dbNamespaces'];
 			 $done = S3QLaction($s3ql);
-				 
+			
 			foreach ($d['namespaces'] as $ns=>$url) {
 				 if(!empty($done)){
 					foreach($done as $item_info){ 
@@ -395,12 +400,13 @@ function create_dictionary_project($d,$db,$user_id)
 				 }
 				if($Dict[$di]['items']['s3dbNamespaces'][$ns]==""){
 				 $Dict[$di] = insert_new_ns(array('qname'=>$ns,'url'=>$url),$Dict[$di],$db,'1');
-				 file_put_contents('tmp/dict', serialize($Dict));
+				 file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict', serialize($Dict));
 				 }
 			}
 			
 	}
-	file_put_contents('tmp/dict',serialize($Dict));
+	file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict',serialize($Dict));
+	
 	}
 	if($user_id!="1"){
 	## add this users to dictionary project when he attempts to use it
@@ -428,7 +434,7 @@ function check_ns_validity($params,$Dict,$db,$user_id,$action='insert')
 	 }
 	
 	 if($params['url']=="" && $action=='insert'){
-	 return (array(false, 'URL must not be empty.'));
+	 return (array(false, 'url must not be empty.'));
 	 }
 	
 	 #namespace must not already exist
@@ -443,9 +449,9 @@ function check_ns_validity($params,$Dict,$db,$user_id,$action='insert')
 	 }
 	 
 	 #url must be a valid resource( This is debateble)
-	 if(!@fopen($params['url'],'r') && $action!="delete"){
-	 return (array(false, 'URL '.$params['url'].' is not a valid url.'));
-	 }
+	 //if(!@fopen($params['url'],'r') && $action!="delete"){
+	 //return (array(false, 'URL '.$params['url'].' is not a valid url.'));
+	 //}
 
 	 #does this exist already? if yes, don't insert it aggain
 	 
@@ -549,7 +555,7 @@ function delete_ns($params,$Dict,$db,$user_id)
 
 	if($msg['error_code']=='0'){
 		$Dict['items']['s3dbNamespaces'] = array_delete($Dict['items']['s3dbNamespaces'], $params['qname']);
-		file_put_contents('tmp/dict', serialize($Dict['items']['s3dbNamespaces']));
+		file_put_contents(S3DB_SERVER_ROOT.'/tmp/dict', serialize($Dict['items']['s3dbNamespaces']));
 		return (array(true, "Qname deleted"));
 	}
 	else {
@@ -577,11 +583,11 @@ function check_notation_validity($params, $Dict,$db,$user_id,$action)
 
 		#relation must contain a namespace existing in the namespaces
 		list($ns, $rest) = explode(':',$params['relation']);
-		
-		
-		if($ns == "" || !in_array($ns,array_keys($Dict['items']['s3dbNamespaces']))){
+		$keys = array_keys($Dict['items']['s3dbNamespaces']);
+				
+		if($ns == "" || !in_array(trim($ns),array_keys($Dict['items']['s3dbNamespaces']))){
 		if($action=='insert' || ($action=='update' && $params['relation']!=""))
-		return array(false, 'Relation must refer to an existing notation, such as '.implode(', ',$Dict['items']['s3dbNamespaces']).' You may first create the namespace','3');
+		return array(false, 'Relation must refer to an existing notation, such as '.implode(', ',array_keys($Dict['items']['s3dbNamespaces'])).' You may first create the namespace','3');
 		}
 		
 		
@@ -624,7 +630,7 @@ function insert_not($params,$Dict,$db,$user_id)
 		$s3ql=compact('user_id','db');
 		$s3ql['insert']='statement';
 		$s3ql['where']['item_id']=$d['item_id'];
-		$s3ql['where']['rule_id']=$Dict['rules']['s3dbLinks|refersToUid|uid'];
+		$s3ql['where']['rule_id']=$Dict['rules']['s3dbLinks|refersToUid|entity_id'];
 		$s3ql['where']['value']=$params['uid'];
 		$s3ql['format']='php';
 		$done = S3QLaction($s3ql);
@@ -637,7 +643,9 @@ function insert_not($params,$Dict,$db,$user_id)
 		$verbs = array('relation'=>'makesUseOf','value'=>'hasValue');
 		foreach ($verbs as $p=>$verb) {
 			$ns_id='';$ns='';$term='';
-			list($ns,$term) = explode(':',$params[$p]);
+			//list($ns,$term) = explode(':',$params[$p]);
+			preg_match('/^([^:]*):(.*)$/', $params[$p], $preg);
+			$ns = $preg[1]; $term = $preg[2];
 			if($ns){
 			 $ns_id =  $Dict['items']['s3dbNamespaces'][$ns];
 			}
@@ -647,6 +655,7 @@ function insert_not($params,$Dict,$db,$user_id)
 			}
 			
 			if($ns_id){
+				
 				$s3ql=compact('user_id','db');
 				$s3ql['insert']='statement';
 				$s3ql['where']['item_id']=$d['item_id'];
@@ -704,13 +713,13 @@ function update_not($params,$Dict,$db,$user_id)
 	#what are the params that the user is trying to change?
 	$params=array_delete($params,'link_id');
 	
-	$verbs = array('relation'=>'makesUseOf','value'=>'hasValue', 'uid'=>'refersToUid');
+	$verbs = array('relation'=>'makesUseOf','value'=>'hasValue', 'entity_id'=>'refersToUid');
 	if(is_array($params)){
 	foreach ($params as $toChange=>$newValue) {
 		
 		
 		#translate the params to rule_ids 
-		if($toChange=='uid') {$rules2change = array('uid'=>$Dict['rules']['s3dbLinks|refersToUid|uid']);}
+		if($toChange=='uid') {$rules2change = array('uid'=>$Dict['rules']['s3dbLinks|refersToUid|entity_id']);}
 		$ns="";	
 		if(ereg('relation|value',$toChange)){
 			$rules2change = array('namespace'=>$Dict['rules']['s3dbLinks|'.$verbs[$toChange].'|s3dbNamespaces'],'term'=>$Dict['rules']['s3dbLinks|'.$verbs[$toChange].'|term']);

@@ -37,6 +37,7 @@ include_once (S3DB_SERVER_ROOT.'/s3dbcore/htmlgen.php');
 include_once (S3DB_SERVER_ROOT.'/s3dbcore/acceptFile.php');
 include_once (S3DB_SERVER_ROOT.'/s3dbcore/URIaction.php');
 include_once(S3DB_SERVER_ROOT.'/s3dbcore/common_functions.inc.php');
+include_once(S3DB_SERVER_ROOT.'/s3dbcore/sharing.php');
 include_once(S3DB_SERVER_ROOT.'/s3dbcore/api.php');
 
 $format = $_REQUEST['format'];

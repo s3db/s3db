@@ -164,7 +164,7 @@
 				}
 				break;
 			case 'ip':
-				if (eregi("^[0-9]{1,3}(\.[0-9]{1,3}){3}$",$string))
+				if (preg_match("/^[0-9]{1,3}(\.[0-9]{1,3}){3}$/i",$string))
 				{
 					$octets = split('\.',$string);
 					for ($i=0; $i != count($octets); $i++)
@@ -185,7 +185,7 @@
 				}
 				break;
 			case 'email':
-				if (eregi("^([[:alnum:]_%+=.-]+)@([[:alnum:]_.-]+)\.([a-z]{2,3}|[0-9]{1,3})$",$string))
+				if (preg_match("/^([[:alnum:]_%+=.-]+)@([[:alnum:]_.-]+)\.([a-z]{2,3}|[0-9]{1,3})$/",$string))
 				{
 					return True;
 				}
@@ -630,72 +630,91 @@
 
 function update_url_registry($U)
 {
-#update an existing url in the mothership
-#syntax: update_url_registry(compact('mothership', 'newUrl', 'publicKey', 'Did'));
-extract($U);
+	#update an existing url in the mothership
+	#syntax: update_url_registry(compact('mothership', 'newUrl', 'publicKey', 'Did'));
+	extract($U);
 
-$mothership = $mothership.'s3rl.php?Did='.$Did.'&newUrl='.$newUrl.'&format=php';
-
-$fid = fopen($mothership,'r');
-$resp = stream_get_contents($fid);
-
-if(!$resp){
-	return array(False, 'Mothership is not responding');
-}
-
-$resp = unserialize($resp);
-
-#if the request was successfull, a message is returned to be decripted
-#if(!ereg('<message>(.*)</message>', $resp, $s3qlout))
-if($resp[0]['error_code']!='0'){
-	return array(False, $resp[0]['message']);
-}
-else {
-	$message=$resp[0]['encripted'];
-	#$message = $s3qlout[1];
-	$privateKey = $GLOBALS['s3db_info']['deployment']['private_key'];
-	$publicKey = $GLOBALS['s3db_info']['deployment']['public_key'];
+	$url2call = $mothership.'s3rl.php?Did='.$Did.'&newUrl='.$newUrl.'&format=php';
 	
-	if(preg_match("/BEGIN PUBLIC KEY/",base64_decode($publicKey))){
-			
-			set_include_path(get_include_path() . PATH_SEPARATOR . S3DB_SERVER_ROOT.'/pearlib/phpseclib');
-			
-			if(is_file(S3DB_SERVER_ROOT.'/pearlib/phpseclib/Crypt/RSA.php')){
-			include(S3DB_SERVER_ROOT.'/pearlib/phpseclib/Crypt/RSA.php');
-			define('CRYPT_RSA_SMALLEST_PRIME', 1000);
-			$rsa = new Crypt_RSA();
-			$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_OAEP);
-			$rsa->loadKey($privateKey);
-			$decriptedMessage = $rsa->decrypt($message);
-			
-			}
+	//$fid = fopen($url2call,'r');
+	$resp = file_get_contents($url2call);
+	
+	
+	if(!$resp){
+		return array(False, 'Mothership '.$mothership.' is not responding');
+	}
+
+	$unserResp = unserialize($resp);
+	
+	if($unserResp=='' && preg_match('/src="([^"]*)"/', $resp, $match)){
+		$unserResp=unserialize(file_get_contents($match[1]));
+	}
+	
+	
+	#if the request was successfull, a message is returned to be decripted
+	#if(!ereg('<message>(.*)</message>', $resp, $s3qlout))
+	if($unserResp[0]['error_code']!='0'){
+		return array(False, $resp[0]['message']);
 	}
 	else {
-		require_once 'pearlib/RSACrypt/RSA.php';		
-		$decriptedMessage = decrypt($message, $privateKey);
-		if($decriptedMessage=='') 
-			$decriptedMessage = decrypt(rawurldecode($message), $privateKey);
-	}
-	
-	
-	if($decriptedMessage=='') 
-		{return array(False,'Could not decript Message.');}
-
-	
-	$urlToSend = $mothership.'&message='.rawurlencode($decriptedMessage).'&format=php';
-	
-	#$resp2 = do_post_request($urlToSend, compact('Did', 'newUrl'), $optional_headers = null);
-	$resp2 = fread(fopen($urlToSend, 'r'), '1000000');
-	$resp2 = unserialize($resp2);
-	#ereg('<error>([0-9]+)</error><description>(.*)</description>', $resp2, $s3qlout2);
-	$resp2 = $resp2[0];
-	
-		if($resp2['error_code']=='0')
-			return array(true, $resp2['message']);
+		
+		$message=$unserResp[0]['encripted'];
+		#$message = $s3qlout[1];
+		$privateKey = $GLOBALS['s3db_info']['deployment']['private_key'];
+		$publicKey = $GLOBALS['s3db_info']['deployment']['public_key'];
+		ini_set('display_errors',1);
+		if(preg_match("/BEGIN PUBLIC KEY/",base64_decode($publicKey))){
+				
+				set_include_path(get_include_path() . PATH_SEPARATOR . S3DB_SERVER_ROOT.'/pearlib/phpseclib');
+				
+				if(is_file(S3DB_SERVER_ROOT.'/pearlib/phpseclib/Crypt/RSA.php')){
+					include_once(S3DB_SERVER_ROOT.'/pearlib/phpseclib/Crypt/RSA.php');
+														
+					define('CRYPT_RSA_SMALLEST_PRIME', 1000);
+					
+					$rsa = new Crypt_RSA();
+					
+					$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_OAEP);
+					$rsa->loadKey($privateKey);
+					$decriptedMessage = $rsa->decrypt($message);
+				
+				}
+				
+				
+		}
 		else {
-			return array(False, $resp2['message']);
+			require_once 'pearlib/RSACrypt/RSA.php';		
+			$decriptedMessage = decrypt($message, $privateKey);
+			if($decriptedMessage=='') 
+				$decriptedMessage = decrypt(rawurldecode($message), $privateKey);
 		}
+		
+		
+		if($decriptedMessage=='') 
+			{return array(False,'Could not decript Message.');}
+
+		
+		$urlToSend = $mothership.'s3rl.php?format=php&Did='.$Did.'&newUrl='.$newUrl.'&message='.rawurlencode($decriptedMessage);
+
+		
+		#$resp2 = do_post_request($urlToSend, compact('Did', 'newUrl'), $optional_headers = null);
+		$respFid = fopen($urlToSend, 'r');
+		$resp2 = stream_get_contents($respFid);
+		$unserResp2 = unserialize($resp2);
+		
+		if($unserResp2=='' && preg_match('/src="([^"]*)"/', $resp2, $match)){
+			$unserResp2=unserialize(file_get_contents($match[1]));
 		}
+		
+		#ereg('<error>([0-9]+)</error><description>(.*)</description>', $resp2, $s3qlout2);
+		$resp2 = $unserResp2[0];
+		
+			if($resp2['error_code']=='0')
+				return array(true, $resp2['message']);
+			else {
+				return array(False, $resp2['message']);
+			}
+			}
 
 }
 
@@ -765,7 +784,7 @@ $ip = trim($ip);
 
 $prot=($_SERVER['HTTPS']!='')?"https://":"http://";
 $myLocal = $prot.$myIp."/".strtok($_SERVER['PHP_SELF'], '/');
-if(ereg('localhost|127.0.0.1', $_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR']!=$myIp && $myIp!='')#is ip is valid and we are not there yet and this is a windows server..
+if(preg_match('/localhost|127.0.0.1/', $_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR']!=$myIp && $myIp!='')#is ip is valid and we are not there yet and this is a windows server..
 {
 header('Location: '.$myLocal, 1);exit;
 }
@@ -775,13 +794,13 @@ header('Location: '.$myLocal, 1);exit;
 	foreach ($output as $value) {
 		$value = trim($value);
 		
-		if(ereg('(IP Address)(.+[0-9])|(IPv[0-9] Address)(.+[0-9])', $value, $ipdata))
+		if(preg_match('/(IP Address)(.+[0-9])|(IPv[0-9] Address)(.+[0-9])/', $value, $ipdata))
 		{
 		
 		$dots = trim(substr($ipdata[0], strpos($ipdata[0], ':')+1, strlen($ipdata[0])-strpos($ipdata[0], ':')));
 		$parts = explode('.', $dots);
 		
-		if(count($parts)==4 && ereg('^([0-9]+).([0-9]+).([0-9]+).([0-9]+)$', $dots))
+		if(count($parts)==4 && preg_match('/^([0-9]+).([0-9]+).([0-9]+).([0-9]+)$/', $dots))
 			{$ip[] = $dots;
 			$size[]=strlen($dots);
 			}

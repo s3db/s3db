@@ -100,8 +100,10 @@ include 'footer.php';
 function check4updates($version)
 {
 	##Ckeck for updates from mothership
-	$ms = $GLOBALS['s3db_info']['deployment']['mothership'];
-	$url2call = $ms.'check4updates.php?version='.$version;
+	$codeSource = ($GLOBALS['s3db_info']['deployment']['code_source']!='')?$GLOBALS['s3db_info']['deployment']['code_source']:$GLOBALS['s3db_info']['deployment']['mothership'];
+
+	#$ms = $GLOBALS['s3db_info']['deployment']['mothership'];
+	$url2call = $codeSource.'check4updates.php?version='.$version;
 	#echo $url2call;exit;
 	$fid=@fopen($url2call, 'r');
 	if($fid)

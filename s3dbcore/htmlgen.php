@@ -2041,8 +2041,11 @@ function render_value_cannot_be_null()
 		}
 		else
 			{
-			$inputBox = sprintf("%s\n", '<textarea style="background: lightyellow" name="input_'.$instance_id.'_'.$rule_id.'" cols="20"></textarea>');
+			$inputBox = sprintf("%s\n", '<input type="text" class="bp_form_complete-all-name ac_input" name="input_'.$instance_id.'_'.$rule_id.'" size="30"></textarea>');
+			$inputBox .= sprintf("%s\n", '<input type="hidden" id="input_'.$instance_id.'_'.$rule_id.'_bioportal_full_id">');
 			$peek='';
+			
+
 			}
 		}
 		else {

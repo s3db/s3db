@@ -37,7 +37,7 @@ function login($username, $password, $authority=false)
 	  #need first to check if authority is within authorities
 	 list($authorityValid,$reqAuth,$user_proj)= checkValidAuthority($authority, $db);
 	 
-	 
+	
 	  #now find the protocol; transform the username according to template
 	  #is there a username template
 	  if(!$reqAuth){
@@ -74,7 +74,7 @@ function login($username, $password, $authority=false)
 		case 'ldap':
 		
 		list($valid) = ldap_auth($server,$complexUsername, $password,$serv_account);
-			
+		
 		break;
 		case 'ftp':
 		
@@ -529,8 +529,46 @@ function ldap_auth($server,$email, $pass,$serv_account=false)
 	extract($serv_account);
 
 	}
-	$password = decrypt($password, $GLOBALS['s3db_info']['deployment']['private_key']);
-	$ldapbind = @ldap_bind($ldapconn,$username, $password);	
+	//need special decript here - depend on whether the password was base64 encripted or not
+	
+	$privateKey = $GLOBALS['s3db_info']['deployment']['private_key'];
+	$publicKey = $GLOBALS['s3db_info']['deployment']['public_key'];
+	
+	if(preg_match("/BEGIN PUBLIC KEY/",base64_decode($publicKey))){
+				
+				set_include_path(get_include_path() . PATH_SEPARATOR . S3DB_SERVER_ROOT.'/pearlib/phpseclib');
+				
+				if(is_file(S3DB_SERVER_ROOT.'/pearlib/phpseclib/Crypt/RSA.php')){
+				include(S3DB_SERVER_ROOT.'/pearlib/phpseclib/Crypt/RSA.php');
+				define('CRYPT_RSA_SMALLEST_PRIME', 1000);
+				$rsa = new Crypt_RSA();
+				$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_OAEP);
+				$rsa->loadKey($privateKey);
+				
+				if(is_base64_encoded($password)){
+					$password = base64_decode($password);
+				}
+				
+				$decriptedPass = $rsa->decrypt($password);
+				
+				}
+		}
+		else {
+			//require_once 'pearlib/RSACrypt/RSA.php';		
+			if(is_base64_encoded($password)){
+					$password = base64_decode($password);
+			}
+			$decriptedPass = decrypt($password, $GLOBALS['s3db_info']['deployment']['private_key']);
+			//$decriptedMessage = decrypt($password, $privateKey);
+			if($decriptedMessage=='') 
+			{$decriptedPass = decrypt(rawurldecode($password), $privateKey);}
+		}
+	
+	//$password = decrypt($password, $GLOBALS['s3db_info']['deployment']['private_key']);
+	
+	
+	$ldapbind = @ldap_bind($ldapconn,$username,$decriptedPass);	
+
 
 	/* Too many invalid login block the account :-( :-(
 	if(!$ldapbind){
@@ -544,15 +582,18 @@ function ldap_auth($server,$email, $pass,$serv_account=false)
 	}
 	else{
 
-	$ureturn=@ldap_search($ldapconn, $dnbase, 'cn='.$email);
-
+	$ureturn=ldap_search($ldapconn, $dnbase, 'cn='.$email);
+	
+	
 	$uent=@ldap_first_entry($ldapconn, $ureturn);
 	$bn=@ldap_get_dn($ldapconn, $uent);
-
+	
 	if($pass!='' && $bn!='')
 	{
+	
 	$lbind=@ldap_bind($ldapconn, $bn, $pass);
 	if($lbind){
+		
 		return (array(True));
 	}
 	}
@@ -873,7 +914,8 @@ function create_authentication_proj($db)
 	if(eregi('^usermanagement$', $_REQUEST['clean'])){
 		if(is_file($GLOBALS['uploads'].'user_proj')) {unlink($GLOBALS['uploads'].'user_proj');}
 	}
-	$user_proj = @unserialize(@file_get_contents($GLOBALS['uploads'].'user_proj'));
+	
+	$user_proj = unserialize(file_get_contents($GLOBALS['uploads'].'user_proj'));
 	
 	
 	$project_name = 'Config';
@@ -1084,7 +1126,7 @@ function check_user_management1($C)
 			$user_proj['protocols']['item_id'][] = 	$user_proj['protocols']['items'][$nm]['item_id'];
 		}
 		file_put_contents($GLOBALS['uploads'].'user_proj', serialize($user_proj));
-		#echo '<pre>';print_r($user_proj);exit;
+		
 		return ($user_proj);
 
 	}
@@ -1100,19 +1142,21 @@ function check_user_management($C)
 		$s3ql['where']['name']=$project_name;
 		$s3ql['order_by']='created_on desc';
 		$done = S3QLaction($s3ql);
-		
+		$file_fill=0;
 		if($user_proj['project_id']!="" && $user_proj['project_id']!=$done[0]['project_id']){
+			
 			$user_proj = array();
 			$user_proj['project_id']= $done[0]['project_id'];
 			unlink($GLOBALS['uploads'].'user_proj');
 			$file_fill=1;#this means that the project in file is not in sync with the proj on s3db
 		}
 		else {
+			
 			$user_proj['project_id'] = $done[0]['project_id'];
 		}
 		
 		if($done[0]['project_id']==""){
-		
+
 			 $s3ql=compact('user_id','db');
 			 $s3ql['insert']='project';
 			 $s3ql['where']['name']=$project_name;
@@ -1121,15 +1165,15 @@ function check_user_management($C)
 			 $done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
 			 $user_proj['project_id']  = $msg['project_id'];	
 			 
-		##Make project data public
-		$s3ql=compact('user_id','db');
-		$s3ql['insert']='user';
-		$s3ql['where']['project_id']=$user_proj['project_id'];
-		$s3ql['where']['user_id']='2';
-		$s3ql['where']['permission_level']='nnnynn';
-		$s3ql['format']='php';
-		$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
-		if($msg['project_id']) $user_proj['project_id'] = $msg['project_id'];
+			##Make project data public
+			$s3ql=compact('user_id','db');
+			$s3ql['insert']='user';
+			$s3ql['where']['project_id']=$user_proj['project_id'];
+			$s3ql['where']['user_id']='2';
+			$s3ql['where']['permission_level']='nnnynn';
+			$s3ql['format']='php';
+			$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
+			if($msg['project_id']) $user_proj['project_id'] = $msg['project_id'];
 		}
 		
 		
@@ -1140,30 +1184,31 @@ function check_user_management($C)
 			##Now chceck for collections and rule; if there were created as part of the original file project, we don't need to create/check them again
 			
 			if($file_fill || !$user_proj[strtolower($name)]['collection_id']){
-		    $done=array();
-			$s3ql=compact('user_id','db');
-			$s3ql['from']='collections';
-			$s3ql['where']['project_id']=$user_proj['project_id'];
-			$s3ql['where']['name']=$name;
-			$done = S3QLaction($s3ql);
-			
-			
-			if(!$done[0]['collection_id']){			
-			$done=array();
-			$s3ql=compact('user_id','db');
-			$s3ql['insert']='collection';
-			$s3ql['where']['project_id']=$user_proj['project_id'];
-			$s3ql['where']['name']=$name;
-			$s3ql['format']='php';
-			$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
-			
-			$user_proj[strtolower($name)]['collection_id'] = $msg['collection_id'];
+				$done=array();
+				$s3ql=compact('user_id','db');
+				$s3ql['from']='collections';
+				$s3ql['where']['project_id']=$user_proj['project_id'];
+				$s3ql['where']['name']=$name;
+				$done = S3QLaction($s3ql);
+				
+				
+				if(!$done[0]['collection_id']){			
+				$done=array();
+				$s3ql=compact('user_id','db');
+				$s3ql['insert']='collection';
+				$s3ql['where']['project_id']=$user_proj['project_id'];
+				$s3ql['where']['name']=$name;
+				$s3ql['format']='php';
+				$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
+				
+				$user_proj[strtolower($name)]['collection_id'] = $msg['collection_id'];
+				}
+				else {
+				$user_proj[strtolower($name)]['collection_id'] = $done[0]['collection_id'];	
+				}
+				
 			}
-			else {
-			$user_proj[strtolower($name)]['collection_id'] = $done[0]['collection_id'];	
-			}
 			
-			}
 		}
 		
 			
@@ -1172,62 +1217,65 @@ function check_user_management($C)
 				
 				foreach ($subNameRule as $ind=>$rule_info) {
 				$done=array();
+				
+
 				if($file_fill || !$user_proj[$rule_info['object']]['rule_id']){
-				
-				$s3ql=compact('user_id','db');
-				$s3ql['from']='rules';
-				$s3ql['where']['project_id']=$user_proj['project_id'];
-				$s3ql['where']['subject']=$subName;
-				$s3ql['where']['verb']=$rule_info['verb'];
-				$s3ql['where']['object']=$rule_info['object'];
-				$done = S3QLaction($s3ql);
-				
-				
-				if(!$done[0]['rule_id'])
-				{	$done=array();
+
 					$s3ql=compact('user_id','db');
-					$s3ql['insert']='rule';
+					$s3ql['from']='rules';
 					$s3ql['where']['project_id']=$user_proj['project_id'];
-					$s3ql['where']['subject_id']=$user_proj[strtolower($subName)]['collection_id'];
+					$s3ql['where']['subject']=$subName;
 					$s3ql['where']['verb']=$rule_info['verb'];
-					if(in_array($rule_info['object'], $important_collections)){
-						$s3ql['where']['object_id']=$user_proj[strtolower($rule_info['object'])]['collection_id'];
+					$s3ql['where']['object']=$rule_info['object'];
+					$done = S3QLaction($s3ql);
+					
+					
+					if(!$done[0]['rule_id'])
+					{	$done=array();
+						$s3ql=compact('user_id','db');
+						$s3ql['insert']='rule';
+						$s3ql['where']['project_id']=$user_proj['project_id'];
+						$s3ql['where']['subject_id']=$user_proj[strtolower($subName)]['collection_id'];
+						$s3ql['where']['verb']=$rule_info['verb'];
+						if(in_array($rule_info['object'], $important_collections)){
+							$s3ql['where']['object_id']=$user_proj[strtolower($rule_info['object'])]['collection_id'];
+							
+						}
+						else {
+							$s3ql['where']['object']=$rule_info['object'];
+						}
+						$s3ql['format']='php';
+						$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0]; 
 						
+						$user_proj[$rule_info['object']]['rule_id'] = $msg['rule_id'];
+						
+						$user_proj[strtolower($subName)]['rules'][$ind]=$msg['rule_id'];
+						$user_proj[strtolower($subName)]['rule_objects'][$ind]=($s3ql['where']['object_id']!='')?$s3ql['where']['object_id']:$s3ql['where']['object'];
+						
+						$user_proj[strtolower($subName)]['rule_object_is_id'][$ind]=($s3ql['where']['object_id']!='')?1:0;
+					   
 					}
 					else {
-						$s3ql['where']['object']=$rule_info['object'];
-					}
-					$s3ql['format']='php';
-					$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0]; 
-					
-					$user_proj[$rule_info['object']]['rule_id'] = $msg['rule_id'];
-					
-					$user_proj[strtolower($subName)]['rules'][$ind]=$msg['rule_id'];
+					$user_proj[$rule_info['object']]['rule_id'] = $done[0]['rule_id'];
+					$user_proj[strtolower($subName)]['rules'][$ind]=$done[0]['rule_id'];
 					$user_proj[strtolower($subName)]['rule_objects'][$ind]=($s3ql['where']['object_id']!='')?$s3ql['where']['object_id']:$s3ql['where']['object'];
-					
+						
 					$user_proj[strtolower($subName)]['rule_object_is_id'][$ind]=($s3ql['where']['object_id']!='')?1:0;
-				   
+					}
 				}
-				else {
-				$user_proj[$rule_info['object']]['rule_id'] = $done[0]['rule_id'];
-				$user_proj[strtolower($subName)]['rules'][$ind]=$done[0]['rule_id'];
-				$user_proj[strtolower($subName)]['rule_objects'][$ind]=($s3ql['where']['object_id']!='')?$s3ql['where']['object_id']:$s3ql['where']['object'];
-					
-				$user_proj[strtolower($subName)]['rule_object_is_id'][$ind]=($s3ql['where']['object_id']!='')?1:0;
-				}
-				}
-				#Make statements in some authorities rule hidden from public
-				if(eregi('serviceAccountPassword|serviceAccountUserName|Template',$rule_info['object'])){	$done=array();
+				#Make statements in some authorities rule hidden from public if this is the first time they are being inserted
+				if($file_fill && eregi('serviceAccountPassword|serviceAccountUserName|Template',$rule_info['object'])){	$done=array();
 					$s3ql=compact('user_id','db');
 					$s3ql['insert']='user';
 					$s3ql['where']['rule_id']=$user_proj[$rule_info['object']]['rule_id'];
 					$s3ql['where']['user_id']='2';
-					$s3ql['where']['permission_level']='ynnN';
+					$s3ql['where']['permission_level']='yNNN';
 					$s3ql['format']='php';
 					$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
 				}
 				
 				}
+				
 		}
 		
 	
@@ -1238,8 +1286,9 @@ function check_user_management($C)
 			   foreach ($itemData as $itemNotes=>$itemStatVals) {
 				   $done=array();
 					$this_item_id="";
+					
 					if($file_fill || $user_proj[strtolower($collection_name)]['items'][$itemNotes]['item_id']==''){
-						
+
 						$s3ql=compact('user_id','db');
 						$s3ql['from']='item';
 						$s3ql['where']['collection_id']=$user_proj[strtolower($collection_name)]['collection_id'];
@@ -1252,10 +1301,10 @@ function check_user_management($C)
 							}
 						}
 						}
-					
-					
-					if(!$this_item_id){
-						
+
+
+						if(!$this_item_id){
+
 						$s3ql['insert']='item';
 						$s3ql['where']['collection_id']=$user_proj[strtolower($collection_name)]['collection_id'];
 						$s3ql['where']['notes']=$itemNotes;
@@ -1263,19 +1312,21 @@ function check_user_management($C)
 						$done = S3QLaction($s3ql);$msg=unserialize($done);$msg = $msg[0];
 						$user_proj[strtolower($collection_name)]['items'][$itemNotes]['item_id']=$msg['item_id'];
 						  $this_item_id = $user_proj[strtolower($collection_name)]['items'][$itemNotes]['item_id'];
-						
-						
-					}
-					else {
+
+
+						}
+						else {
 						$user_proj[strtolower($collection_name)]['items'][$itemNotes]['item_id']= $this_item_id;
-						
-					}
+
+						}
 					}
 					
 					$jin++;
 					if(is_array($itemStatVals)){
 					foreach ($itemStatVals as $objectName=>$objectValue) {
 						$done=array();
+						
+						
 						if($file_fill || $user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['statement_id']=='')
 						{
 							$s3ql=compact('user_id','db');
@@ -1287,52 +1338,50 @@ function check_user_management($C)
 							$s3ql['where']['rule_id']=$user_proj[strtolower($collection_name)]['rules'][$right_rule_id];
 							#determine if the object value should be retrieved from another collection's items
 							if($user_proj[strtolower($collection_name)]['rule_object_is_id'][$right_rule_id]){
-								$s3ql['where']['value']= $user_proj[strtolower($objectName)]['items'][$objectValue]['item_id'];
+								//$s3ql['where']['value']= $user_proj[strtolower($objectName)]['items'][$objectValue]['item_id'];
 							}
 							else{
-							$s3ql['where']['value']=$objectValue;
+								//$s3ql['where']['value']=trim($objectValue);
 							}
 							$done = S3QLaction($s3ql);
-						
-						if(!$done[0]['statement_id']){
-							$s3ql=compact('user_id','db');
-							$s3ql['insert']='statement';
-							$s3ql['where']['item_id']=$user_proj[strtolower($collection_name)]['items'][$itemNotes]['item_id'];
-							#find the right rule_id
-							$right_rule_id = array_search($objectName, $user_proj[strtolower($collection_name)]['rule_objects']);
 							
-							$s3ql['where']['rule_id']=$user_proj[strtolower($collection_name)]['rules'][$right_rule_id];
-							#determine if the object value should be retrieved from another collection's items
-							if($user_proj[strtolower($collection_name)]['rule_object_is_id'][$right_rule_id]){
-								$s3ql['where']['value']= $user_proj[strtolower($objectName)]['items'][$objectValue]['item_id'];
+							
+							if(!$done[0]['statement_id']){
+								$s3ql=compact('user_id','db');
+								$s3ql['insert']='statement';
+								$s3ql['where']['item_id']=$user_proj[strtolower($collection_name)]['items'][$itemNotes]['item_id'];
+								#find the right rule_id
+								$right_rule_id = array_search($objectName, $user_proj[strtolower($collection_name)]['rule_objects']);
+								
+								$s3ql['where']['rule_id']=$user_proj[strtolower($collection_name)]['rules'][$right_rule_id];
+								#determine if the object value should be retrieved from another collection's items
+								if($user_proj[strtolower($collection_name)]['rule_object_is_id'][$right_rule_id]){
+									$s3ql['where']['value']= $user_proj[strtolower($objectName)]['items'][$objectValue]['item_id'];
+								}
+								else{
+								$s3ql['where']['value']=$objectValue;
+								}
+								$s3ql['format']='php';
+								$done = S3QLaction($s3ql);
+								$msg=unserialize($done);$msg = $msg[0];
+								
+								
+								$user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['statement_id']=$msg['statement_id'];
+								$user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['value']=$objectValue;
+								
+								
 							}
-							else{
-							$s3ql['where']['value']=$objectValue;
+							else {
+								$user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['statement_id']=$done[0]['statement_id'];	
 							}
-							$s3ql['format']='php';
-							$done = S3QLaction($s3ql);
-							$msg=unserialize($done);$msg = $msg[0];
-							if($rule_id=='16229'){
-							echo '<pre>';print_r($done);
-							echo '<pre>';print_r($msg);
-							echo '<pre>';print_r($s3ql);
-							}
-							
-							$user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['statement_id']=$msg['statement_id'];
-							$user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['value']=$objectValue;
-							
-							
-						}
-						else {
-						$user_proj[strtolower($collection_name)][$itemNotes]['statements'][$objectName]['statement_id']=$done[0]['statement_id'];	
-						}
 						}
 					}
+					
 					}
 			   }
 			  
 		}
-	  	
+	  
 		$user_proj['protocols']['names'] = 	array_keys($user_proj['protocols']['items']);
 		$user_proj['protocols']['item_id']=array();
 		foreach ($user_proj['protocols']['names'] as $nm) {
@@ -1743,7 +1792,7 @@ function trustedAuth()
 		$s3qlnew=array('user_id'=>'1','db'=>$db);#public should be able to query there
 		$s3qlnew['from']='authority';
 		
-		list($valid,$auth) = apiQuery($s3qlnew);
+		list($valid,$auth) = apiQuery($s3qlnew, $user_proj);
 		
 		
 		if($valid)
@@ -1846,5 +1895,12 @@ function authenticate_remote_user($key, $url)
 	}
 }
 
-		
+function is_base64_encoded($data)
+    {
+        if (preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $data)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }		
 ?>

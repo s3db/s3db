@@ -1,4 +1,5 @@
-S3DB http://www.s3db.org
+S3DB - web-based 
+http://s3db.sourceforge.net or http://www.s3db.org
 
 INSTALLATION INSTRUCTIONS
 see http://www.s3db.org/documentation for details
@@ -24,9 +25,6 @@ Enable the following php modules (if not already enabled):
 php_curl
 php_mysql and php_mysqli  (or php_pgsql, in case you are using postgresSQL)
 php_sockets
-	    
+
 And the following apache modules
 mod_rewrite (you can find the Rewrite Rules file, .htaccess, under /uri - move this file to the root of s3db if you want to be able to call perform short URI queries).
-
-NOTICE:
-Please install S3DB src and database in the same server; if you wish to use a different host, please indicate so AFTER installation and edit the config.inc.php file accordingly.

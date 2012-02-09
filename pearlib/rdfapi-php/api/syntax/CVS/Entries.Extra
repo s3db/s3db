@@ -1,0 +1,15 @@
+/GRDDLParser.php////*///
+/N3Parser.php////*///
+/N3Serializer.php////*///
+/NTripleSerializer.php////*///
+/RdfParser.php////*///
+/RdfSerializer.php////*///
+/RssParser.php////*///
+/SyntaxGRDDL.php////*///
+/SyntaxN3.php////*///
+/SyntaxRDF.php////*///
+/SyntaxRSS.php////*///
+/SyntaxSparqlRes.php////*///
+/TriXParser.php////*///
+/TriXSerializer.php////*///
+/SparqlResultParser.php////*///

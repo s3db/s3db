@@ -67,9 +67,11 @@ function S3QLaction($s3ql, $timer = array())
 	#identify the target
 	if (ereg('(insert|edit|update|delete|grant)', $action)) {
 		$s3ql['from'] = ($s3ql[$action]=='')?$_REQUEST[$action]:$s3ql[$action];
+		$s3ql[$action] = strtolower($s3ql[$action]);
 	}
 	elseif (ereg('(select)', $action)) {
 		$s3ql['from'] = ($s3ql['from']=='')?$_REQUEST['from']:$s3ql['from'];
+		$s3ql['from'] = strtolower($s3ql['from']);
 	}
 
 	#if there is no target, assume projects
@@ -131,6 +133,9 @@ switch ($action) {
 			$letter = strtoupper(substr($element,0,1));
 			$uid = $letter.$element_id;
 
+			$universalUID = (preg_match('/^\d+$/', $element_id))?$letter.$element_id:$element_id;
+			$insert_uid_info = uid_resolve($universalUID);
+			
 
 			$required = array(
 						'key'=>array(),
@@ -266,39 +271,57 @@ switch ($action) {
 		foreach ($inserteable as $s3element=>$id) {
 			
 			if ($s3ql['where'][$id]!='') {
-			
-			$element_name = $s3element;
-			$id_name = $id;
-			
-			
-			$uid_info=uid(letter($id).$s3ql['where'][$id_name]);
-			$Z = compact('s3element', 'diff', 'id', 'scoreTable', 's3ql', 'letter', 'input_ids', 'user_id', 'db', 'format', 'element');
-			$element_info = retrieveUIDInfo($Z);
-			
-			$info[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info;			
-			$permission2add[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info['add_data'];
-			$core_score[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $scoreTable[$element_name];
-			
 				
-			
-			#when element id is present (customized elemnt-id, and is the only ID, and id already exists, user cannot recreat it. To update it, he must go through update. That is the only ID that can "Not" exist 
-				if ($id==$GLOBALS['s3ids'][$element] && !is_array($element_info)){
-					#if a particular id was not found and user is trying to customize a new element_id, then user will have permission to add to it.
+				$element_name = $s3element;
+				$id_name = $id;
+				
+				$actualUID = (preg_match('/^[D|U|P|C|R|S|I]/', $s3ql['where'][$id_name]))?$s3ql['where'][$id_name]:letter($id).$s3ql['where'][$id_name];
 					
-					$permission2add[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = '1';
+				#20101004
+				$uid_info = uid_resolve($actualUID);
+				#$uid_info=uid(letter($id).$s3ql['where'][$id_name]);
+				$Z = compact('s3element', 'diff', 'id', 'scoreTable', 's3ql', 'letter', 'input_ids', 'user_id', 'db', 'format', 'element','key');
+				$element_info = retrieveUIDInfo($Z);
+				
+				
+				#$info[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info;			
+				$info[$actualUID] = $element_info;
+				$permission2add[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info['add_data'];
+
+				#20101007
+				$permission2add[$actualUID] = $element_info['add_data'];
+				
+				$core_score[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $scoreTable[$element_name];
+
+				#20101007
+				$core_score[$actualUID] = $scoreTable[$element_name];
+				
 					
-				}	
-				else
-				{
-				if(!is_array($element_info) && $uid_info['Did']==$GLOBALS['Did'])#for remote resources, allow insert withour requiring validation.. for now. For inserting projects witha specific uid, 
+				
+				#when element id is present (customized elemnt-id, and is the only ID, and id already exists, user cannot recreat it. To update it, he must go through update. That is the only ID that can "Not" exist 
+					if ($id==$GLOBALS['s3ids'][$element] && !is_array($element_info)){
+						#if a particular id was not found and user is trying to customize a new element_id, then user will have permission to add to it.
+						
+						#THIS MAY need to be reaplced with actualUID; check permissions are working OK first
+						$permission2add[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = '1';
+
+						
+					}	
+					else
 					{
-					if($id_name!=$GLOBALS['COREletterInv'][$letter]) #allow the user to create the id in case the required fields are filled
-					return (formatReturn($GLOBALS['error_codes']['no_results'], 'Resource '.strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name].' was not found', $format,''));
-					elseif(!empty($diff))
-					$info[$letter.$s3ql['where'][$id]]['to_create']=1;
+					if(!is_array($element_info) && $uid_info['Did']==$GLOBALS['Did'])#for remote resources, allow insert withour requiring validation.. for now. For inserting projects witha specific uid, 
+						{
+						if($id_name!=$GLOBALS['COREletterInv'][$letter]) #allow the user to create the id in case the required fields are filled
+						return (formatReturn($GLOBALS['error_codes']['no_results'], 'Resource '.strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name].' was not found', $format,''));
+						elseif(!empty($diff))
+						$info[$letter.$s3ql['where'][$id]]['to_create']=1;
+						}
+					elseif(is_array($element_info) && !$element_info['is_remote']){
+						$s3ql['where'][$id] =  $uid_info['s3_id'];
 					}
-				}
-			
+
+					}
+				
 		}
 		}
 		
@@ -315,12 +338,17 @@ switch ($action) {
 		if(!empty($input_literals)){
 			$info[$uid]['to_create']='1';
 		}
+		if($info[$universalUID]['is_remote']){
+		 $info[$universalUID]['to_create']='1';
+		 }
 		#echo '<pre>';print_r($permission2add);
 		#echo '<pre>';print_r($core_score);
 		#exit;
-		#echo '<pre>';print_r($info);exit;
+		
+		
+		
 		if(is_array($core_score))
-		$result = array_combine($core_score, $permission2add);#score as index and permissions as values
+			$result = array_combine($core_score, $permission2add);#score as index and permissions as values
 		
 		#a group and a user can be inserted in any one resource... as long as user does have permission on the resource
 				if(ereg('^(U|G|P)$', $letter) && is_array($result))
@@ -378,11 +406,11 @@ switch ($action) {
 					$inputs = gatherInputs(array('element'=>$element, 'info'=>$info,'to_create'=>$create_info, 'user_id'=>$user_id, 'db'=>$db, 'format'=>$format));
 					$info=$inputs;
 					
-					#echo 'inputs<pre>';print_r($inputs);exit;
+					
 					if(!is_array($inputs))
 						{	
-						
-						return (formatReturn('3', $inputs, $format,''));
+							return ($inputs);
+							#return (formatReturn('3', $inputs, $format,''));
 						}
 					$validity = validateInputs(compact('element', 'inputs', 'oldvalues', 'info', 'db', 'action', 'key','user_id','format'));
 					#echo 'validity<pre>';print_r($validity);exit;
@@ -482,222 +510,259 @@ switch ($action) {
 				#2 or + ids in info.
 				#these IDS can be entity_id OR membership
 				
-				if($element_id!='' && !$info[$uid]['to_create']) #this automatically means that the second id refers to membership.
+				if($element_id!='' && !$info[$universalUID]['to_create']) #this automatically means that the second id refers to membership.
 				{
-				#grant permissions
-				
-				$shared_with = array_diff(array_keys($permission2add), array($uid));#take uid from the keys of permission2add, that point to the uid we are sharing with
-				$shared_with = array_values($shared_with);$shared_with = $shared_with[0];
-				
-				$add_resource_on_resource = substr(has_permission(compact('uid', 'shared_with'), $db,$user_id), 2,1);
-				
-				
-				
-				if(!$has_permission2add){#statement has rule_id and instance_id, user must have permission on both.
-					return (formatReturn($GLOBALS['error_codes']['no_permission_message'], 'User does not have permission to insert in resource '.key($permission2add), $format,''));
-					#return ($GLOBALS['messages']['no_permission_message'].'<message>User does not have permission to insert in resource '.key($permission2add).'</message>');
-				}
-				if($result[max(array_keys($result))]=='0' && $result[min(array_keys($result))]=='1' && $add_resource_on_resource!='1' && $element!='user')	 {
-						return (formatReturn($GLOBALS['error_codes']['something_missing'], 'To share '.$uid.' owner of '.$shared_with.' must insert first '.$uid.' in '.$shared_with.'.', $s3ql['format'], ''));
-				}
-				else {
-					#if is remote and user cna insert in resource, must be inserted first
-						
-						if($info[$uid]['to_create'])
-						{	
-						
-						$create_info = $s3ql['where'];
-						#echo '<pre>';print_r($create_info);	exit;			
-						$inputs = gatherInputs(array('element'=>$element, 'info'=>$info,'to_create'=>$create_info, 'user_id'=>$user_id, 'format'=>$format));
-						
-						if(!is_array($inputs))
-						return ($inputs);
-						
-						
-						$validity = validateInputs(compact('element', 'inputs', 'oldvalues', 'info', 'db', 'action', 'key'));
-						
-						
-						
-						if($validity[0])
-							{
-							$key=$s3ql['key'];
-							$inserted = insert_s3db(compact('element', 'inputs', 'user_id', 'db', 'key'));
-							return (formatReturn('0', $element.' inserted.', array($element.'_id'=>$inserted[$element.'_id'], $s3ql['format'])));
-							}
-						else {
-							return ($validity[1]);
-						}
-						
-						}
-
-						if($info[$uid]['is_remote'])
-						{
-						#the other iD, non element id, should be the upper ID, where user shoulsd already have intert permission
-						
-						$uid_info = uid_resolve(ereg_replace('^U','',$uid));
-						if(letter($uid_info['uid'])=='U'){
-								 $shared_with = 'U'.$uid_info['condensed'];
-								 $diff=array_values(array_diff(array_keys($info), array($uid)));
-								 $uid = $diff[0];
-								 
-								 $permission_level = ($s3ql['where']['permission_level']!="")?$s3ql['where']['permission_level']:'ynn'; 
-								 $message = $uid." shared with ".$uid_info['condensed'].' with permission_level '.$permission_level;
-							}
-							else {
-								$diff=array_values(array_diff(array_keys($permission2add), array($uid)));
-								$shared_with = $diff[0];
-								$message = $uid." inserted in ".$shared_with;
-								$permission_level = $info[$uid]['acl'];
-							}
-						
-							$permission_info = array('uid'=>$uid,'shared_with'=>$shared_with,'permission_level'=>$permission_level);
+					#grant permissions
 					
-						
-
-						$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));
+					$shared_with = array_diff(array_keys($permission2add), array($uid));#take uid from the keys of permission2add, that point to the uid we are sharing with
+					$shared_with = array_values($shared_with);$shared_with = $shared_with[0];
 					
-						if(!$permission_added)
-						$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
-						
-						if($permission_added){
-							
-							return formatReturn($GLOBALS['error_codes']['success'], $message , $s3ql['format'], '');
-						}
-						
-						else {
-						return (formatReturn($GLOBALS['error_codes']['something_went_wrong'], "Could not share ".$uid." with ".$permission_info['shared_with'], $format,''));
-						#return $GLOBALS['messages']['something_went_wrong']."<message>Could not share ".$uid." with ".$permission_info['shared_with']."</message>";
+					$add_resource_on_resource = substr(has_permission(compact('uid', 'shared_with'), $db,$user_id), 2,1);
+					
+					
+					
+					if(!$has_permission2add){#statement has rule_id and instance_id, user must have permission on both.
+						return (formatReturn($GLOBALS['error_codes']['no_permission_message'], 'User does not have permission to insert in resource '.key($permission2add), $format,''));
+						#return ($GLOBALS['messages']['no_permission_message'].'<message>User does not have permission to insert in resource '.key($permission2add).'</message>');
 					}
-						
-						}
+					if($result[max(array_keys($result))]=='0' && $result[min(array_keys($result))]=='1' && $add_resource_on_resource!='1' && $element!='user')	 {
+							return (formatReturn($GLOBALS['error_codes']['something_missing'], 'To share '.$uid.' owner of '.$shared_with.' must insert first '.$uid.' in '.$shared_with.'.', $s3ql['format'], ''));
+					}
+					else {
+						#if is remote and user cna insert in resource, must be inserted first
+							
+							if($info[$uid]['to_create'])
+							{	
+							
+							$create_info = $s3ql['where'];
+							#echo '<pre>';print_r($create_info);	exit;			
+							$inputs = gatherInputs(array('element'=>$element, 'info'=>$info,'to_create'=>$create_info, 'user_id'=>$user_id, 'format'=>$format));
+							
+							if(!is_array($inputs))
+							return ($inputs);
+							
+							
+							$validity = validateInputs(compact('element', 'inputs', 'oldvalues', 'info', 'db', 'action', 'key'));
+							
+							
+							
+							if($validity[0])
+								{
+								$key=$s3ql['key'];
+								$inserted = insert_s3db(compact('element', 'inputs', 'user_id', 'db', 'key'));
+								return (formatReturn('0', $element.' inserted.', array($element.'_id'=>$inserted[$element.'_id'], $s3ql['format'])));
+								}
+							else {
+								return ($validity[1]);
+							}
+							
+							}
 
-						if(!$info[$uid]['to_create'] && $s3ql['where']['permission_level']=='')
-						{
-						#does it exist already in upper resource?
-						$diff=array_diff(array_keys($permission2add), array($uid));
-						$shared_with = $diff[0];
-						
-						if(!ereg('U',$letter)) #user and groups have a different treatment than the rest
+							if($info[$uid]['is_remote'])
 							{
-								$sql = "select * from s3db_permission where uid = '".$uid."' and shared_with = '".$shared_with."'";
-								#$sql = str_replace($GLOBALS['regexp'], '=', select(compact('uid', 'shared_with')));
-							}
-						else {
-							$sql = "select * from s3db_permission where uid = '".$uid."' and shared_with = '".$shared_with."'";
-						}
+							#the other iD, non element id, should be the upper ID, where user shoulsd already have intert permission
+							
+							$uid_info = uid_resolve(ereg_replace('^U','',$uid));
+							if(letter($uid_info['uid'])=='U'){
+									 $shared_with = 'U'.$uid_info['condensed'];
+									 $diff=array_values(array_diff(array_keys($info), array($uid)));
+									 $uid = $diff[0];
+									 $uid = preg_replace('/^([D|U|P|C|R|S|I]){2}/','$1',  $uid);
+									 $permission_level = ($s3ql['where']['permission_level']!="")?$s3ql['where']['permission_level']:'ynn'; 
+									 $message = $uid." shared with ".$uid_info['condensed'].' with permission_level '.$permission_level;
+								}
+								else {
+									$diff=array_values(array_diff(array_keys($permission2add), array($uid)));
+									$shared_with = $diff[0];
+									$message = $uid." inserted in ".$shared_with;
+									$permission_level = $info[$uid]['acl'];
+								}
+							
+								$permission_info = array('uid'=>$uid,'shared_with'=>$shared_with,'permission_level'=>$permission_level);
 						
-						
-						$db->query($sql, __LINE__, __FILE__);
-					
-						if($db->next_record())	{
-							return (formatReturn($GLOBALS['error_codes']['repeating_action'], $uid.' already shared with '.$shared_with.'. You can change its level of permission by indicating permission_level.', $s3ql['format'],''));
-							}
-						}
-				}
-				
-				
-				#share according to permissions
-				$uid2share = array_search(min($core_score), $core_score);
-				$shared_with = array_search(max($core_score), $core_score);
-				$uid_info = uid($uid2share);
-				
+							
 
-				
-				if(($result[max(array_keys($result))]=='1') || ($add_resource_on_resource && $result[min(array_keys($result))]=='1')) #permission to add on upstream resource
-					{
-					#echo 'ola';exit;
+							$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));
+						
+							if(!$permission_added)
+							$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
+							
+							if($permission_added){
+								
+								return formatReturn($GLOBALS['error_codes']['success'], $message , $s3ql['format'], '');
+							}
+							
+							else {
+							return (formatReturn($GLOBALS['error_codes']['something_went_wrong'], "Could not share ".$uid." with ".$permission_info['shared_with'], $format,''));
+							#return $GLOBALS['messages']['something_went_wrong']."<message>Could not share ".$uid." with ".$permission_info['shared_with']."</message>";
+						}
+							
+							}
+
+							if(!$info[$uid]['to_create'] && $s3ql['where']['permission_level']=='')
+							{
+							#does it exist already in upper resource?
+							$diff=array_diff(array_keys($permission2add), array($uid));
+							$shared_with = $diff[0];
+							
+							if(!ereg('U',$letter)) #user and groups have a different treatment than the rest
+								{
+									$sql = "select * from s3db_permission where uid = '".$uid."' and shared_with = '".$shared_with."'";
+									#$sql = str_replace($GLOBALS['regexp'], '=', select(compact('uid', 'shared_with')));
+								}
+							else {
+								$sql = "select * from s3db_permission where uid = '".$uid."' and shared_with = '".$shared_with."'";
+							}
+							
+							
+							$db->query($sql, __LINE__, __FILE__);
+						
+							if($db->next_record())	{
+								return (formatReturn($GLOBALS['error_codes']['repeating_action'], $uid.' already shared with '.$shared_with.'. You can change its level of permission by indicating permission_level.', $s3ql['format'],''));
+								}
+							}
+					}
 					
-					$case ='2';
+					
+					#share according to permissions
+					$uid2share = array_search(min($core_score), $core_score);
+					$shared_with = array_search(max($core_score), $core_score);
 					$uid_info = uid($uid2share);
 					
-					if($uid_info['Did']==$GLOBALS['Did'])
-						$uid2share = $uid_info['uid'];
-					#$uid2share = strtoupper(substr($uid_info['uid'],0,1)).$GLOBALS['Did'].'/'.$uid_info['uid'];
+
 					
-					$permission_info = array('uid'=>$uid2share,
-													'shared_with'=>$shared_with,
-													'permission_level'=>($s3ql['where']['permission_level']!='')?$s3ql['where']['permission_level']:$info[$uid2share]['permission_level'],
-													);
-					
-					#echo '<pre>';print_r($permission_info);exit;
-					
-					$validity = validate_permission(compact('permission_info', 'user_id', 'db', 'info'));#grant project_id permission on rule_id
-					#echo $validity;exit;
-					
-					
-					
-							if($validity=='0')	{
-								$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));#grant rule_id permission on project_id
-							}
-							elseif($validity=='2')
-								$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
-							elseif($validity=='6' && ereg('^G', $shared_with) && ereg('^U', $uid))
-								{
-								
-								$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));#grant rule_id permission on project_id
-								$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
-								}
-							#can insert, special case, quick fix
-							elseif($validity=='6')
-								return (formatReturn($GLOBALS['error_codes']['no_permission_message'], 'User must have permission '.$permission_info['permission_level'].' or greater to grant permission '.$permission_info['permission_level'].' on '.$permission_info['shared_with'], $format,''));
-							elseif($validity=='1'){
-								 return (formatReturn($GLOBALS['error_codes']['wrong_input'], 'Invalid permission format. Please use the n-s-y or the 0-1-2 model (n/0 - no permission; s/1 - permission on entities created by the user; y/2 - permission. See http://s3db.org/documentation/permissions for more information on permission. ', $format,''));
-							}
-							
-								#return ($GLOBALS['messages']['no_permission_message'].'<message>User must have permission '.$permission_info['permission_level'].' or greater to grant permission '.$permission_info['permission_level'].' on '.$permission_info['shared_with'].'.</message>');
-							
-					
-					}
-			
-				elseif($result[max(array_keys($result))]=='1' && $result[min(array_keys($result))]=='0') #permission to add on upstream resource
-					{
-					$case ='1';
-					
-					if($uid_info['Did']==$GLOBALS['Did'])
-						$uid2share= strtoupper(substr($uid_info['uid'],0,1)).$GLOBALS['Did'].'/'.$uid_info['uid'];
-					
-					$permission_info = array('shared_with'=>$shared_with,
-													'uid'=>$uid2share,
-													'permission_level'=>'001');
-										
-					
-					$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));
-					if(!$permission_added)
-					$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
-							#This step will leave rule insert pending until owner of the rule comes by and inserts it in project
-					
-					
-					}
-				
-				if($permission_added)
+					if(($result[max(array_keys($result))]=='1') || ($add_resource_on_resource && $result[min(array_keys($result))]=='1')) #permission to add on upstream resource
 						{
-						#Missing: Create an entry in access_rules with "Pending" statuss
-						if($case =='1')
-						return (formatReturn($GLOBALS['error_codes']['success'], "Permission on ".$permission_info['uid']." requested and pending.", $format,''));
-						#return $GLOBALS['messages']['success']."<message> Permission on ".$permission_info['uid']." requested and pending.</message>";
-						else {
-							return (formatReturn('0',$permission_info['uid']." inserted in ".$permission_info['shared_with'], $s3ql['format'], ''));
-						}
+						#echo 'ola';exit;
+						
+						$case ='2';
+						$uid_info = uid($uid2share);
+						
+						if($uid_info['Did']==$GLOBALS['Did'])
+							$uid2share = $uid_info['uid'];
+						#$uid2share = strtoupper(substr($uid_info['uid'],0,1)).$GLOBALS['Did'].'/'.$uid_info['uid'];
+						
+						$permission_info = array('uid'=>$uid2share,
+														'shared_with'=>$shared_with,
+														'permission_level'=>($s3ql['where']['permission_level']!='')?$s3ql['where']['permission_level']:$info[$uid2share]['permission_level'],
+														);
+						
+						#echo '<pre>';print_r($permission_info);exit;
+						
+						$validity = validate_permission(compact('permission_info', 'user_id', 'db', 'info'));#grant project_id permission on rule_id
+						#echo $validity;exit;
+						
+						
+						
+								if($validity=='0')	{
+									$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));#grant rule_id permission on project_id
+								}
+								elseif($validity=='2')
+									$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
+								elseif($validity=='6' && ereg('^G', $shared_with) && ereg('^U', $uid))
+									{
 									
+									$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));#grant rule_id permission on project_id
+									$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
+									}
+								#can insert, special case, quick fix
+								elseif($validity=='6')
+									return (formatReturn($GLOBALS['error_codes']['no_permission_message'], 'User must have permission '.$permission_info['permission_level'].' or greater to grant permission '.$permission_info['permission_level'].' on '.$permission_info['shared_with'], $format,''));
+								elseif($validity=='1'){
+									 return (formatReturn($GLOBALS['error_codes']['wrong_input'], 'Invalid permission format. Please use the n-s-y or the 0-1-2 model (n/0 - no permission; s/1 - permission on entities created by the user; y/2 - permission. See http://s3db.org/documentation/permissions for more information on permission. ', $format,''));
+								}
+								
+									#return ($GLOBALS['messages']['no_permission_message'].'<message>User must have permission '.$permission_info['permission_level'].' or greater to grant permission '.$permission_info['permission_level'].' on '.$permission_info['shared_with'].'.</message>');
+								
+						
 						}
-					else {
-						return (formatReturn($GLOBALS['error_codes']['something_went_wrong'], "Could not share ".$permission_info['uid']." with ".$permission_info['shared_with'], $s3ql['format'],''));
-					}
-				
-				
-				}
-				elseif($info[$uid]['to_create'] || $info[$uid]['is_remote']) {#insert IF is remote or was asserted to be inserted
+						elseif($result[max(array_keys($result))]=='1' && $result[min(array_keys($result))]=='0') #permission to add on upstream resource
+						{
+						$case ='1';
+						
+						if($uid_info['Did']==$GLOBALS['Did'])
+							$uid2share= strtoupper(substr($uid_info['uid'],0,1)).$GLOBALS['Did'].'/'.$uid_info['uid'];
+						
+						$permission_info = array('shared_with'=>$shared_with,
+														'uid'=>$uid2share,
+														'permission_level'=>'001');
+											
+						
+						$permission_added = insert_permission(compact('permission_info', 'db', 'user_id', 'info'));
+						if(!$permission_added)
+						$permission_added = update_permission(compact('permission_info', 'db', 'user_id', 'info'));
+								#This step will leave rule insert pending until owner of the rule comes by and inserts it in project
+						
+						
+						}
 					
-					if(is_array($info[$uid]) && $info[$uid]['is_remote'])
-						$create_info = $info[$uid];
+					if($permission_added)
+							{
+							#Missing: Create an entry in access_rules with "Pending" statuss
+							if($case =='1')
+							return (formatReturn($GLOBALS['error_codes']['success'], "Permission on ".$permission_info['uid']." requested and pending.", $format,''));
+							#return $GLOBALS['messages']['success']."<message> Permission on ".$permission_info['uid']." requested and pending.</message>";
+							else {
+								return (formatReturn('0',$permission_info['uid']." inserted in ".$permission_info['shared_with'], $s3ql['format'], ''));
+							}
+										
+							}
+						else {
+							return (formatReturn($GLOBALS['error_codes']['something_went_wrong'], "Could not share ".$permission_info['uid']." with ".$permission_info['shared_with'], $s3ql['format'],''));
+						}
+					
+					
+				}
+				elseif($info[$universalUID]['to_create'] || $info[$universalUID]['is_remote']) {#insert IF is remote or was asserted to be inserted
+					
+					if(is_array($info[$universalUID]) && $info[$universalUID]['is_remote']){
+						//20101004 - don't just create the thing, add the information from the required/optional parameters; the "_id" inputs should be changed to the local ones 
+						$possibleInputs = $GLOBALS['s3input'][$element];
+						
+						foreach ($possibleInputs as $in) {
+							//use the original uid
+							if($in==$GLOBALS['COREids'][$element]){
+								$create_info[$in] = $universalUID;
+							}
+							elseif($in=='created_by'){
+								##user the id of the reote user (Did+user_id)
+								$remoteUserUID = (preg_match('/^\d+$/', $info[$universalUID]['created_by']))?'U'.$info[$universalUID]['created_by']:$info[$universalUID]['created_by'];
+								$remoteUserUIDInfo = uid_resolve($remoteUserUID);
+								
+								
+								$create_info[$in] = $remoteUserUIDInfo['condensed'];
+							}
+							elseif (in_array($in, $GLOBALS['COREids'])) {
+								//if not provided, do not add it here; exit with a message
+								if($s3ql['where'][$in]==''){
+									return (formatReturn($GLOBALS['error_codes']['something_missing'],$in.' is missing', $s3ql['format'], ''));
+								}
+								else {
+									$create_info[$in] = $s3ql['where'][$in];
+								}
+								
+							}
+							else {
+								
+								$create_info[$in] = $info[$universalUID][$in];
+								if($s3map[$GLOBALS['plurals'][$element]][$in]!==''){
+									$map = $s3map[$GLOBALS['plurals'][$element]][$in];
+									if($map)
+									$create_info[$map] = $create_info[$in];
+								}
+							}
+						}
+						
+						
+					}
 					else
 						$create_info = $s3ql['where'];
 					
 					
-					$inputs = gatherInputs(array('element'=>$element, 'to_create'=>$create_info, 'user_id'=>$user_id, 'info'=>$info, 'format'=>$format));
 					
+					$inputs = gatherInputs(array('element'=>$element, 'to_create'=>$create_info, 'user_id'=>$user_id, 'info'=>$info, 'format'=>$format, 'db'=>$db));
+										
 					
-					#echo '<pre>';print_r($inputs);exit;
 					if(!is_array($inputs))
 						return ($inputs);
 			
@@ -708,8 +773,10 @@ switch ($action) {
 						$inserted =insert_s3db(compact('element', 'inputs', 'user_id', 'db', 'key'));
 						#echo '<pre>';print_r($inserted);
 						
-						
-						return (formatReturn('0', $element.' inserted.', $format, array($element.'_id'=>$inserted[$element.'_id'])));
+						if($info[$universalUID]['is_remote']) 
+							$msg =' You have just inserted a remote collection. Its local copy will not be updated unless you request its update by using the appropriate "update" syntax.';
+
+						return (formatReturn('0', $element.' inserted.'.$msg, $format, array($element.'_id'=>$inserted[$element.'_id'])));
 						
 					}
 						else {
@@ -911,6 +978,7 @@ switch ($action) {
 								
 								if(!is_array($inputs))
 									{	
+									
 									return(formatReturn('3', $inputs, $s3ql['format'],''));
 									}
 								$validity = validateInputs(compact('element', 'inputs', 'oldvalues', 'info', 'db', 'action', 'key','user_id'));
@@ -1002,7 +1070,8 @@ switch ($action) {
 		#$element = $s3ql[$action];
 		$element = $s3ql['edit'];
 		#echo 'ola<pre>';print_r($s3ql);exit;
-		$set = array('project'=>array('project_name', 'project_description', 'project_owner', 'permission_level'),
+		$set = array(	'deployment'=>array('url', 'publickey'),
+						'project'=>array('project_name', 'project_description', 'project_owner', 'permission_level'),
 						'collection'=>array('project_id', 'entity', 'notes'),
 						'rule'=>array('project_id', 'subject', 'verb', 'object', 'subject_id', 'verb_id', 'object_id', 'notes', 'validation'),
 						'item'=>array('project_id', 'collection_id', 'notes'),
@@ -1097,7 +1166,30 @@ switch ($action) {
 		
 		#echo '<pre>';print_r($inputs);
 		switch ($element) {
+		case 'deployment':{
+			//echo 'here we are... born to be kings, we're the princes of the uuuuniveeeerse';I ahave a sense of humor sometimes :-) exit;
+			$info = $e_info;
+			$table = $GLOBALS['s3tables'][$element];
+			$identifier =$GLOBALS['s3ids'][$element];
+			$element_id = $info[$identifier];
+			$validity = validateInputs(compact('element', 'inputs', 'oldvalues', 'info', 'db', 'action', 'key'));
+			$editArray = compact('db','table','user_id', 'info', 'action', 'inputs', 'oldvalues', 'identifier', 'element_id');
+			if($validity[0]){
+				if(update_deployment($editArray))
+						{
+						$output .= formatReturn('0', $element." D".$element_id.' updated', $format, '');
+						return ($output);
+						
+						}
+			}
+			else {
+				ereg('<error>([0-9]+)</error>(.*)<message>(.*)</message>', $validity[1], $valOut);
+				return (formatReturn($valOut[1],$valOut[3], $s3ql['format'],''));
+				
+			}
 			
+		}
+		break;
 		
 		case 'user':{##EDIT USER
 			$user_to_change_info = get_info('user', $element_id, $db);#this is necessary because password will not come in the $e_info var. 
@@ -1399,8 +1491,8 @@ switch ($action) {
 				{
 				
 				$to_create = array('project_id'=>$info['project_id'], 'entity'=>'s3dbVerb', 'notes'=>'Collection created by S3DB for holding Verbs');
-				$inputs = gatherInputs(array('element'=>'collection', 'to_create'=>$to_create, 'db'=>$db, 'user_id'=>$user_id, 'format'=>$format));
-				$inserted = insert_s3db(array('element'=>'collection', 'inputs'=>$inputs, 'user_id'=>$user_id, 'db'=>$db));
+				$verb_inputs = gatherInputs(array('element'=>'collection', 'to_create'=>$to_create, 'db'=>$db, 'user_id'=>$user_id, 'format'=>$format));
+				$inserted = insert_s3db(array('element'=>'collection', 'inputs'=>$verb_inputs, 'user_id'=>$user_id, 'db'=>$db));
 				
 				#try again;
 				$VerbClass = projectVerbClass(array('project_id'=>$info['project_id'], 'db'=>$db,'user_id'=>$user_id));
@@ -1410,9 +1502,9 @@ switch ($action) {
 				if($VerbClass=='')
 					return (formatReturn($GLOBALS['error_codes']['something_went_wrong'], 'Rule Could not be updated. No collection was found for the verbs', $s3ql['format'],''));
 				
-				$inputs = array('resource_class_id'=>$VerbClass['resource_id'], 'project_id'=>$info['project_id'], 'notes'=>($s3ql['where']['verb']!='')?$s3ql['where']['verb']:$info['verb'], 'created_by'=>$user_id, 'entity'=>$VerbClass['entity'], 'status'=>'A');
+				$verb_inputs = array('resource_class_id'=>$VerbClass['resource_id'], 'project_id'=>$info['project_id'], 'notes'=>($s3ql['where']['verb']!='')?$s3ql['where']['verb']:$info['verb'], 'created_by'=>$user_id, 'entity'=>$VerbClass['entity'], 'status'=>'A');
 				
-				$inserted = insert_s3db(array('element'=>'instance', 'inputs'=>$inputs, 'user_id'=>$user_id, 'db'=>$db));
+				$inserted = insert_s3db(array('element'=>'instance', 'inputs'=>$verb_inputs, 'user_id'=>$user_id, 'db'=>$db));
 				
 				$info['verb_id']=$inserted['instance_id'];
 				$info['verb']=verb4instanceID(array('key'=>$s3ql['key'],'instance_id'=>$info['verb_id'], 'db'=>$db));
@@ -1443,6 +1535,7 @@ switch ($action) {
 				
 				
 				$validity = validateInputs(compact('element', 'inputs', 'oldvalues', 'info', 'db', 'user_id', 'action', 'key'));
+				
 				#echo '<pre>';print_r($info);exit;
 				if($validity[0]){
 					if(update_rule(compact('info','inputs', 'oldvalues', 'db', 'user_id')))
@@ -1629,7 +1722,7 @@ switch ($action) {
 				$element_info = URIinfo($uid2check, $user_id, $key, $db);
 				
 				$info[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info;		
-				$permission2delete[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info['delete_data'];
+				$permission2delete[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $element_info['delete'];
 				$core_score[strtoupper(substr($element_name, 0,1)).$s3ql['where'][$id_name]] = $scoreTable[$element_name];
 
 				
@@ -1854,31 +1947,24 @@ switch ($action) {
 				#start deleting dependencies
 				foreach ($delete as $uid_depend=>$allowed) {
 					$permission_info = array('uid'=>$uid_depend, 'shared_with'=>'U'.$user_id ,'permission_level'=>'000');
-					if($output!='') $output .= ', ';
+					
 					if($allowed){
 						$deleted=deleteCoreResource($uid_depend, $user_id, $db);
-						
 						if($deleted)
 						{
+						$output .= formatReturn($GLOBALS['error_codes']['success'], ''.$uid_depend.' deleted', $s3ql['format'],'');
 						
-						$output .= $uid_depend.' deleted';
-						#$output .= formatReturn($GLOBALS['error_codes']['success'], ''.$uid_depend.' deleted', $s3ql['format'],'');
-						
-						}
-						else {
-							$output .= $uid_depend.' was NOT deleted';
 						}
 					}
 					elseif(has_permission($permission_info, $db)!='') {
 								if(delete_permission(compact('permission_info', 'db', 'user_id', 'info')))
-								$output .= 'Permission on '.$uid_depend.' removed for '.$user_id;
+								$output .= $success.'<message>Permission on '.$uid_depend.' removed for '.$user_id.'</message><br>';
 
 						}
 					#echo '<pre>';print_r($info);exit;
 					insertLogs($uid_depend, $info, $user_id, $db);
 					
 				}
-				if($output!='') $output .= ', ';
 				#Now delete everything that shared this collection in permission tables
 				$uid_info = uid($uid);
 				$sql = "delete from s3db_permission where uid = '".$uid."' or shared_with = '".$uid."'";
@@ -1892,13 +1978,11 @@ switch ($action) {
 				$uid = strtoupper(substr($element, 0,1)).$element_id;
 				if(deleteCoreResource($uid, $user_id, $db))
 					{
-					$output .= $uid.' deleted';
-					#$output .= formatReturn($GLOBALS['error_codes']['success'], $uid.' deleted', $s3ql['format'], '');
+					$output .= formatReturn($GLOBALS['error_codes']['success'], $uid.' deleted', $s3ql['format'], '');
 					insertLogs($uid, $info, $user_id, $db);
 					}
 				else {
-					$output .= 'Could not delete '.$uid;
-					#$output .= formatReturn($GLOBALS['error_codes']['something_went_wrong'], 'Could not delete '.$uid, $format,'');
+					$output .= formatReturn($GLOBALS['error_codes']['something_went_wrong'], 'Could not delete '.$uid, $format,'');
 				}
 				$return_message = ($output);
 				}
@@ -1983,12 +2067,10 @@ switch ($action) {
 					if(count($info)>1){
 					$shared_with = array_search(max($core_score), $core_score);
 					$uid = array_search(min($core_score), $core_score);
-					
-					$return_message =  removePermission(compact('uid', 'shared_with', 'db', 'info', 'user_id','format'));
+					$return_message .=  removePermission(compact('uid', 'shared_with', 'db', 'info', 'user_id','format'));
 					insertLogs($uid, $info, $user_id, $db);
 					}
-					if(!$output) return ($return_message);
-					return formatReturn($GLOBALS['error_codes']['success'], $output, $format,'');
+					return ($return_message);
 			}
 			
 			
@@ -2012,7 +2094,12 @@ switch ($action) {
 				if($deleted)
 					{
 					return (formatReturn($GLOBALS['error_codes']['success'], $element." ".$element_id." deleted",$format, ''));
-					
+					#$output .= $success;
+					#$output .= $element." deleted<BR>";
+					#$query = S3QLRestWrapper(array('key'=>$key));
+								
+					#$output .= '<a href =" '.$query['url'].$query['s3ql'].'<select>*</select><from>'.$element.'s</from></S3QL>">List '.$element.'s</a>';
+					#return ($output);
 					}
 				else
 				return formatReturn($GLOBALS['error_codes']['something_went_wrong'], "Failed to delete key", $format, '');
@@ -2207,7 +2294,9 @@ function S3QLselectTransform($Z)
 			#array_keys contains the things to replace and array_values the replacements
 			$toreplace = array_keys($s3map[$target]);
 			$replacements = array_values($s3map[$target]);
-			$s3ql['select'] = str_replace($toreplace, $replacements, $s3ql['select']);
+			#$s3ql['select'] = str_replace($toreplace, $replacements, $s3ql['select']);
+			$s3ql['select'] = replace($toreplace, $replacements, $s3ql['select']);
+			
 			$s3ql['select'] = ($s3ql['select']=='')?'*':$s3ql['select'];
 			if($s3ql['order_by']!='')
 			$s3ql['order_by'] = str_replace($toreplace, $replacements, $s3ql['order_by']);
@@ -2221,6 +2310,7 @@ function S3QLselectTransform($Z)
 					$s3ql['where'][$field] = $dd[1]."'".$dd[2]."'";
 
 			}
+			
 
 			foreach ($s3map[$target] as $replaceMe=>$withMe) {
 				
@@ -2259,21 +2349,25 @@ function retrieveUIDInfo($Z)
 		$core=$GLOBALS['s3codes'][$letterSub];
 		#is this remote? uid_resolve will return that information
 		#$uid_info = uid($letterSub.$s3ql['where'][$id_name]);
-		$uid_info = uid_resolve($s3ql['where'][$id_name]);
+		
+		$actualUID = (preg_match('/^\d+$/', $s3ql['where'][$id_name]))?$letterSub.$s3ql['where'][$id_name]:$s3ql['where'][$id_name];
+		$uid_info = uid_resolve($actualUID);
+
+		#$uid_info = uid_resolve($s3ql['where'][$id_name]);
 		//if uid_info does not contain a uid, attempt to build a simpe uid appending the letter to the beginning of the string
-		if(!$uid_info['uid']){
-			$uid_info = uid_resolve($letterSub.$s3ql['where'][$id_name]);
-		}
-		if(!$uid_info['uid']){
-			$uid=$letterSub.$s3ql['where'][$id_name];
-		}
-		else {
-			$uid = $uid_info['uid'];
-		}
+//		if(!$uid_info['uid']){
+//			$uid_info = uid_resolve($letterSub.$s3ql['where'][$id_name]);
+//		}
+//		if(!$uid_info['uid']){
+//			$uid=$letterSub.$s3ql['where'][$id_name];
+//		}
+//		else {
+//			$uid = $uid_info['uid'];
+//		}
 		
 		//check first if uid is local; even when Did is different, it may have been created locally
 		//This will happen in the majority of cases
-		$islocal=isLocal($uid, $db);
+		$islocal=isLocal($actualUID, $db);
 			
 		if($islocal)
 		{
@@ -2356,6 +2450,18 @@ function retrieveUIDInfo($Z)
 						
 						$element_info = $msg;
 						$element_info['is_remote']='1';
+						
+						$model = 'nsy';
+						#Define if ser can view or not view data. View is the first number in the 3d code. 
+						 $permission2user = permissionModelComp($element_info['effective_permission']);
+						 $isOwner =  ($element_info['created_by']==$user_id);
+						 $element_info['view'] = allowed($permission2user, 0,$isOwner,$state=3, $model);
+						 $element_info['change'] = allowed($permission2user, 1,$isOwner,$state=3, $model);
+						 $element_info['propagate'] = allowed($permission2user, 2,$isOwner,$state=3, $model);
+						 #create the element "delete", in case it is eventually created...For now it is the same as change
+						 $element_info['delete'] =  $element_info['change'];
+						 $element_info['delete_data'] = $element_info['add_data'];
+						 $element_info['add_data'] = $element_info['propagate'];
 						
 						if($uid_info['letter']=='U' && count($input_ids)==2){
 							##For consistency purposes, an account fo this remote user will be created at this point with current user as parent. User is created with a filter by default that prevents him from adding to this deployment. Parent user (or its ancestrors can then change this default filter to grant more permission to the remote user);
@@ -2533,7 +2639,16 @@ function includeAllData($pack)
 
 	$letter = letter($element2query);
 	$element = $GLOBALS['s3codes'][$letter];
-		
+	$where = $s3ql['where'];
+		//when there are no remoteIDS, the results from the query have already been filtered for uid
+		if(!$remoteIDS){
+			//does $where only carry ids? these were already filtered
+			if(is_array($where))
+			$removedIDS = array_diff(array_keys($where), $GLOBALS['COREids']);
+			if(empty($removedIDS)){
+				$nothing_to_filter = 1;
+			}
+		}	
 
 	if($user_id!='1'){
 	if(count($data)>=4){
@@ -2545,14 +2660,14 @@ function includeAllData($pack)
 			}
 		}
 	}
-
+	
 	if(ereg('^U|^G', $letter) && $WhereInfo){
-				$whereId = array_keys($WhereInfo);
-				if(count($whereId)>1){
+			$whereId = array_keys($WhereInfo);
+			if(count($whereId)>1){
 				$array=array();
 				return ($array);
-				}
-				else{
+			}
+			else{
 				$whereId=$whereId[0];
 				 #Tlist provides the list of resources that are shared with the uid of interest, including users & groups
 				
@@ -2561,11 +2676,15 @@ function includeAllData($pack)
 				 $Tlist = user_included_bottom_up_propagation_list('U',$whereId,$user_id, $db);
 				 
 				 $resourceUsers = s3dbPercolate($Hlist, $Tlist,$letter);
-				 if($_REQUEST['su3d']){
-				 
+				 //resource users must not come with the initial letter if they are from another deployment, they should not have the "|" separator either 
+				 foreach ($resourceUsers as $user_uid =>$p) {
+					$user_uid = preg_replace('/^UD/', 'D', $user_uid);
+					$user_uid = preg_replace('/\|/', '', $user_uid);
+					$resourceUsers[$user_uid] = $p;
 				 }
+				
 				 
-				}
+			}
 	}
 		
 		##Remove from data the uids that do not exist in ids
@@ -2575,82 +2694,98 @@ function includeAllData($pack)
 		if(is_array($data))
 		foreach ($data as $ind=>$array) {
 			$uid = $letter.$array[$str];
+			$uid_info = uid_resolve($uid);
+				
+				if($uid_info['did']!='D'.$GLOBALS['Did']){
+					$uid = str_replace("|","", $uid);
+				}
 			
 			if($uid!=''){
 				
 				if($user_id!='1'){
-				
-				
-				if(is_array($ids)){
-				if(!ereg('^U|^G', $letter))
-					{
 					
-					if($ids[$uid]!='')
-						{
-														
-							$array['acl'] = $ids[$uid];	
+					if(is_array($ids)){
+						if(!ereg('^U|^G', $letter))
+							{
 							
-						}
-					 else 
-						{ 
-						 $array=array();
-						 }
-					}
-					else {
-						if($resourceUsers){
-								if(in_array($uid, array_keys($resourceUsers)))
-								{$array['permissionOnResource'] = $resourceUsers[$uid];}
-								else
+							if($ids[$uid]!='')
+								{															
+									$array['acl'] = $ids[$uid];	
+								}
+							 elseif ($uid_info['letter']=='D') {
+								##Deployment_info is, unless specified, public for all users to view, only those that have created it can edit and all users with an account in the deployment can use
+								$array['acl'] = 'ys-';
+							 }
+							 else 
+								{ 
+								if($_REQUEST['su3d']){
+									echo $uid;exit;
+								}
+								 ##If URI is remote and a call using user's key retrieved it, then user CAN see it;
+								 if(!$array['remote_uri']){
 									$array=array();
-								
+								 }
+								 }
 							}
-							#else {
-							#	 $array=array();
-							#}
-							
-					}
-				}
-				else {
-					
-					$strictuid = 1;$strictsharedwith=1;$shared_with = 'U'.$user_id;
-					$P=compact('uid','shared_with','user_id','db','strictuid','strictsharedwith','stream','timer');
-					if(!ereg('^U|^G', $letter))
-					{
-						
-							
-							$array['acl'] = permission4Resource($P);
-							
-							$array['permission_level'] = $array['acl'];
-							$permission2user = permissionModelComp($array['permission_level']);
-
-							$isOwner = 	($array['created_by']==$user_id);
-							$array['view'] = allowed($permission2user, 0,$isOwner);
-							$array['change'] = allowed($permission2user , 1,$isOwner);
-							$array['propagate'] = allowed($permission2user , 2,$isOwner);
-
-							#create the element "delete", in case it is eventually created...For now it is the same as change
-							$array['delete'] = 	$array['change'];
-							$array['add_data'] = $array['propagate'];
-							$array['delete_data'] = $array['add_data'];
-							
-					}
-					else {
-						if($resourceUsers){
-								if(in_array($uid, array_keys($resourceUsers)))
-								{$array['permissionOnResource'] = $resourceUsers[$uid];}
-								else
-									$array=array();
+							else {
 								
-							}
-							#else {
-							#	 $array=array();
-							#}
-							
-						
-					}
-					
+								if($resourceUsers){
+										if(in_array($uid, array_keys($resourceUsers)))
+										{$array['permissionOnResource'] = $resourceUsers[$uid];}
+										else
+											$array=array();
 										
-				}
+									}
+									#else {
+									#	 $array=array();
+									#}
+									
+							}
+						}
+						else {
+							
+							$strictuid = 1;$strictsharedwith=1;$shared_with = 'U'.$user_id;
+							$P=compact('uid','shared_with','user_id','db','strictuid','strictsharedwith','stream','timer');
+							if(!ereg('^U|^G', $letter))
+							{
+								
+									
+									$array['acl'] = permission4Resource($P);
+									
+									$array['permission_level'] = $array['acl'];
+									$permission2user = permissionModelComp($array['permission_level']);
+
+									$isOwner = 	($array['created_by']==$user_id);
+									$array['view'] = allowed($permission2user, 0,$isOwner);
+									$array['change'] = allowed($permission2user , 1,$isOwner);
+									$array['propagate'] = allowed($permission2user , 2,$isOwner);
+
+									#create the element "delete", in case it is eventually created...For now it is the same as change
+									$array['delete'] = 	$array['change'];
+									$array['add_data'] = $array['propagate'];
+									$array['delete_data'] = $array['add_data'];
+									
+							}
+							else {
+								$uid = preg_replace('/^UD/','D',$uid);
+								$uid = preg_replace('/\|/','',$uid);
+								
+								if($resourceUsers){
+										if(in_array($uid, array_keys($resourceUsers)))
+										{$array['permissionOnResource'] = $resourceUsers[$uid];}
+										else
+											$array=array();
+										
+									}
+									#else {
+									#	 $array=array();
+									#}
+									
+								
+							}
+							
+												
+						}
 				}
 				else {
 					$array['acl'] = 'yyy';
@@ -2680,18 +2815,27 @@ function includeAllData($pack)
 			
 			$element_info = include_all($C);
 			
-
+			if(!$element_info['uri'])
 			$element_info['uri'] = S3DB_URI_BASE.'/'.$letter.$array[$str];
 			#$element_info['uri'] = str_replace('central', 'TCGA', S3DB_URI_BASE.'/'.$letter.$array[$str]);
+			
 			$pack['uid'] = $uid;
 			$pack['info'] = $element_info;
 			
-			$element_info = filterDataForQuery($pack);
-			if($timer) $timer->setMarker('Filter Data For The Query');
+			if(!$nothing_to_filter)
+				{
+					$element_info = filterDataForQuery($pack);
+					if($timer) $timer->setMarker('Filter Data For The Query');
+				}
+			else {#we still need to filter for permission
+					if(!$element_info['view']){
+						$element_info = array();			
+					}
+				}
 			
 			$re_issued[$uid] = $element_info;
 			}
-		
+		  
 		
 	}
 
@@ -2707,11 +2851,11 @@ function filterDataForQuery($pack)
 	$letter = letter($uid);
 	$info_ID = $GLOBALS['COREletterInv'][$letter];
 	
-	$uid_info = uid($uid);
-	$uid_info['uid'] = ($info['uid']!='')?$info['uid']:$uid_info['uid'];
+	$uid_info = uid_resolve($uid);
 	
-	#$info['uid'] = ereg_replace('^D','D|',$uid_info['Did']).(($letter!='U')?'|U|'.$user_id:'').'|'.$letter.'|'.$info[$info_ID].'|';
-	$info['uid'] = ((ereg('^D',$uid_info['Did']))?$uid_info['Did']:'D'.$uid_info['Did']).(($letter!='U')?'U'.$user_id:'').$letter.$info[$info_ID];
+	if(!$info['remote_uri'])
+	 $info['uid'] = $uid_info['did']."|".$uid_info['uid'];
+	
 	
 	
 	if(!$info['view']){
@@ -2735,8 +2879,8 @@ function filterDataForQuery($pack)
 				
 				#echo '<pre>';print_r($info);exit;
 				$tmp=$GLOBALS['s3codes'][$letter];
-				
-				if($info[$query_field]!=$query_value && in_array($query_field, $GLOBALS['queriable'][$tmp])) {
+				$queriable =  array_merge($GLOBALS['queriable'][$tmp], $GLOBALS['common_attr']);
+				if($info[$query_field]!=$query_value && in_array($query_field, $queriable)) {
 					
 					#is there regular expresion in the query?
 					ereg('\~\'(.*)\'',stripslashes($query_value),$qval);
@@ -3004,6 +3148,182 @@ function filterByElement($s3ql, $user_id,$db)
 }
 
 function simpleQueryUID($shared_with_query, $element, $db)
+	{
+	
+	#This function is used to limit queries to only those entities that are shared with the id specified in the query. For example, if all items from collection X are requested, this query returns all items shared with that collection, regardless of whether they belong or have been shared with it
+	#Elements may be shared with more than 1 upstream resource; the first one is stored in the table, but the others are not. For that reason, the others will be to be queried from the pemrissions table; this works the same for remote permisions
+		
+	##Create 150408 for performing faster queries
+	$shared_with_query = array_unique($shared_with_query);
+
+	#Query parameters here should only cinlude those that the core model allows sharing: item can be shared with collection; rule with project, collection, etc. Added 09032009
+	$shared_list = array('R'=>array('P','C','I'),'C'=>array('P'), 'I'=>array('C'), 'S'=>array('I','R'));
+	#echo '<pre>';print_r($shared_with_query);
+	$new=array();
+	foreach ($shared_with_query as $nuke=>$swuid) {
+		$shared_list4uid = $shared_list[letter($element)];
+		
+		if(is_array($shared_list4uid) && in_array(letter($swuid), $shared_list4uid)){
+		 array_push($new, $swuid);
+		
+		}
+			
+	}
+	$shared_with_query=$new;
+
+	
+
+	$str_ids='';
+		
+		for ($i=0; $i < count($shared_with_query); $i++) {
+			$uidletter = strtoupper(substr($element,0,1));$swletter = letter($shared_with_query[$i]);
+			$jump=''; $score='';
+			if($id=='') 
+				{
+				$uid = $GLOBALS['regexp']." '^".$uidletter."'";
+				}
+			else {
+				$uid = $GLOBALS['regexp']." '^".$uidletter."(".$id.")$'";
+				}
+			
+			
+			$score = array('D'=>0, 'G'=>1, 'U'=>2,'P'=>3, 'C'=>4,'R'=>4,'I'=>5, 'S'=>6);
+			$jump=$score[$uidletter]-$score[$swletter];
+			#Added 120508 for enabling query on items of project
+			if($jump>1)
+			{
+				$middleQuery='';
+				switch ($uidletter) {
+					case 'I':
+						$middleQuery = simpleQueryUID($shared_with_query, 'collection', $db);
+						$middleQuery = str_replace("id = '", "shared_with = 'C", $middleQuery['str_ids']);
+						
+					break;
+					case 'S':
+						$middleQuery = simpleQueryUID($shared_with_query, 'rule', $db);
+						$middleQuery = str_replace("id = '", "shared_with = 'R", $middleQuery['str_ids']);
+					break;
+					
+					
+				}
+			}
+			
+			if($score[$swletter] < $score[$uidletter])
+			{
+			
+			
+			$id_query = "select * from s3db_permission where uid ".$uid." and shared_with = '".$shared_with_query[$i]."'";
+			
+			if($middleQuery!='')
+			$id_query .= "or (".$middleQuery.")";
+			
+			$db->query($id_query, __FILE__, __LINE__);
+			$hasData=0;
+			
+			while ($db->next_record()) {
+				$rID = $db->f('id');
+				$rUID = $db->f('uid');
+				##is $id local?
+				$r_uid_info = uid_resolve($rUID);
+				
+				$recovID[] = $rID;
+				$hasData=1;
+				if($i!=(count($shared_with_query)-1)){
+				
+				
+				if($id!='') $id .= '|';
+				$id .= $rID;
+				}
+				else {
+					
+					if($r_uid_info['did']==$GLOBALS['Did']){
+						if($finalUID!='') $finalUID .= ' or ';
+						$finalUID .= $GLOBALS['s3ids'][$element]." = '".$rID."'";
+					}
+
+					
+					$array_ids[$rID]=$db->f('permission_level');
+					#$str_ids = ($str_ids=='')?($db->f('id')):('|'.$db->f('id'));
+					##str_ids is sent to the local table; therefore, it cannot be remote 
+					
+					$str_ids .= ($str_ids=='')?(" id = '".$rID."'"):(" or id = '".$rID."'");
+				}
+
+			}
+			
+			}
+			else
+			{
+			
+			$tmp = $shared_with_query[$i];
+			$shared_with= $uid;
+			$uid = $tmp;
+			$id_query = "select substr(shared_with,2,length(shared_with)) as shared_with_num,permission_level from s3db_permission where shared_with ".$shared_with." and uid = '".$uid."'";
+			$db->query($id_query, __FILE__, __LINE__);
+			#echo $id_query;
+			#echo '<pre>';print_r($db);
+			$hasData=0;
+			while ($db->next_record()) {
+				$hasData=1;
+				if($i!=(count($shared_with_query)-1)){
+				if($sw!='') $sw .= '|';
+				$sw .= $db->f('shared_with_num');
+				}
+				else {
+					
+					
+					if($finalUID!='') $finalUID .= ' or ';
+					$finalUID .= $GLOBALS['s3ids'][$element]." = '".$db->f('shared_with_num')."'";
+					
+
+					$array_ids[$db->f('shared_with_num')]=$db->f('permission_level');
+					#$str_ids = ($str_ids=='')?($db->f('id')):('|'.$db->f('id'));
+					$str_ids .= ($str_ids=='')?(" substr(shared_with,2,length(shared_with)) = '".$db->f('shared_with_num')."'"):(" or substr(shared_with,2,length(shared_with)) = '".$db->f('shared_with_num')."'");
+				}
+
+			}
+			
+			
+			}
+			
+			#if one of the shared_with uid does not return results, filter at this point. This is not filtered later to speed up
+			if(!$hasData){
+			#echo $id_query.'<BR>';
+			return (False);
+			}
+			
+			
+		}
+		
+		###$GLOBALS['s3ids'][$element]
+		#Now through the query into the main CORE table
+		
+		if($finalUID!='')
+		{$finalUID = " and (".$finalUID.")";
+		$return=compact('finalUID', 'str_ids', 'array_ids');
+		return ($return);
+		}
+		else {
+			#If a remote resource is found, only array_ids will be filled
+			#$finalUID = " and (".$GLOBALS['s3ids'][$element]." = '')";
+			$str_ids = "substr(shared_with,2,length(shared_with)) = ''";
+			#$array_ids = array();
+			$return=compact('finalUID', 'str_ids', 'array_ids');
+			
+			return ($return);
+			#return (False);
+		}
+		
+		
+		#echo $tmpQuery;exit;
+		
+		
+	}
+
+
+		
+
+function simpleQueryUID1($shared_with_query, $element, $db)
 {
 ##Create 150408 for performing faster queries
 $shared_with_query = array_unique($shared_with_query);
@@ -3173,15 +3493,24 @@ function selectQuery($D)
 	{	global $timer;
 		extract($D);
 			
+			
 			if($s3ql['from']=='deployment') ##To integrate with the remainint queries
 			{
 			
-				$data[0] = array('mothership'=>$GLOBALS['s3db_info']['deployment']['mothership'], 'deployment_id'=>$GLOBALS['s3db_info']['deployment']['Did'],'self'=>'1', 'description'=>$GLOBALS['s3db_info']['server']['site_intro'],'url'=>S3DB_URI_BASE, 'message'=>'Successfully connected to deployment '.$GLOBALS['s3db_info']['deployment']['Did'].'. Please provice a key to query the data (for example: '.(($_SERVER['https']=='on')?'https://':'http://').$def.S3DB_URI_BASE.'/URI.php?key=xxxxxxxx. For syntax specification and instructions refer to http://s3db.org/');
+				$data[0] = array('mothership'=>$GLOBALS['s3db_info']['deployment']['mothership'], 'deployment_id'=>$GLOBALS['s3db_info']['deployment']['Did'],'self'=>'1', 'description'=>$GLOBALS['s3db_info']['server']['site_intro'],'url'=>S3DB_URI_BASE, 'message'=>'Successfully connected to deployment '.$GLOBALS['s3db_info']['deployment']['Did'].'. Please provice a key to query the data (for example: '.(($_SERVER['https']=='on')?'https://':'http://').$def.S3DB_URI_BASE.'/URI.php?key=xxxxxxxx. For syntax specification and instructions refer to http://s3db.org/',
+				'id'=>$GLOBALS['s3db_info']['deployment']['Did'],
+				'label'=>$GLOBALS['s3db_info']['deployment']['name'],
+				'creator'=>1,
+				'created'=>'',
+				'publickey'=>$GLOBALS['s3db_info']['deployment']['public_key'],
+				'checked_on'=>date('Y-m-d G:i:s')
+				);
 
 				
 				#return $data;
 			
 			}
+			
 			#echo '<pre>';print_r($s3ql);
 			if(in_array($s3ql['from'], array_keys($GLOBALS['plurals'])))
 				$s3ql['from']=$GLOBALS['plurals'][$s3ql['from']];
@@ -3205,18 +3534,18 @@ function selectQuery($D)
 
 			if($s3ql['from']=='permission' && $user_id!=1)
 			{
-			return (formatReturn($GLOBALS['error_codes']['no_permission_message'], 'User cannot query permissions.', $s3ql['format'],''));
-			exit;
+				return (formatReturn($GLOBALS['error_codes']['no_permission_message'], 'User cannot query permissions.', $s3ql['format'],''));
+				exit;
 			}
 			
 			if(eregi('^t',$s3ql['shared'])){
-			$shared = true; #shared being set to true will tell s3ql that he should not only retrieved uid native to the upstream resource being queried, but those that propagate toward it
-			$s3ql = array_delete($s3ql,'shared');
+				$shared = true; #shared being set to true will tell s3ql that he should not only retrieved uid native to the upstream resource being queried, but those that propagate toward it
+				$s3ql = array_delete($s3ql,'shared');
 			}
 
 			if(eregi('complete',$s3ql['display'])){
-			$complete = true; #complete will tell s3ql that dictionary terms should be added to the output
-			$s3ql = array_delete($s3ql,'display');
+				$complete = true; #complete will tell s3ql that dictionary terms should be added to the output
+				$s3ql = array_delete($s3ql,'display');
 			}
 			
 			$target = $s3ql['from'];
@@ -3229,12 +3558,29 @@ function selectQuery($D)
 			
 			if($table!='' && !in_array($table, array_keys($GLOBALS['dbstruct'])))
 			{			
-			return (formatReturn($GLOBALS['error_codes']['not_a_query'], 'Not a valid query.', '', $s3ql['format']));
+				return (formatReturn($GLOBALS['error_codes']['not_a_query'], 'Not a valid query.', '', $s3ql['format']));
 			}
 			
 			#manage data in select
 			#echo '<pre>';print_r($s3ql);
+			$toreplace = array_keys($GLOBALS['s3map'][$target]);
+			$replacements = array_values($GLOBALS['s3map'][$target]);
 			
+			//Added 27012010 - see problem in labbook
+			//replacements needs to be cleared of composed fields;
+			foreach ($replacements as $ri=>$f) {
+			//preg_match_all('/\$([A-Za-z0-9_]+)/',$with, $sim);
+				
+				preg_match_all('/\$([A-Za-z0-9_]+)/',$f, $substitutions);
+				if(!empty($substitutions[1])){
+					
+					foreach ($substitutions[1] as $f_field) {
+						$tmp[] = $f_field;
+					}
+					$replacements[$ri] = implode(',',$tmp);
+				}
+					
+			}
 			
 			#array_keys contains the things to replace and array_values the replacements
 			if($s3ql['select']!='' && $s3ql['select']!='*'){
@@ -3258,20 +3604,43 @@ function selectQuery($D)
 				if(is_array($parents)){
 				foreach ($parents as $p) {
 					if(!in_array($p, $returnFields)){
-						$s3ql['select'] .= ','.str_replace($toreplace, $replacements, $p);
+						##changed 27012019 - see lab book about the reason for the change
+						if(in_array($p, $toreplace)){
+							$s3ql['select'] = $s3ql['select'].','.$replacements[array_search($p,$toreplace)];
+							$returnFields[] = $replacements[array_search($p,$toreplace)];
+						}
+						else {
+							$s3ql['select'] = $s3ql['select'].','.$p;
+							$returnFields[] = $p;
+						}
+						#$s3ql['select'] .= ','.str_replace($toreplace, $replacements, $p);
 					}
 				}
 				}
+				##CHANGED 11-11-09
+				##Will need to add also those fields where a query is being performed
+				if(is_array($s3ql['where']) && !empty($s3ql['where'])){
+					##changed 27012019 - see lena lab book for the reason for the change (id is being replaced with xxx_id for every _id, creating things like project_resource_id)
+					foreach ($s3ql['where'] as $w_field=>$w_value) {
+						if(!in_array($w_field, $returnFields)){
+							if(in_array($w_field, $toreplace)){
+								$newname = $replacements[array_search($w_field, $toreplace)];
+							}
+							else {
+								$newname = $w_field;
+							}
+							$returnFields[] = $newname;
+						$s3ql['select'] .= ','.$newname;
+						}
+					}
 					
+				}		
 			}
 			else
 			$s3ql['select']='*';
 			#echo $s3ql['select'];exit;
 			#echo '<pre>';print_r($s3ql);exit;
 			
-			$toreplace = array_keys($GLOBALS['s3map'][$target]);
-			
-			$replacements = array_values($GLOBALS['s3map'][$target]);
 			
 			#to replace query str with replacements, remove the spaces and explode by commas
 			$select =explode(',', str_replace(' ','', $s3ql['select']));
@@ -3280,7 +3649,8 @@ function selectQuery($D)
 				if(in_array($str_select, $toreplace))
 					{$select[$s_key] = $replacements[array_search($str_select, $toreplace)];}
 			}
-			#echo '<pre>';print_r($select);exit;
+			
+			
 			$s3ql['select'] = implode(',', array_unique($select));
 			
 			#$s3ql['select'] = str_replace($toreplace, $replacements, $s3ql['select']);
@@ -3307,8 +3677,10 @@ function selectQuery($D)
 			#anything that is queried must also go come out in the select 
 			if($s3ql['where'] && $select!='*'){
 				foreach ($s3ql['where'] as $more_outputs=>$more_value) {
-					if(!substr($select,  $more_outputs)){ 
-						$select .= ",".str_replace( $toreplace,  $replacements, $more_outputs);
+					if(!preg_match('/'.$more_outputs.'/', $select)){ 
+						#$select .= ",".str_replace( $toreplace,  $replacements, $more_outputs);
+						$select .= ",".replace( $toreplace,  $replacements, $more_outputs);
+						
 					}
 				}
 			}
@@ -3327,6 +3699,7 @@ function selectQuery($D)
 
 			$s3Ids = array_merge($GLOBALS['COREids'], array('rulelog'=>'rule_id', 'statementlog'=>'statement_id'));
 			
+			
 			#echo '<pre>';print_r($s3ql);
 			
 			
@@ -3344,12 +3717,18 @@ function selectQuery($D)
 
 						#echo $id_name;exit;
 						$uid = strtoupper(substr($COREelement, 0, 1)).$s3ql['where'][$COREelement_id];
-						$uid_info=uid($uid);
+					
+						#20101006
+						$actualUID = preg_match('/^\d+$/',$s3ql['where'][$COREelement_id])?$id_letter.$s3ql['where'][$COREelement_id]:$s3ql['where'][$COREelement_id]; 
+						$uid_info=uid_resolve($actualUID);
+						#$uid_info=uid($uid);
 						
+						#20101006
 						#Use URIinfo to find all data about this resource
-						$element_info = URIinfo($uid, $user_id, $key, $db, $timer);
-						
-						$WhereInfo[$uid_info['uid']]=$element_info;
+						#$element_info = URIinfo($uid, $user_id, $key, $db, $timer);
+						 $element_info = URIinfo($actualUID, $user_id, $key, $db, $timer);
+						 $WhereInfo[$actualUID]=$element_info;
+						 #$WhereInfo[$uid_info['uid']]=$element_info;
 						
 						
 						
@@ -3357,6 +3736,15 @@ function selectQuery($D)
 							
 							return formatReturn($GLOBALS['error_codes']['something_does_not_exist'], $uid.' does not exist',$s3ql['format'],'');
 							exit;
+						}
+						elseif ($uid_info['letter']!=strtoupper(substr($element, 0,1))) {
+						 #20101006 - added this to avoid chagin the code that works
+						 array_push($shared_with_query, $actualUID);
+						 #account for queries that use "Pxxx" instead of just the numeric id
+						 if(!$element_info['remote_uri']){
+							$s3ql['where'][$COREelement_id] = $uid_info['s3_id'];
+							
+						 }
 						}
 						elseif ($id_letter!=strtoupper(substr($element, 0,1))) { ##Shared_with is any UID that can eb shared with any of the elements being requested (for example, Collection_id is shared_with Project, but Project_id is not shared  with Project
 							
@@ -3381,7 +3769,11 @@ function selectQuery($D)
 			
 			if($self_id!=''){
 			$data[0] = $element_info;
-			
+			if(!$data[0]['remote_uri']){
+				$data[0]['uid'] = $GLOBALS['Did']."|".$letter.$self_id;
+				$data[0]['uri'] = S3DB_URI_BASE.'/'.$letter.$self_id;
+				}
+
 				if(ereg('^(U|G)$',$letter) && count($WhereInfo)==2) #when permission of user or group in Resource is requested.
 				{
 				$whereId = array_diff(array_keys($WhereInfo), array($letter.$self_id));
@@ -3516,11 +3908,19 @@ function selectQuery($D)
 			
 			#when the default query is performed, that is, not shared ids are requested, the query is faster is core_id are added
 				
-			if(!$shared){
+			#if(!$shared){
 				if(is_array($s3ql['where']) && !empty($s3ql['where']))
 				foreach ($s3ql['where'] as $q_field=>$q_value) {
 					if(in_array($q_field, $GLOBALS['COREids']) || $q_field==$GLOBALS['COREids'][$element]){
-						$sql_col = str_replace($toreplace, $replacements, $q_field);
+						##Added 211209
+						$search = array_search($q_field, $toreplace);
+						if($search){
+							$sql_col = $replacements[$search];
+						}
+						else {
+							$sql_col = $q_field;
+						}
+						#$sql_col = str_replace($toreplace, $replacements, $q_field);
 						if(!ereg('U|G',$letter)) ## Users and groups do not have the reousrce in the users table
 						$user_query_fields .= ' and '.$sql_col.' '.parse_regexp($q_value);
 						else {
@@ -3531,7 +3931,7 @@ function selectQuery($D)
 						}
 					}
 				}
-				}
+				#}
 			
 			#glue them together.
 			$user_query .= $user_query_fields.$query_extra;
@@ -3541,11 +3941,11 @@ function selectQuery($D)
 			
 			###Finally perform the query on whatever table is specified
 			#$user_query = "select * from s3db_resource where resource_class_id = '389';";
-			#if($_REQUEST['su3d']){
-			#echo $user_query;
-			#$timer->display();
-			#exit;
-			#}			
+			//			if($_REQUEST['su3d']){
+			//			echo $user_query;
+			//			$timer->display();
+			//			exit;
+			//			}			
 			##run it
 			#complete query on LOCAL resources
 			$db->query($user_query, __LINE__, __FILE__);
@@ -3618,8 +4018,7 @@ function selectQuery($D)
 			    ###Added ability to seeek permissions from file on jan 12 2009 to speed permissiosn query
 
 				list($remoteIDS,$local_not_native) = remotePermissions(compact('s3ql','self_id','uidQuery','permissionsQuery','user_id','db','timer','shared_with_query','user_self_query','letter'));
-
-
+				
 				
 				if($timer) $timer->setMarker('remote permisions queried');
 				
@@ -3629,15 +4028,23 @@ function selectQuery($D)
 						foreach ($remoteIDS as $rem_id) {
 						
 						#$rem_uid = substr($rem_id['uid'],1,strlen($rem_id['uid']));
-						$rem_uid = $rem_id['uid'];
-						$rem_resource_data =URIinfo($rem_uid, $user_id,$s3ql['key'], $db);
+						#$rem_uid = $rem_id['uid'];
+						#$rem_resource_data =URIinfo($rem_uid, $user_id,$s3ql['key'], $db);
 						#echo '<pre>';print_r($rem_resource_data);exit;
-						if(is_array($rem_resource_data)){
-						$rem_resource_data['shared_with']=$rem_id['shared_with'];
-						$rem_resource_data['uid']=$rem_id['uid'];
-						$rem_resource_data['permission_level']=$rem_id['permission_level'];
-						}
-						#echo '<pre>';print_r($rem_resource_data);exit;
+						
+						$rem_uid_info = uid_resolve($rem_id);
+						$rem_resource_data =URIinfo($rem_id, $user_id,$s3ql['key'], $db);
+						
+						##foreach remote core id, re-reference all uids - they must be reference to remote uid
+					    foreach ($rem_resource_data as $uidname=>$uidval) {
+							if(ereg('_id$', $uidname)){
+								 $search = array_search($uidname, $GLOBALS['s3map'][$element]);
+								 if($search) { $newuidname = $search;}
+								 else { $newuidname = $uidname; }
+								 #$rem_resource_data[$uidname] =   $rem_uid_info['did'].'|'.strtoupper(substr($newuidname, 0,1)).$uidval;
+							}
+					    }
+						 
 						#concatenate them in the results; THIS SHOWS ONLY REMOTE RESOURCES THAT ARE AVAILABLE AT THE MOMENT!
 						
 						if(is_array($s3ql['where']))
@@ -3647,6 +4054,18 @@ function selectQuery($D)
 							{
 								if(!in_array($query_field, $GLOBALS['COREids']))
 								{$rem_resource_data=array();
+								}
+								else {
+									 $search = array_search($query_field, $GLOBALS['s3map'][$element]);
+									
+									if($search) { $newfname = $search;}
+									else { $newfname = $query_field; }
+									
+									$rem_resource_data[$query_field] = $query_value;
+									
+									
+									#This part already in URIinfo
+									#$rem_resource_data['uid'] = $rem_uid_info['did'].'|'.strtoupper(substr($newfname,0,1)).$query_value.'|'.$rem_uid_info['uid'];
 								}
 							}
 						}
@@ -3666,12 +4085,52 @@ function selectQuery($D)
 			
 			
 			#now we're ready to display the data			
-				$pack= compact('data', 'whereScore', 'WhereInfo', 'fromScore', 's3ql', 'key', 'target', 'db', 'user_id', 'cols', 'returnFields', 's3ql_out','target','uidQuery','timer','shared_with_query','all_data','letter','model');
+				$pack= compact('data', 'whereScore', 'WhereInfo', 'fromScore', 's3ql', 'key', 'target', 'db', 'user_id', 'cols', 'returnFields', 's3ql_out','target','uidQuery','timer','shared_with_query','all_data','letter','model','remoteIDS');
 				if(!ereg('keys|accesslog|rulelog|statementlog|permission',$s3ql['from']))
 				$data = includeAllData($pack);
-			
+		
+				##REMOTE
+				 ##remote data was already cleaned and filtered 
+				 ##uid_resolve is the trigger to look for data in a remote deployment
 				
-			
+				if($_REQUEST['uid_resolve']>0 || $s3ql['uid_resolve']>0){
+					 $lookRemotelly = 1;
+					 if(!empty($shared_with_query)){
+					
+						 $resolved_uri = array(); 
+						 $remote_deployments = array(); 
+						 foreach ($shared_with_query as $queryUID) {
+							 if($WhereInfo[$queryUID]['remote_uri']){
+								 $remote_uid_info = uid_resolve($queryUID);
+								 if(!is_array($remote_deployments[$remote_uid_info['did']])){
+									 $remote_deployments[$remote_uid_info['did']] = array();
+								 }
+								 array_push($remote_deployments[$remote_uid_info['did']], $queryUID);
+								 $resolved_uri[$queryUID] = $remote_uid_info;
+							 }
+						 }
+						 //now send the query to each individual deployment; replace the Did in queryUID
+						
+						 foreach ($remote_deployments as $remoteDid=>$queryUIDs) {
+							 list($valid, $remoteData) = getRemoteData($s3ql, $resolved_uri, $remoteDid, $queryUIDs, $user_id, $key, $db, $timer);
+							 if($valid){
+							 //append this to data
+							 if(is_array($data)){
+							 $data = array_merge($data, $remoteData);
+							 }
+							 else {
+							 $data = $remoteData;
+							 }
+							 }
+							 else {
+							 //do nothing..
+							 }
+							 
+						 }
+					 }
+					 
+				 }
+									
 			}
 			
 			##if complete was requested, let's retrieve every link and distribute accordingly rather that querying by uid, would would take much longer
@@ -3718,4 +4177,96 @@ function selectQuery($D)
 				
 	}
 
+function replace($toreplace, $replacements, $array, $sep=',')
+{
+	if(!is_array($array)) {$array = explode($sep,$array);}
+	$newarray = array();
+	foreach ($array as $key=>$value) {
+		if(in_array($value, $toreplace)){
+			$newarray[$key] = $replacements[array_search($value, $toreplace)];
+		}
+		else {
+			$newarray[$key] = $value;
+		}
+	}
+	
+	return (implode($sep, $newarray));
+}
+
+function getRemoteData($s3ql, $resolved_uri, $remoteDid, $queryUIDs, $user_id, $key, $db, $timer)
+{
+	 
+	 $s3ql['select']='*';
+	 $entity = $s3ql['from'];
+	 ##first, find out if remoteDid is valid;
+	 $did_info = URIinfo($remoteDid, $user_id, $key, $db,$timer=array());
+	 ##build an s3ql query that can be sent to the remote location; try first without key
+	 if($did_info['url']!=''){
+			$s3ql['url'] =$did_info['url']; 
+			 $s3ql['format'] = 'php';
+		 //keep only those uid belonging to this deployment
+		 foreach ($s3ql['where'] as $whereField=>$whereData) {
+		
+			 if(in_array($whereField, $GLOBALS['COREids'])){
+				if(in_array($whereData, $queryUIDs)){
+					$newWhere[$whereField] = $resolved_uri[$whereData]['s3_id'];
+				 }
+			 }
+			 else {
+				$newWhere[$whereField] = $whereData;
+			 }
+		 }
+		
+		 $s3ql['where'] = $newWhere;
+		 
+		 //if no data, replace Did
+		 ##try first without key
+		 $s3ql['key']='';
+		 $query = S3QLquery($s3ql);
+		
+		 $a = @fopen($query, "r");
+		 if(!$a){
+			return (array(false, "Could not reach remote deployment ".$s3ql['url']));
+		 }
+		 else {
+			 
+			 $results = stream_get_contents($a);
+			 if($results){
+				 $remoteData = unserialize($results);
+				 #convert the remote IDS to something we can use - that is, replace them with the complete uid
+				 
+				 if(!$remoteData[0]['error_code']){
+					$remoteData = replaceRemoteUID($remoteData,$remoteDid, $entity);
+					return (array(true, $remoteData));
+				 }
+				 else {
+					#try with key
+					$s3ql['key']=$key;
+					$query = S3QLquery($s3ql);
+					$a = @fopen($query, "r");
+					$results = stream_get_contents($a);
+					$remoteData = unserialize($results);
+					 #convert the remote IDS to something we can use - that is, replace them with the complete uid
+					 
+					if(!$remoteData[0]['error_code']){
+						$remoteData = replaceRemoteUID($remoteData,$remoteDid, $entity);
+						return (array(true, $remoteData));
+					}
+					else {
+						return (array(false, $remoteData));
+						}
+				 }
+			 }
+			 else {
+				$msg = 'Could not query the remote deployment.';
+				return (array(false, $msg));
+			 }
+		}
+	}
+	else {
+		 $msg = 'Deployment '.$remoteDid.' does not appear to be valid';
+		return (array(false, $msg));
+	 }
+	 
+}
 ?>

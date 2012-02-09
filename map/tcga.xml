@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE TOUCHGRAPH_LB [
+
+<!ELEMENT TOUCHGRAPH_LB (NODESET, EDGESET, PARAMETERS)>
+<!ELEMENT NODESET (NODE+)>
+<!ELEMENT EDGESET (EDGE*)>
+<!ELEMENT PARAMETERS (PARAM*)>
+
+<!ELEMENT NODE (NODE_LOCATION?, NODE_LABEL?, NODE_URL?, NODE_HINT?)>
+
+<!ELEMENT NODE_LABEL EMPTY>
+<!ELEMENT NODE_URL EMPTY>
+<!ELEMENT NODE_HINT EMPTY>
+
+<!ATTLIST TOUCHGRAPH_LB
+  version CDATA #REQUIRED >
+
+<!ATTLIST NODE
+  nodeID CDATA #REQUIRED >
+
+<!ATTLIST NODE_LOCATION
+  visible CDATA #IMPLIED
+  x CDATA #IMPLIED
+  y CDATA #IMPLIED >
+
+<!ATTLIST NODE_LABEL
+  label CDATA #REQUIRED 
+  shape CDATA #IMPLIED
+  backColor CDATA #IMPLIED 
+  textColor CDATA #IMPLIED
+  fontSize CDATA #IMPLIED >
+
+<!ATTLIST NODE_URL 
+  url CDATA #REQUIRED 
+  urlIsLocal CDATA #IMPLIED 
+  urlIsXML CDATA #IMPLIED >
+
+<!ATTLIST NODE_HINT 
+  hint CDATA #REQUIRED 
+  height CDATA #IMPLIED 
+  width CDATA #IMPLIED 
+  isHTML CDATA #IMPLIED >  
+
+<!ELEMENT EDGE EMPTY>
+
+<!ATTLIST EDGE
+  fromID CDATA #REQUIRED
+  toID CDATA #REQUIRED 
+  label CDATA #REQUIRED 
+  length CDATA #IMPLIED 
+  color CDATA #IMPLIED 
+  type CDATA #IMPLIED
+  visible CDATA #IMPLIED >
+
+<!ELEMENT PARAM EMPTY>
+
+<!ATTLIST PARAM
+  name CDATA #REQUIRED
+  value CDATA #REQUIRED >
+]>
+
+<TOUCHGRAPH_LB version="1.20">
+	<NODESET>
+		<NODE nodeID="P127">
+			<NODE_LOCATION x="0" y="0" visible="true"/>
+			<NODE_HINT hint="Data model for storing TCGA data. This is designed to be flexible enough to represent data from all experiments and platforms being measured by The Cancer Genome Atlas. Data being stored in this project is strictly raw Data. " width="300" height="-1" isHTML="false"/>
+			<NODE_LABEL label="TCGA alfa" shape="3" backColor="0000FF" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/project/project.php?project_id=127" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C12537">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Collection of archives available on a given date" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Freeze" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=12537" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C12698">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Collection created by S3DB for holding Verbs" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="s3dbVerb" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=12698" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C1275312">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Cancer Genomic Characterization Centers (CGCC) transfer experimental results for characterization assays (e.g. gene expression, copy number variation, and methylation). a.	Genomic Sequencing Centers (GSC) submit trace files to NCBI Trace. They also transfer trace-to-ID relationship files and mutations to the DCC" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="CancerGenomicCharacterizationAndSequencingCenters" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=1275312" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C128">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Information about hardware and software technology used for carrying out the biological experiment." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Platform" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=128" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C132">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="The Company that manufactures the GenomicCharacterization Platform Array" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Manufacturer" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=132" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C187">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Unit of a high-throughput biological experiment." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="GenomicCharacterization" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=187" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C193">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Biospecimen collected from a patient and identified at the TCGA Data Coordination Center." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Sample" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=193" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C195">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Patient that donated a Sample." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Patient" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=195" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C199">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Data that is generated by TCGA research centers." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Data Type" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=199" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C44546">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="The Center that collected patient Samples. Each Center is mapped to a siteID." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Sample Collection Center" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=44546" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C49943">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="A molecular analyte from a particular portion of a TCGA Sample." width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="Analyte" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=49943" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="C75342">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_HINT hint="Link to all version of TCGA raw data files" width="300" height="-1" isHTML="true"/>
+			<NODE_LABEL label="GenomicCharacterizationRevisions" shape="2" backColor="FF0000" textColor="FFFFFF" fontSize="14"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=75342" urlIsLocal="true" urlIsXML="false"/>
+		</NODE>
+		<NODE nodeID="R1275309">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="PortionAnalyteCode" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=49943&amp;rule_id=1275309" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R1275317">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="CenterID" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=1275312&amp;rule_id=1275317" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R1275321">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="GenomicOrSequencingCenter" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=1275312&amp;rule_id=1275321" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R1275329">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Name" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=1275312&amp;rule_id=1275329" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R1275330">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="URL" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=1275312&amp;rule_id=1275330" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3340">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Revision" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=75342&amp;rule_id=3340" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3341">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Batch" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=75342&amp;rule_id=3341" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3738">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="PrimaryMetastaticStatus" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=193&amp;rule_id=3738" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3742">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="HistologicType" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=193&amp;rule_id=3742" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3747">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="TumorSampleAnatomicLocation" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=193&amp;rule_id=3747" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3748">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="SampleType" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=193&amp;rule_id=3748" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3751">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="VialValue" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=193&amp;rule_id=3751" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3756">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="PlateId" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=49943&amp;rule_id=3756" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3757">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Analyte" shape="1" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=49943" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3764">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Analyte" shape="1" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=49943" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3980">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Sample" shape="1" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=193" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R3984">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="GenomicCharacterization" shape="1" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=187" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R42281">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Batch" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=193&amp;rule_id=42281" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R44551">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="SiteID" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=44546&amp;rule_id=44551" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R44597">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Name" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=44546&amp;rule_id=44597" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R47406">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Content" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=199&amp;rule_id=47406" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R47488">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Sample Collection Center" shape="1" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=44546" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R53718">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Barcode" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=49943&amp;rule_id=53718" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R53731">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="CancerGenomicCharacterizationAndSequencingCenters" shape="1" backColor="FF0000" textColor="FFFFFF" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/resource.php?project_id=127&amp;class_id=1275312" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R74455">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="PlatformCode" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=128&amp;rule_id=74455" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R75347">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Version" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=75342&amp;rule_id=75347" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R75351">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="InsertDate" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=75342&amp;rule_id=75351" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R75355">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="Link" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=75342&amp;rule_id=75355" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+		<NODE nodeID="R75363">
+			<NODE_LOCATION x="0" y="0" visible="false"/>
+			<NODE_LABEL label="ArchiveSerialIndex" shape="1" backColor="336600" textColor="FFFF00" fontSize="12"/>
+			<NODE_URL url="http://localhost/s3db3.5.13/resource/query_page.php?project_id=127&amp;class_id=187&amp;rule_id=75363" urlIsLocal="true" urlIsXML="false"/>
+			<NODE_HINT hint="" width="300" height="-1" isHTML="false"/>
+		</NODE>
+	</NODESET>
+	<EDGESET>
+		<EDGE fromID="P127" toID="C12537" label="[Project ] has resource [Freeze]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C12698" label="[Project ] has resource [s3dbVerb]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C1275312" label="[Project ] has resource [CancerGenomicCharacterizationAndSequencingCenters]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C128" label="[Project ] has resource [Platform]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C132" label="[Project ] has resource [Manufacturer]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C187" label="[Project ] has resource [GenomicCharacterization]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C193" label="[Project ] has resource [Sample]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C195" label="[Project ] has resource [Patient]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C199" label="[Project ] has resource [Data Type]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C44546" label="[Project ] has resource [Sample Collection Center]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C49943" label="[Project ] has resource [Analyte]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="P127" toID="C75342" label="[Project ] has resource [GenomicCharacterizationRevisions]" type="1" length="20" visible="false" color="A0A0A0"/>
+		<EDGE fromID="C49943" toID="R1275309" label="R1275309 was created_on 2008-05-27 18:07:45 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C1275312" toID="R1275317" label="R1275317 was created_on 2008-05-27 18:31:24 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C1275312" toID="R1275321" label="R1275321 was created_on 2008-05-27 18:35:38 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C1275312" toID="R1275329" label="R1275329 was created_on 2008-05-27 18:38:53 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C1275312" toID="R1275330" label="R1275330 was created_on 2008-05-27 18:39:27 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="R3340" label="R3340 was created_on 2008-09-24 16:06:38 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="R3341" label="R3341 was created_on 2008-09-24 16:06:57 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="R3738" label="R3738 was created_on 2008-09-29 18:58:59 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="R3742" label="R3742 was created_on 2008-09-29 19:00:29 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="R3747" label="R3747 was created_on 2008-09-29 19:01:06 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="R3748" label="R3748 was created_on 2008-09-29 23:11:20 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="R3751" label="R3751 was created_on 2008-09-29 23:14:33 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C49943" toID="R3756" label="R3756 was created_on 2008-09-29 23:41:22 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="C49943" label="R3757 was created_on 2008-09-30 14:58:42 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="C49943" label="R3764 was created_on 2008-10-01 22:15:05 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C187" toID="C193" label="R3980 was created_on 2008-10-02 11:09:24 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="C187" label="R3984 was created_on 2008-10-02 11:12:07 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C193" toID="R42281" label="R42281 was created_on 2008-05-15 18:03:49 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C44546" toID="R44551" label="R44551 was created_on 2008-05-16 14:40:33 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C44546" toID="R44597" label="R44597 was created_on 2008-05-16 15:09:55 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C199" toID="R47406" label="R47406 was created_on 2008-05-19 14:19:56 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C195" toID="C44546" label="R47488 was created_on 2008-05-19 15:06:56 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C49943" toID="R53718" label="R53718 was created_on 2008-05-27 07:02:07 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C187" toID="C1275312" label="R53731 was created_on 2008-06-04 10:39:26 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C128" toID="R74455" label="R74455 was created_on 2008-07-05 17:54:08 by Admin" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="R75347" label="R75347 was created_on 2008-07-07 14:23:34 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="R75351" label="R75351 was created_on 2008-07-07 14:24:44 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C75342" toID="R75355" label="R75355 was created_on 2008-07-07 14:25:31 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+		<EDGE fromID="C187" toID="R75363" label="R75363 was created_on 2008-07-07 17:00:06 by guest" type="1" length="40" visible="true" color="A0A0A0"/>
+	</EDGESET>
+	<PARAMETERS>
+		<PARAM name="offsetX" value=""/>
+		<PARAM name="rotateSB" value="0"/>
+		<PARAM name="zoomSB" value="-7"/>
+		<PARAM name="offsetY" value=""/>
+	</PARAMETERS>
+</TOUCHGRAPH_LB>

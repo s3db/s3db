@@ -430,5 +430,29 @@ function updateIt($U)
 extract($U);
 	
 }
+function update_deployment($D)
+{
+	extract($D);
+	
+	$tableDescription = $GLOBALS['dbstruct'][$table];
+	$f=0;
+	foreach ($inputs as $field=>$value) {
+		$f++;
+		if(in_array($field,$tableDescription, 1)){
+			$set .= $field." = '".$value."'";
+			if($f<count($inputs)){
+				$set .= ',';
+			}
+		}
+	}
+	$sql = "update s3db_".$table." set ".$set." where ".$identifier." = '".$element_id."'";
+	$db->query($sql, __LINE__, __FILE__);
+	if($db->Errno==0){
+		return (true);
+	}
+	else {
+		return (false);
+	}
 
+}
 ?>

@@ -1,6 +1,6 @@
 <?php
 $dbstruct = array(
-				'deployments'=>array('deployment_id', 'url', 'checked_on', 'publickey'),
+				'deployments'=>array('deployment_id', 'url', 'checked_on', 'publickey', 'created_on','name', 'modified_on'),
 				'users'=>array('account_id','account_lid', 'account_status','account_uname', 'account_email','account_phone', 'account_type', 'account_group','created_on', 'created_by', 'addr1', 'addr2', 'city', 'state', 'postal_code', 'country', 'account_addr_id'), 
 				'groups'=>array('account_id','account_lid','account_uname', 'account_type','created_on', 'created_by'),
 				'keys'=>array('key_id', 'account_id','expires','notes','uid'),
@@ -78,18 +78,18 @@ $GLOBALS['propertyURI'] = array(
 									'description'=>'http://www.w3.org/2000/01/rdf-schema#comment',
 									'created_on'=>'http://purl.org/dc/terms/created',
 									'created_by'=>'http://purl.org/dc/terms/creator'),
-								'C'=>array('project_id'=>'http://www.w3.org/2000/01/rdf-schema#subClassOf', 
-								'name'=>'http://www.w3.org/2000/01/rdf-schema#label', 
+								'C'=>array( 
+									'entity'=>'http://www.w3.org/2000/01/rdf-schema#label',
 									'notes'=>'http://www.w3.org/2000/01/rdf-schema#comment',
 									'created_on'=>'http://purl.org/dc/terms/created',
 									'created_by'=>'http://purl.org/dc/terms/creator'),
 
 								'R'=>array(
-								'project_id'=>'http://www.w3.org/2000/01/rdf-schema#subClassOf', 
-								'subject_id'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#subject', 
-								'verb_id'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate', 
-								'object'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#object',
-								'object_id'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#object',
+								'subject_id'=>'http://www.w3.org/2000/01/rdf-schema#domain', 
+								'verb_id'=>'http://www.s3db.org/core#predicate',
+								'verb'=>'http://www.w3.org/2000/01/rdf-schema#label',
+								'object'=>'http://www.s3db.org/core#object',
+								'object_id'=>'http://www.w3.org/2000/01/rdf-schema#range',
 								'notes'=>'http://www.w3.org/2000/01/rdf-schema#comment',
 								'created_on'=>'http://purl.org/dc/terms/created',
 								'created_by'=>'http://purl.org/dc/terms/creator',
@@ -100,9 +100,9 @@ $GLOBALS['propertyURI'] = array(
 								'created_on'=>'http://purl.org/dc/terms/created',
 								'created_by'=>'http://purl.org/dc/terms/creator'),
 
-								'S'=>array('item_id'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#subject', 
-								'rule_id'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate', 
-								'value'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#object', 
+								'S'=>array('item_id'=>'http://www.s3db.org/core#subject', 
+								'rule_id'=>'http://www.s3db.org/core#predicate', 
+								'value'=>'http://www.s3db.org/core#object', 
 								'notes'=>'http://www.w3.org/2000/01/rdf-schema#comment',
 								'created_on'=>'http://purl.org/dc/terms/created',
 								'created_by'=>'http://purl.org/dc/terms/creator')
@@ -131,17 +131,21 @@ $messages = array('syntax_message'=>"For syntax instructions refer to <a href='h
 $GLOBALS['error_codes'] = array('success'=>0,'not_a_query'=>1,'something_went_wrong'=>2,'something_missing'=>3,'repeating_action'=>4, 'no_permission_message'=>5,'something_does_not_exist'=>6,'wrong_query_for_purpose'=>7, 'wrong_input'=>8,'wrong_input'=>9,'no_results'=>10,'not_valid'=>11,'nothing_to_change'=>12);
 						
 						
-$GLOBALS['N3coreNames']=array('deployment'=>'s3db:s3dbDeployment','project'=>'s3db:s3dbProject', 'collection'=>'s3db:s3dbCollection', 'rule'=>'s3db:s3dbRule', 'item'=>'s3db:s3dbItem', 'statement'=>'s3db:s3dbStatement', 'user'=>'s3db:s3dbUser', 'group'=>'s3db:s3dbGroup');
+$GLOBALS['N3coreNames']=array('deployment'=>'s3db:deployment','project'=>'s3db:project', 'collection'=>'s3db:collection', 'rule'=>'s3db:rule', 'item'=>'s3db:item', 'statement'=>'s3db:statement', 'user'=>'s3db:user', 'group'=>'s3db:group');
 
-$GLOBALS['N3Names']=array('deployment'=>'s3dbDeployment','project'=>'s3dbProject', 'collection'=>'s3dbCollection', 'rule'=>'s3dbRule', 'item'=>'s3dbItem', 'statement'=>'s3dbStatement', 'user'=>'s3dbUser', 'group'=>'s3dbGroup');
+$GLOBALS['N3Names']=array('deployment'=>'deployment','project'=>'project', 'collection'=>'collection', 'rule'=>'rule', 'item'=>'item', 'statement'=>'statement', 'user'=>'user', 'group'=>'group');
 
 $GLOBALS['plurals'] = array('deployment'=>'deployments','key'=>'keys', 'user'=>'users', 'group'=>'groups', 'project'=>'projects', 'class'=>'classes', 'instance'=>'instances', 'rule'=>'rules', 'statement'=>'statements', 'file'=>'files', 'collection'=>'collections', 'item'=>'items');
 
 #$GLOBALS['singulars'] = array_combine(array_values($GLOBALS['plurals']), array_keys($GLOBALS['plurals']));
 $GLOBALS['singulars'] = unserialize('a:12:{s:11:"deployments";s:10:"deployment";s:4:"keys";s:3:"key";s:5:"users";s:4:"user";s:6:"groups";s:5:"group";s:8:"projects";s:7:"project";s:7:"classes";s:5:"class";s:9:"instances";s:8:"instance";s:5:"rules";s:4:"rule";s:10:"statements";s:9:"statement";s:5:"files";s:4:"file";s:11:"collections";s:10:"collection";s:5:"items";s:4:"item";}');
 
-
-$GLOBALS['s3map'] = array('deployments'=>array(),
+$GLOBALS['common_attr'] = array('id', 'label','description','creator','created');
+$GLOBALS['s3map'] = array('deployments'=>array('id'=>'deployment_id',
+												'label'=>'name',
+												'description'=>'message',
+												'creator'=>'created_by',
+												'created'=>'created_on'),
 						 'users'=>array('user_id'=>'account_id',
 										'login'=>'account_lid',
 										'name'=>'account_lid',
@@ -152,7 +156,11 @@ $GLOBALS['s3map'] = array('deployments'=>array(),
 										'phone'=>'account_phone',
 										'address'=>'addr1',
 										'address2'=>'addr2',
-										),
+										'id'=>'account_id',
+										'label'=>'login',
+										'description'=>'account_uname',
+										'creator'=>'created_by',
+										'created'=>'created_on'),
 							'groups'=>array('group_id'=>'account_id',
 											'groupname'=>'account_lid',
 											'name'=>'account_lid'),
@@ -162,27 +170,48 @@ $GLOBALS['s3map'] = array('deployments'=>array(),
 							'permission'=>array(),
 							'accesslog'=>array('account_lid'=>'login_id', 'time'=>'login_timestamp',),
 							'projects'=>array('name'=>'project_name',	
-													'description'=>'project_description',
-													'comment'=>'project_description'),
+												'description'=>'project_description',
+												'comment'=>'project_description',
+												'id'=>'project_id',
+												'label'=>'project_name',
+												'creator'=>'created_by',
+												'created'=>'created_on'),
 							'items'=>array('class_id'=>'resource_class_id',
 												'collection_id'=>'resource_class_id',
 												'instance_id'=>'resource_id',
 												'item_id'=>'resource_id',
 												'description'=>'notes',
-												'comment'=>'notes'),
+												'comment'=>'notes',
+												'id'=>'resource_id',
+												'label'=>'$entity : $notes',
+												'creator'=>'created_by',
+												'created'=>'created_on'),
 				
 							'collections'=>array('class_id'=>'resource_id',
 											'name'=>'entity',
 											'collection_id'=>'resource_id',
 											'description'=>'notes',
-											'comment'=>'notes'),
-							'rules'=>array('description'=>'notes','comment'=>'notes'),
+											'comment'=>'notes',
+											'id'=>'resource_id',
+											'label'=>'entity',
+											'creator'=>'created_by',
+											'created'=>'created_on'),
+							'rules'=>array('description'=>'notes',
+										   'comment'=>'notes',
+										   'id'=>'rule_id',
+											'label'=>'$subject [$verb] $object',
+											'creator'=>'created_by',
+											'created'=>'created_on'),
 							'rulelog'=>array(),
 							'statement_log'=>array(),
 							'statements'=>array('instance_id'=>'resource_id',
 												'item_id'=>'resource_id',
+												'id'=>'statement_id',
+												'label'=>'value',
 												'description'=>'notes',
-												'comment'=>'notes'), 
+												'comment'=>'notes',
+												'creator'=>'created_by',
+												'created'=>'created_on'), 
 							'files'=>array('instance_id'=>'resource_id','item_id'=>'resource_id',
 							));
 $GLOBALS['s3map']['classes'] = $GLOBALS['s3map']['collections'];
@@ -235,6 +264,7 @@ $GLOBALS['s3codesInv'] = $s3codesInv;
 $https = ($_SERVER['HTTPS']!='')?('https://'):('http://');
 $GLOBALS['URI'] = $https.$_SERVER['SERVER_NAME'].'/'.strtok($_SERVER['PHP_SELF'], '/');
 $GLOBALS['Did'] = ($GLOBALS['s3db_info']['deployment']['Did']!='')?$GLOBALS['s3db_info']['deployment']['Did']:(($_SERVER['HTTPS']!='')?'https://':'http://'.$_SERVER['SERVER_NAME'].'/'.strtok($_SERVER['PHP_SELF'], '/'));
+$GLOBALS['Did'] = (is_numeric(substr($GLOBALS['Did'],0,1)))?"D".$GLOBALS['Did']:$GLOBALS['Did'];
 $GLOBALS['uploads'] = $GLOBALS['s3db_info']['server']['db']['uploads_folder'].$GLOBALS['s3db_info']['server']['db']['uploads_file'].'/';
 $GLOBALS['endorsed']=$GLOBALS['s3db_info']['deployment']['endorsed_authorities'];
 

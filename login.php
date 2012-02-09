@@ -112,7 +112,7 @@
 				$Did = $GLOBALS['s3db_info']['deployment']['Did'];
 				$publicKey=$GLOBALS['s3db_info']['deployment']['public_key'];
 				
-				if($Did!='' && $Did!='localhost')
+				if($Did!='' && $Did!='localhost' && $_REQUEST['offline']!=='on')
 					{
 					##First check if my ip has changed
 					$ip= captureIp();
@@ -141,8 +141,9 @@
 				//Header('Location:http://'.$_SERVER['HTTP_HOST'].S3DB_URI_BASE.'/home.php');
 				
 				#Header('Location:home.php');
-				if($_REQUEST['su3d']) $sued='?su3d=1';
-				Header('Location:home.php'.$sued);
+				if($_REQUEST['su3d']) $sued='&su3d=1';
+				if($_REQUEST['offline']) $sued.='&offline='.$_REQUEST['offline'];
+				Header('Location:home.php?'.$sued);
 			}
 			else {
 				$_SESSION['db'] = '';	
@@ -516,6 +517,7 @@ function localUserInfo($db,$login,$password, $sql='')
 	$Did=(!ereg('^D',$GLOBALS['s3db_info']['deployment']['Did']))?'D'.$GLOBALS['s3db_info']['deployment']['Did']:$GLOBALS['s3db_info']['deployment']['Did'];
 	
 	$tpl->set_var('Did',$Did);
+	$tpl->set_var('ms',$GLOBALS['s3db_info']['deployment']['mothership']);
 	$tpl->set_var('cookie',$last_loginid);
 	
 	$tpl->set_var('login_top', 'images/login_top.gif');
@@ -536,9 +538,9 @@ function localUserInfo($db,$login,$password, $sql='')
 	
 	
 	if ($_SESSION['db'] == '')
-	$tpl->set_var ('input_login', '<input type="text" name="login" id="login" value="">');
+	$tpl->set_var ('input_login', '<input type="text" name="login" id="login" value=""><input type="checkbox" name="offline">Offline');
 	else 
-	$tpl->set_var ('input_login', $_SESSION['user']['account_lid'].'<input type="hidden" name="login" value="'. $_SESSION['user']['account_lid'].'">');
+	$tpl->set_var ('input_login', $_SESSION['user']['account_lid'].'<input type="hidden" name="login" value="'. $_SESSION['user']['account_lid'].'"><input type="checkbox" name="offline">Offline');
 	
 	#Set up the parameters for openID authentication; form data
 	

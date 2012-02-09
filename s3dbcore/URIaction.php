@@ -32,8 +32,9 @@ function URI($uid, $user_id, $db)
 	#$elements = $S3elements[$letter];#chose the correct element from the letter
 	$elements = $core;
 	$element_info = s3info($core, $id, $db);
-
+	
 #and finally include things like the class_id of rules, the rules of statements, the permission acl, etc
+if(is_array($element_info))
 $element_info = include_all(compact('elements', 'element_info', 'user_id', 'db','key'));
 
 return ($element_info);	
@@ -90,10 +91,9 @@ function s3info($elements, $id, $db)
 	
 	}
 	
-	
-			
+	 	
 	$db->query($sql, __LINE__, __FILE__);
-			
+		
 	#echo '<pre>';print_r($db);
 	while($db->next_record())
                 {	
@@ -117,6 +117,7 @@ function s3info($elements, $id, $db)
 				eval($resultStr);
 	
 	
+		
 	#if nothing was returned, it means uid does not exits
 	if (!is_array($data)) {
 		return (false);#return ($GLOBALS['messages']['something_does_not_exist'].'<message>UID '.$id.' was not found</message>');
@@ -151,20 +152,32 @@ function include_all($x)
 	
 	if(is_array($GLOBALS['s3map'][$GLOBALS['plurals'][$GLOBALS['s3codes'][$letter]]]))
 	foreach ($GLOBALS['s3map'][$GLOBALS['plurals'][$GLOBALS['s3codes'][$letter]]] as $replace=>$with) {
-			$element_info[$replace] = $element_info[$with];	
+			preg_match_all('/\$([A-Za-z0-9_]+)/',$with, $sim);
+			if(is_array($sim[1]) && !empty($sim[1])){
+				
+				foreach ($sim[1] as $a) {if($element_info[$a])	$tmp[] = stripslashes($element_info[$a]);}
+				
+				$element_info[$replace] = str_replace($sim[0], $tmp, $with);
+				
+			}
+			else {
+				$element_info[$replace] = $element_info[$with];	
+			}
 		}
 	
 	
 	#if element is a class, return the class id
 	if ($letter=='D') {
 		
-
+		if($element_info['deployment_id']!="")
 		$element_info['acl'] = ($user_id=='1')?'222':((user_is_admin($user_id, $db))?'212':((user_is_public($user_id, $db))?'210':'211'));
+		//
 		$element_info['created_by']=$user_id;
 		$element_info['description']=$GLOBALS['s3db_info']['server']['site_intro'];
 		$element_info['name']=$GLOBALS['s3db_info']['server']['site_title'];
 		if($element_info['deployment_id']==$GLOBALS['s3db_info']['deployment']['Did']){
-		$element_info['self']=1;
+			$element_info['self']=1;
+			$element_info['url'] = S3DB_URI_BASE;
 		}
 
 	}
@@ -265,7 +278,7 @@ function include_all($x)
 	#project_id to search for rule_id will be the same from the class
 	
 	$uid = 'C'.$element_info['resource_id'];
-		
+	
 		
 	}
 	#if element is a rule, return the class_id of the subject. If the object is a class, return the object_id... to discuss with jonas
@@ -318,7 +331,8 @@ function include_all($x)
 
 		
 	}
-	
+	##When the resource is remote_uri, there is no propagation of permission;
+	if(!$element_info['remote_uri']){
 	$strictuid=1;$strictsharedwith=1;
 	$shared_with = 'U'.$user_id;
 	$toFindInfo = $element_info;
@@ -337,7 +351,7 @@ function include_all($x)
 	$tmp = has_permission($pp, $db);
 	if($tmp) $element_info['assigned_permission']=$tmp; else $element_info['assigned_permission']='---';
 	}
-
+	}
 	#Define if ser can view or not view data. View is the first number in the 3d code. 
 	$permission2user = permissionModelComp($element_info['permission_level']);
 	
@@ -355,8 +369,14 @@ function include_all($x)
 	$element_info['delete_data'] = $element_info['add_data'];
 	$element_info['add_data'] = $element_info['propagate'];
 
-	
-
+	$uid_info = uid_resolve($uid);
+	$element_info['uid'] = $uid_info['condensed'];
+	if(is_file(S3DB_SERVER_ROOT.'/.htaccess')){
+			$element_info['uri'] = S3DB_URI_BASE.'/'.$element_info['uid'];
+	}
+	else {
+			$element_info['uri'] = S3DB_URI_BASE.'/URI.php?uid='.$element_info['uid'];
+	}
 	
 	return ($element_info);
 }
@@ -381,6 +401,9 @@ function remoteURI($uid, $key, $user_id, $db)
 		$numeric_id = substr($uid,1,strlen($uid)); #if uid brings a letter, leave just a the id
 		$numeric_did = substr($uid_info['did'],1,strlen($uid_info['did']));
 		}
+	else {
+		$numeric_did = $uid_info['origin']; 
+	}
 	
 	
 	##If Did is not a url, it must be found first
@@ -413,7 +436,7 @@ function remoteURI($uid, $key, $user_id, $db)
 			return $uid_info[0]['message'];
 		}
 		elseif($uid_info['error_code']=='5'){
-			$did_query .= '?key='.$key.'&user_id='.$local_user;
+			$did_query .= '&key='.$key.'&user_id='.$local_user;
 			$tmpH = @fopen($did_query,'r');
 			$tmpData = stream_get_contents($tmpH);
 			$uid_info = unserialize($tmpData);
@@ -712,13 +735,38 @@ function remoteURIOLD($uid, $key, $user_id, $db){
 function URIinfo($uid, $user_id, $key, $db,$timer=array())
 {
 
-$uid_info = uid($uid);
+#$uid_info = uid($uid);
+$uid_info = uid_resolve($uid);
+$uid_info['Did'] = substr($uid_info['did'], 1, strlen($uid_info['did']));//just to avoid breaking the code, Did is going to be deploymentID withouth the "D" at the beginning and did with the "D"
+if(!$uid_info['s3_id'] || !$uid_info['letter']){
+	//this is not a valid id!
+	return (false);	
+}
+#echo '<pre>';print_r($uid_info);exit;
+$element = $GLOBALS['s3codes'][$uid_info['letter']];
 
-
-$element = $GLOBALS['s3codes'][substr($uid,0,1)];
-$local_info = s3info($element, ereg_replace('^'.letter($uid), '', $uid), $db);
-
+//if element is a deployment, then a local representation is possible (cached), in all other cases only look for local info if there is no information on the deployment (would waste time otherwise). 
+	if(preg_replace('/^D/', '', $uid_info['Did'])==preg_replace('/^D/', '', $GLOBALS['Did'])  || $uid_info['Did']==S3DB_URI_BASE || $uid_info['letter']=='D')
+	$local_info = s3info($element,$uid_info['s3_id'], $db);
+ 
 #echo $uid.'<pre>';print_r($local_info);exit;
+if($uid_info['uid']=='D'.$GLOBALS['Did']){
+	#this is the local deployment; data is collected from config.inc
+    $local_info = array('mothership'=>$GLOBALS['s3db_info']['deployment']['mothership'],			
+					'deployment_id'=>$GLOBALS['s3db_info']['deployment']['Did'],
+					'self'=>'1' ,
+					'description'=>$GLOBALS['s3db_info']['server']['site_intro'],
+					'url'=>S3DB_URI_BASE, 
+					'message'=>'Successfully connected to deployment '.$GLOBALS['s3db_info']['deployment']['Did'].'. Please provice a key to query the data (for example: '.(($_SERVER['https']=='on')?'https://':'http://').$def.S3DB_URI_BASE.'/URI.php?key=xxxxxxxx. For syntax specification and instructions refer to http://s3db.org/',
+					'publickey'=>$GLOBALS['s3db_info']['deployment']['public_key'],
+					'checked_on'=>date('Y-m-d G:i:s'),
+					'id'=>$GLOBALS['s3db_info']['deployment']['Did'],
+					'label'=>$GLOBALS['s3db_info']['deployment']['name'],
+					'creator'=>1,
+					'created'=>'');
+	
+}
+
 if (is_array($local_info) && !empty($local_info)) {
 	$uid_info['Did'] = $GLOBALS['Did'];
 	$uid_info['uid'] = $uid;
@@ -738,8 +786,10 @@ if($uid_info['Did']==$GLOBALS['Did'] || $uid_info['Did']==S3DB_URI_BASE)
 	$uid_info['Did'] = $GLOBALS['Did'];
 	$uid_info['uid'] = $uid;
 	
-	$element_info = s3info($element, ereg_replace('^'.letter($uid), '', $uid), $db);;
-	$letter = strtoupper(substr($element,0,1));
+	#$element_info = s3info($element, ereg_replace('^'.letter($uid), '', $uid), $db);;
+	$element_info = $local_info;
+	#$letter = strtoupper(substr($element,0,1));
+	$letter = $uid_info['letter'];
 	$info = include_all(compact('elements', 'letter','element_info', 'user_id', 'db','key'));
 	$info['remote_uri']=0;
 	}
@@ -751,23 +801,42 @@ if($uid_info['Did']==$GLOBALS['Did'] || $uid_info['Did']==S3DB_URI_BASE)
 	#$info['remote_uri']=0;
 	}
 else{
-
-	#echo 'ola'.$uid;exit;
 		
 	$key=($key!='')?$key:get_user_key($user_id, $db);
 	#echo $user_id;exit;
-	$info = remoteURI($letter.$uid_info['uid'], $key, $user_id, $db);
-	#echo '<pre>';print_r($info);exit;
+	#$info = remoteURI($letter.$uid_info['uid'], $key, $user_id, $db);
+	$info = remoteURI($uid, $key, $user_id, $db);
+	
 	$info['remote_uri']=1;
+	
+	if(is_array($info)){
+		##foreach remote core id, re-reference all uids - they must be reference to remote uid
+		foreach ($info as $uidname=>$uidval) {
+			if(ereg('_id$', $uidname)){
+				 $search = array_search($uidname, $GLOBALS['s3map'][$GLOBALS['plurals'][$element]]);
+				 if($search) { $newuidname = $search;}
+				 else { $newuidname = $uidname; }
+				 $info[$uidname] =   $uid_info['did'].'|'.strtoupper(substr($newuidname, 0,1)).$uidval;
+			}
+			elseif ($uidname=='created_by') {
+				$info['created_by'] = $uid_info['did'].'|U'.$info['created_by'];
+			}
+		}
+	
+	$element_info = $info;
+	$letter = $uid_info['letter'];
+	$info = include_all(compact('elements', 'letter','element_info', 'user_id', 'db','key','timer'));
+	
+	}
+	
 	if(!is_array($info) || empty($info)){	
-	$info = URI($uid, $user_id, $db);
+	$info = URI($uid, $user_id, $db);	
 	}
 	if(!is_array($info)){
 	$info=false;
 	}
 	
 }
-#echo '<pre>';print_r($info);exit;
 return ($info);
 
 }

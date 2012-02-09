@@ -25,7 +25,7 @@ if(file_exists('config.inc.php'))
 #include(S3DB_SERVER_ROOT.'/dbstruct.php');
 include_once(S3DB_SERVER_ROOT.'/core.header.php');
 include_once(S3DB_SERVER_ROOT.'/rdfheader.inc.php');
-include_once(S3DB_SERVER_ROOT.'/s3dbcore/sparql_read7.php');
+include_once(S3DB_SERVER_ROOT.'/s3dbcore/sparql_read5.php');
 if(is_file(S3DB_SERVER_ROOT.'/pearlib/Benchmark/Timer.php')){
 require_once S3DB_SERVER_ROOT.'/pearlib/Benchmark/Timer.php';
 $timer = new Benchmark_Timer();
@@ -48,7 +48,7 @@ else {
 	
 	if($tmp)  $in['query'] = urldecode($tmp[1]);
 }
-$in['query'] = stripslashes($in['query']);
+
 $default_uri = S3DB_URI_BASE.((substr(S3DB_URI_BASE, strlen(S3DB_URI_BASE)-1, 1)!='/')?'/':'');
 
 
@@ -59,20 +59,16 @@ $a= file_get_contents($tmp[0]);
 }
 
 if(!$in['query']){
-echo "Please specify some SPARQL query using the syntax sparql.php?query=... .";exit;
+echo "Please specify some SPARQL query.";exit;
 }
 
 $clean = false;
-$complete=true;
+$complete=false;
 $goparallel=false;
 if($_REQUEST['link']) $link=1;
 elseif($_REQUEST['redirect']) $redirect=1;
-if($_REQUEST['complete']) $complete = $_REQUEST['complete'];
-if($_REQUEST['clean']) $clean = $_REQUEST['clean'];
-if($_REQUEST['goparallel']) $goparallel = $_REQUEST['goparallel'];
-$format = ($_REQUEST['format']!='')?$_REQUEST['format']:'sparql-xml';
-
-$I = compact('in', 'user_id','db','default_uri','complete','goparallel','link', 'redirect', 'clean', 'format');
+if($_REQUEST['clean']) 	$clean =   $_REQUEST['clean'];
+$I = compact('in', 'user_id','db','default_uri','complete','goparallel','link', 'redirect','clean');
 
 list($valid, $result) = sparql($I);
 #list($valid, $result) = sparql_api($I);

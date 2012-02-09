@@ -54,7 +54,18 @@ function sparql($I)
 	}
 	
 	$sparql=ereg_replace("FROM(.*)WHERE", "WHERE",$bq);
+	#Validate the query first
+	include_once(RDFAPI_INCLUDE_DIR."sparql/SparqlParser.php");
 	
+	try {
+		$parser = new SparqlParser();
+		$parsed = $parser->parse($sparql);		
+	} 
+	catch (Exception $e) {
+		echo formatReturn('1', 'Parse error: '.$e->getMessage(), $_REQUEST['format'],'');
+		exit;
+	}
+
 	#lets preprocess the order by which the must be queries must be performed to optimize speedness
 	$filename = S3DB_SERVER_ROOT.'/tmp/'.md5($sparql.$user_id.date('dmy'));
 	
@@ -244,7 +255,23 @@ function sparql($I)
 					
 					foreach ($localQueries as $s=>$locals3ql) {
 						$locals3ql = array_filter(array_diff_key($locals3ql,array('url'=>'')));
-						$answer = S3QLAction($locals3ql);
+						$tmpqueryfile = S3DB_SERVER_ROOT.'/tmp/'.md5(S3QLQuery($locals3ql));
+						
+						##Has this query been performed?
+						if($_REQUEST['clean'] && is_file($tmpqueryfile)){
+							unlink($tmpqueryfile);
+						}
+						#If query results are stored in cache, use them!
+						if (is_file($tmpqueryfile)) {
+							
+							$answer = unserialize(file_get_contents($tmpqueryfile));
+						}
+						else {
+							
+							$answer = S3QLAction($locals3ql);
+							file_put_contents($tmpqueryfile, serialize($answer));
+						}
+						//$answer = S3QLAction($locals3ql);
 						
 						if(!empty($answer))
 							{
@@ -692,7 +719,9 @@ function sparql_navigator($c)
 				
 				elseif($triple[$crew_member]) {
 					if (isCoreOntology($triple[$crew_member])) {
+					$target = isCoreOntology($triple[$crew_member]);
 					#The query is to be oriented towards the core. Since the core is already part of the model.n3, we need						to leave the form and where empty. Model reamians as was an query is porformed on top of it.
+					//$from = array();
 					$from = array();
 					$where = array();
 
@@ -783,6 +812,44 @@ function sparql_navigator($c)
 							elseif($objectType) {
 							 							
 								foreach ($objectType as $gold) {
+									 $isObjectCore = isS3DBCore($gold);
+										if($isObjectCore){
+										list($from, $where) = trimBasedOnObj(array('from'=>$from,'isCore'=>$isObjectCore,'where'=>$where));
+										}
+										
+
+									 
+								}
+
+							}
+							
+
+						
+					}
+					elseif($tmp=='http://www.s3db.org/core#PC'){
+					  $from = array('C');
+					  //is subject discovered?
+					  $subjectIsCore =isS3DBCore($triple['subject']);
+					  
+					  $objectDiscovered = WasDiscovered($triple['object'],$varType);
+					  $subjectType = WasDiscovered($triple['subject'],$varType);
+					  
+							if($subjectIsCore)
+								{
+								switch ($objectIsCore['letter']) {
+									case 'P':
+										
+										$where['C'] = array('project_id'=>$subjectIsCore['value']);
+										//$varTypeWhere[$triple['subject']][] = 'P'.$objectIsCore['value'];
+										#if(!is_array($where['I'])) $where['I'] = array();
+										#array_push($where['I'], array('collection_id'=>$objectIsCore['value']));
+										
+										break;
+									}
+								}
+							elseif($objectDiscovered) {
+							 							
+								foreach ($objectDiscovered as $gold) {
 									 $isObjectCore = isS3DBCore($gold);
 										if($isObjectCore){
 										list($from, $where) = trimBasedOnObj(array('from'=>$from,'isCore'=>$isObjectCore,'where'=>$where));
@@ -893,7 +960,7 @@ function sparql_navigator($c)
 		case 'object':
 				
 				#echo '<pre>';print_r($where);exit;
-
+				
 				if($isCore)	{
 					
 					##Who can be connected to an element of the core? The object can eliminate some "from" options by discarding those that,according to the core, cannot be connected to this property as object
@@ -956,7 +1023,13 @@ function sparql_navigator($c)
 							foreach ($from as $e) {
 								switch ($e) {
 									case 'S':
-										array_push($where['S'], array('value' => $isCore['value']));
+										#16022010; avoided splitting the query
+										#this is one of the few cases when we do want the object to be inthe same query as that for the predicate
+										if(!is_array($where[$e])) $where[$e] =array('value'=>$isCore['value']);
+										else {
+											$where[$e][max(array_keys($where[$e]))]['value']=$isCore['value'];
+										}
+										#array_push($where['S'], array('value' => $isCore['value']));
 									break;
 									case 'R':
 										array_push($where['R'], array('verb_id' => $isCore['value']));
@@ -1000,6 +1073,7 @@ function sparql_navigator($c)
 					$from = array($GLOBALS['s3codesInv'][strtolower($isOnt)]);
 					
 					$where[$GLOBALS['s3codesInv'][strtolower($isOnt)]]=array();
+					
 					}
 					else {
 						#to be parsed by SPARQL algebra;
@@ -1059,6 +1133,7 @@ function sparql_navigator($c)
 	
 	$bQ=buildQuery(compact('s3ql','from','where','remote','performedQueries','varType','varTypeWhere','it'));
 	extract($bQ);
+	
 	
 	return(compact('remoteQueries','localQueries','S3QL','varType','varTypeWhere', 'element','collected_data','performedQueries'));
 	
@@ -1393,8 +1468,9 @@ function trimBasedOnSub($s)
 }
 function isCoreOntology($uri)
 {
-	if(ereg('^http://www.s3db.org/core.owl#s3db(.*)', $uri,$ont))
-	{return ($ont[1]);
+	if(preg_match('/^http:\/\/www.s3db.org\/core#(.*)/', $uri,$ont))
+	{	
+		return ($ont[1]);
 	}
 	else {
 		return False;

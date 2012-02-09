@@ -73,31 +73,31 @@ if($user_id!='')
 #$url = ($def=='')?$GLOBALS['s3db_info']['deployment']['url']:S3DB_URI_BASE;
 $url = S3DB_URI_BASE;
 #start building the string, prefix will be the very fisrt thing shouwing up
-$n3 .= sprintf('%s', '@prefix dc: <http://purl.org/dc/elements/1.1/> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix dcterms: <http://purl.org/dc/terms/> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix owl: <http://www.w3.org/2002/07/owl#> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix s3db: <http://www.s3db.org/core#> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix s3dbpc: <http://www.s3db.org/permission_codes#> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix foaf: <http://xmlns.com/foaf/0.1/> .'.chr(10));
-$n3 .= sprintf('%s', '@prefix did: <'.$GLOBALS['s3db_info']['deployment']['mothership'].$GLOBALS['Did'].'/> .'.chr(10).chr(10));
-$n3 .= sprintf('%s', '@prefix : <'.$url.((substr($url,strlen($url)-1,1)=='/')?'':'/').'> .'.chr(10).chr(10));
+$n3 .= sprintf('%s', '@prefix dc: <http://purl.org/dc/elements/1.1/> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix dcterms: <http://purl.org/dc/terms/> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix owl: <http://www.w3.org/2002/07/owl#> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix s3db: <http://www.s3db.org/core#> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix s3dbpc: <http://www.s3db.org/permission_codes#> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix foaf: <http://xmlns.com/foaf/0.1/> .'.chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix did: <'.$GLOBALS['s3db_info']['deployment']['mothership'].$GLOBALS['Did'].'/> .'.chr(10).chr(13).chr(10).chr(13));
+$n3 .= sprintf('%s', '@prefix : <'.$url.((substr($url,strlen($url)-1,1)=='/')?'':'/').'> .'.chr(10).chr(13).chr(10).chr(13));
 
-$N3coreNames = array('deployment'=>'s3db:s3dbDeployment','project'=>'s3db:s3dbProject', 'collection'=>'s3db:s3dbCollection', 'rule'=>'s3db:s3dbRule', 'item'=>'s3db:s3dbItem', 'statement'=>'s3db:s3dbStatement', 'user'=>'s3db:s3dbUser', 'group'=>'s3db:s3dbGroup');
+//$N3coreNames = array('deployment'=>'s3db:s3dbDeployment','project'=>'s3db:s3dbProject', 'collection'=>'s3db:s3dbCollection', 'rule'=>'s3db:s3dbRule', 'item'=>'s3db:s3dbItem', 'statement'=>'s3db:s3dbStatement', 'user'=>'s3db:s3dbUser', 'group'=>'s3db:s3dbGroup');
+$N3coreNames = array('deployment'=>'s3db:deployment','project'=>'s3db:project', 'collection'=>'s3db:collection', 'rule'=>'s3db:rule', 'item'=>'s3db:item', 'statement'=>'s3db:statement', 'user'=>'s3db:user', 'group'=>'s3db:group');
 
 if(!$inputs['nocore']) {
 $core = fread(fopen('core.n3', 'r'), filesize('core.n3'));
 $n3 .= sprintf('%s', $core);
-#$n3 .= sprintf('%s', 'doc:'.$GLOBALS['Did'].' a s3db:s3dbDeployment .'.chr(10).chr(10));
+#$n3 .= sprintf('%s', 'doc:'.$GLOBALS['Did'].' a s3db:s3dbDeployment .'.chr(10).chr(13).chr(10).chr(13));
 
 }
 #else {
 #	$N3coreNames = array('project'=>'rdfs:Class', 'collection'=>'rdfs:Class', 'rule'=>'rdf:Property', 'item'=>'rdf:Resource', 'statement'=>'rdf:Resource', 'user'=>'rdf:Resource', 'group'=>'rdf:Resource');
 #}
 #parse the core relatioships
-
 
 #############################################################################
 ##define the Classes in the ontology of s3db
@@ -179,16 +179,16 @@ break;
 					if(!in_array($specified_id_info['verb'], array_keys($verbs)))
 					{
 					$addStat .= sprintf($verb_id);
-					$addStat .= sprintf(' rdfs:label "'.$specified_id_info['verb'].'" ;').chr(10);
+					$addStat .= sprintf(' rdfs:label "'.$specified_id_info['verb'].'" ;').chr(10).chr(13);
 					if(!$inputs['nocore'])
-					$addStat .= chr(9).sprintf(' a s3db:s3dbItem ;').chr(10);
+					$addStat .= chr(9).sprintf(' a s3db:s3dbItem ;').chr(10).chr(13);
 					##Find collection of this item and output this information
 					$item_info = s3info('item', $specified_id_info['verb_id'], $db);
 					if(is_array($item_info))
-					$addStat .= chr(9).sprintf(' a '.n3UID("C".$item_info['resource_class_id']).' .').chr(10).chr(10);
+					$addStat .= chr(9).sprintf(' a '.n3UID("C".$item_info['resource_class_id']).' .').chr(10).chr(13).chr(10).chr(13);
 					else {#find a collection for the verbs
 						$verbCollection = projectVerbClass(array('project_id'=>$specified_id_info['project_id'], 'db'=>$db,'user_id'=>$user_id));
-						$addStat .= chr(9).sprintf(' a '.n3UID("C".$verbCollection['resource_id']).' .').chr(10).chr(10);
+						$addStat .= chr(9).sprintf(' a '.n3UID("C".$verbCollection['resource_id']).' .').chr(10).chr(13).chr(10).chr(13);
 					}
 
 					$verbs[$specified_id_info['verb']] =$verb_id;
@@ -198,8 +198,12 @@ break;
 												
 					}
 					
-					
-					$object_id = ($specified_id_info['object_id']=="")?'"'.$specified_id_info['object'].'"':n3UID("C".$specified_id_info['object_id']);
+					if($specified_id_info['object_id']==""){
+						$object_id = '"'.$specified_id_info['object'].'"';
+					}
+					else{
+						$object_id = n3UID("C".$specified_id_info['object_id']);
+					}
 					
 					
 				$objectPredicates=array(
@@ -207,16 +211,20 @@ break;
 								'rdfs:label'=>'"'.$specified_id_info['subject'].' '.$specified_id_info['verb'].' '.$specified_id_info['object'].'"',
 								#'dc:comment'=>'"'.$specified_id_info['notes'].'"', 
 								'rdfs:subClassOf'=>n3UID('P'.$specified_id_info['project_id']), 
-								'rdf:subject'=>$subject_id, 
+								'rdfs:domain'=>$subject_id, 
+								//'rdf:subject'=>$subject_id, 
 								'rdf:predicate'=>$verb_id,
 								'rdf:object'=>$object_id,
 								'dcterms:creator'=>n3UID('U'.$specified_id_info['created_by']),
 								'dcterms:created'=>'"'.$specified_id_info['created_on'].'"'
 								);
 				
+				if($specified_id_info['object_id']!=""){
+					$objectPredicates['rdfs:range'] = $specified_id_info['object_id'];
+				}
 				##When no core is needed (when the document is not meant to be reloaded, there is no need for 
 				
-				$addStat .= sprintf($subject_id.' '.$verb_id .' '.$object_id.' .').chr(10);
+				$addStat .= sprintf($subject_id.' '.$verb_id .' '.$object_id.' .').chr(10).chr(13);
 		break;
 	
 }
@@ -226,39 +234,39 @@ if(!$inputs['nocore']){
 		}
 
 $objectPredicates=array_filter($objectPredicates);
-#echo '<pre>';print_r($objectPredicates);exit;
+//echo '<pre>';print_r($objectPredicates);exit;
 
 #echo '<pre>';print_r($s3Types[$specified_id_type]);exit;
 foreach ($objectPredicates as $predicate=>$object) {
-	$n3 .= chr(9).sprintf($predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10):' ;')).chr(10);
+	$n3 .= chr(9).sprintf($predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(13):' ;')).chr(10).chr(13);
 }
 
 #Export user permissions on object
 #retrieve permission info on this URI
 
 if(in_array('permissions', array_keys($inputs))){
-$s3ql=compact('user_id','db');
-$s3ql['from']='users';
-$s3ql['where'][$specified_id]=$specified_id_info[$specified_id];
-$users = S3QLaction($s3ql);
-$me = $user_info;
-$me = include_all(array('elements'=>'users', 'element_info'=>$me, 'user_id'=>$user_id, 'db'=>$db));
-$me['permissionOnResource'] = $me['permission_level'];
-array_push($users, $me);
+	$s3ql=compact('user_id','db');
+	$s3ql['from']='users';
+	$s3ql['where'][$specified_id]=$specified_id_info[$specified_id];
+	$users = S3QLaction($s3ql);
+	$me = $user_info;
+	$me = include_all(array('elements'=>'users', 'element_info'=>$me, 'user_id'=>$user_id, 'db'=>$db));
+	$me['permissionOnResource'] = $me['permission_level'];
+	array_push($users, $me);
 
-$permissions=array_map('grab_permission', $users);
-$users=grab_id('user', $users);
-$specified_id_info['permissions']=array_combine($users, $permissions);
+	$permissions=array_map('grab_permission', $users);
+	$users=grab_id('user', $users);
+	$specified_id_info['permissions']=array_combine($users, $permissions);
 
-#echo '<pre>';print_r($specified_id_info['permissions']);
-if(is_array($specified_id_info['permissions']))
-	
-	$n3permissions .= chr(10);sprintf($pre.$uid_info['uid'].$suf).chr(10);
-	
-	foreach ($specified_id_info['permissions'] as $user_code=>$pcode) {
-	
-	$n3permissions .= sprintf(n3UID($uid='U'.$user_code).' s3dbpc:VCU'.$pcode.' '.n3UID($ruid_info['uid']).' .').chr(10);
-}
+	#echo '<pre>';print_r($specified_id_info['permissions']);
+	if(is_array($specified_id_info['permissions']))
+		
+		$n3permissions .= chr(10).chr(13);sprintf($pre.$uid_info['uid'].$suf).chr(10).chr(13);
+		
+		foreach ($specified_id_info['permissions'] as $user_code=>$pcode) {
+		
+		$n3permissions .= sprintf(n3UID($uid='U'.$user_code).' s3dbpc:VCU'.$pcode.' '.n3UID($ruid_info['uid']).' .').chr(10).chr(13);
+	}
 
 }
 $n3 .= $n3permissions;
@@ -269,6 +277,7 @@ fwrite($fid, $n3);
 #echo '<pre>';print_r($s3Types);exit;
 #now for the classes. What are rdfs:classes in an s3db ontology?
 #EVERTHING THAT HAS A LABEL IS A CLASS. This includes verbs, object and instances
+	$metaData = array();
 foreach ($s3Types[$specified_id_type] as $a_class) {
 	#each class has a descriptive statement
 	
@@ -290,7 +299,7 @@ foreach ($s3Types[$specified_id_type] as $a_class) {
 	#exit;
 	$subClasses = S3QLaction($s3ql);#find them, output them. 
 	#$verbs=array();
-	
+	$metaData[$a_class_type] = $subClasses;
 
 	if(is_array($subClasses))
 	foreach ($subClasses as $subClass_info) {
@@ -300,7 +309,7 @@ foreach ($s3Types[$specified_id_type] as $a_class) {
 		#start by saying what sort of s3dbCore id this is.
 		
 		
-		$n3 = getSubClassStats($a_class_letter.$subClass_info[$a_class_id], $subClass_info, $inData, $user_id, $db, $N3coreNames, $inputs); 
+		$n3 = getSubClassStats($a_class_letter.$subClass_info[$a_class_id], $subClass_info, $inData, $user_id, $db, $N3coreNames, $inputs, $metaData); 
 		#if($a_class_letter=='R'){
 		
 		#}
@@ -411,10 +420,14 @@ function addCollectionItemStats($user_id,$db, $class_id, $inputs)
 			if (is_array($items) && !empty($items)) {
 			foreach ($items as $key=>$item_info) {
 				if(!$inputs['nocore'])
-				$n3 .= sprintf(':I'.$item_info['item_id'].' a s3db:s3dbItem .').chr(10).chr(10);
+				$n3 .= sprintf(':I'.$item_info['item_id'].' a s3db:s3dbItem .').chr(10).chr(13).chr(10).chr(13);
 
 				$objectPredicates=array('rdfs:label'=>'"'.$item_info['notes'].'"',
 											'a'=>':C'.$class_id);
+				if(!$inputs['nometa']){
+					$objectPredicates['dc:creator'] = n3UID('U'.$item_info['created_by']);
+					$objectPredicates['dc:created'] = '"'.$item_info['created_on'].'"';
+				}
 			
 				$objectPredicates = array_filter($objectPredicates);
 
@@ -425,7 +438,7 @@ function addCollectionItemStats($user_id,$db, $class_id, $inputs)
 				
 				foreach ($objectPredicates as $predicate=>$object) {
 					if($object!='""')
-					$n3 .= sprintf("%s", ' '.$predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(10):' ;'.chr(10).chr(9)));
+					$n3 .= sprintf("%s", ' '.$predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(13).chr(10).chr(13):' ;'.chr(10).chr(13).chr(9)));
 				}
 				}
 			
@@ -452,7 +465,7 @@ function addRuleStats($user_id,$db, $url,$rule_id, $inputs)
 	if(is_array($stats) && !empty($stats))
 	foreach ($stats as $key=>$stat_info) {
 	if(!$inputs['nocore'])	
-	$n3 .= sprintf(n3UID('S'.$stat_info['statement_id']).' a s3db:s3dbStatement .').chr(10).chr(10);
+	$n3 .= sprintf(n3UID('S'.$stat_info['statement_id']).' a s3db:s3dbStatement .').chr(10).chr(13).chr(10).chr(13);
 	
 	if($stat_info['file_name']!='')
 		{
@@ -474,7 +487,7 @@ function addRuleStats($user_id,$db, $url,$rule_id, $inputs)
 				$object='"s3dbLink_'.$stat_info['file_name'].'_'.S3DB_URI_BASE.'/download.php?key='.$inputs['key'].'&statement_id='.$stat_info['statement_id'].'"';
 			}
 			#echo $object;exit;
-			#echo $subClass_info['file_name'].chr(13).chr(10);
+			#echo $subClass_info['file_name'].chr(13).chr(10).chr(13);
 			}
 		#ereg('<a href(.*)download.php(.*)>(.*)</a>', $stat_info['value'], $linkdata);
 		#$statfilelink='<'.$url.'download.php'.str_replace('"', '', $linkdata[2]).'>';
@@ -514,13 +527,13 @@ function addRuleStats($user_id,$db, $url,$rule_id, $inputs)
 				
 				foreach ($objectPredicates as $predicate=>$object) {
 					if($object!='""')
-					$n3 .= sprintf("%s", ' '.$predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(10):' ;'.chr(10).chr(9)));
+					$n3 .= sprintf("%s", ' '.$predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(13).chr(10).chr(13):' ;'.chr(10).chr(13).chr(9)));
 				}
 				}
 			
 		#unreified statement - the only one neeed where nocore is specified
 		$n3 .= sprintf("%s", $objectPredicates['rdf:subject']);
-		$n3 .= chr(9).sprintf("%s", $objectPredicates['rdf:predicate'].' '.(($subClass_info['object_id']!='')?$objectPredicates['rdf:object']:$objectPredicates['rdf:object']).' .').chr(10).chr(10);
+		$n3 .= chr(9).sprintf("%s", $objectPredicates['rdf:predicate'].' '.(($subClass_info['object_id']!='')?$objectPredicates['rdf:object']:$objectPredicates['rdf:object']).' .').chr(10).chr(13).chr(10).chr(13);
 
 }
 	
@@ -540,7 +553,7 @@ if(is_array($collections)){
 	
 	#echo '<pre>';print_r($collections);
 	foreach ($collections as $key=>$collection_info) {
-		$n3 .= getSubClassStats('C'.$collection_info['collection_id'], $collection_info, $inData, $user_id, $db, $N3coreNames, $inputs);
+		$n3 .= getSubClassStats('C'.$collection_info['collection_id'], $collection_info, $inData, $user_id, $db, $N3coreNames, $inputs, $metaData);
 		#echo $n3;exit;
 	}
 }
@@ -555,7 +568,7 @@ $rules = S3QLaction($s3ql);
 if(is_array($rules)){
 	
 	foreach ($rules as $key=>$rule_info) {
-		$n3 .= getSubClassStats('R'.$rule_info['rule_id'], $rule_info, $inData, $user_id, $db, $N3coreNames, $inputs);
+		$n3 .= getSubClassStats('R'.$rule_info['rule_id'], $rule_info, $inData, $user_id, $db, $N3coreNames, $inputs, $metaData);
 		#echo $n3;exit;
 	}
 
@@ -576,7 +589,7 @@ function addGroupUsers($user_id,$db, $group_id)
 	$users = grab_id('user', $users);
 	if(is_array($users))
 	foreach ($users as $key=>$user_id) {
-		$n3 .= sprintf(n3UID('U'.$user_id).' rdfs:subClassOf '.n3UID('G'.$group_id).' .').chr(10);
+		$n3 .= sprintf(n3UID('U'.$user_id).' rdfs:subClassOf '.n3UID('G'.$group_id).' .').chr(10).chr(13);
 	}
 	return ($n3);
 }
@@ -638,7 +651,7 @@ if(count($specified_id)!='1')
 return (compact('letter', 'specified_id', 'specified_id_type', 'specified_id_info', 'inData', 'rootID'));
 }
 
-function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreNames, $inputs)
+function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreNames, $inputs, $metaData)
 		{
 		global $verbs;
 		
@@ -652,7 +665,7 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 
 		
 		if(!$inputs['nocore'])
-			$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(10);
+			$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(13).chr(10).chr(13);
 		
 		
 		switch ($a_class_type) {
@@ -709,16 +722,19 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 					
 					
 			if(!$inputs['nometa']){
-			$objectPredicates['dcterms:creator'] =	n3UID('U'.$subClass_info['created_by']);
-			$objectPredicates['dcterms:created'] =	'"'.$subClass_info['created_on'].'"';
+				$objectPredicates['dcterms:creator'] =	n3UID('U'.$subClass_info['created_by']);
+				$objectPredicates['dcterms:created'] =	'"'.$subClass_info['created_on'].'"';
 			}
 			
 			if(in_array('all', array_keys($inputs)))
 			$addStat .= addCollectionItemStats($user_id,$db, $subClass_info[$a_class_id], $inputs);
 
+			#need also to add all the rules that this C has in Robject and Rsubject;
+			$addStat .= addRules($user_id,$db, $subClass_info[$a_class_id], $inputs, $metaData);
+
 			#trying to see if the collection declarations are meesing up the query a lot
 			if($inputs['nocore'])
-			$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(10);
+			$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(13).chr(10).chr(13);
 			
 			break;
 			case 'rule':
@@ -732,16 +748,16 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 					if(!in_array($subClass_info['verb'], array_keys($verbs)))
 					{
 					$addStat .= sprintf($verb_id);
-					$addStat .= sprintf(' rdfs:label "'.$subClass_info['verb'].'" ;').chr(10);
+					$addStat .= sprintf(' rdfs:label "'.$subClass_info['verb'].'" ;').chr(10).chr(13);
 					if(!$inputs['nocore'])
-					$addStat .= chr(9).sprintf(' a s3db:s3dbItem ;').chr(10);
+					$addStat .= chr(9).sprintf(' a s3db:s3dbItem ;').chr(10).chr(13);
 					##Find collection of this item and output this information
 					$item_info = s3info('item', $subClass_info['verb_id'], $db);
 					if(is_array($item_info))
-					$addStat .= chr(9).sprintf(' a '.n3UID("C".$item_info['resource_class_id']).' .').chr(10).chr(10);
+					$addStat .= chr(9).sprintf(' a '.n3UID("C".$item_info['resource_class_id']).' .').chr(10).chr(13).chr(10).chr(13);
 					else {#find a collection for the verbs
 						$verbCollection = projectVerbClass(array('project_id'=>$subClass_info['project_id'], 'db'=>$db,'user_id'=>$user_id));
-						$addStat .= chr(9).sprintf(' a '.n3UID("C".$verbCollection['resource_id']).' .').chr(10).chr(10);
+						$addStat .= chr(9).sprintf(' a '.n3UID("C".$verbCollection['resource_id']).' .').chr(10).chr(13).chr(10).chr(13);
 					}
 
 					$verbs[$subClass_info['verb']] =$verb_id;
@@ -774,7 +790,7 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 				
 				##When no core is needed (when the document is not meant to be reloaded, there is no need for 
 				
-				$addStat .= sprintf($subject_id.' '.$verb_id .' '.$object_id.' .').chr(10);
+				$addStat .= sprintf($subject_id.' '.$verb_id .' '.$object_id.' .').chr(10).chr(13);
 				
 				
 				if(in_array('all', array_keys($inputs)))
@@ -782,7 +798,7 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 
 				#trying to see if the collection declarations are meesing up the query a lot
 				if($inputs['nocore'])
-				$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(10);
+				$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(13).chr(10).chr(13);
 			
 				
 				break;
@@ -800,7 +816,7 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 				
 					#trying to see if the collection declarations are meesing up the query a lot
 					if($inputs['nocore'])
-					$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(10);
+					$n3 .= sprintf(n3UID($uid_info['uid']).' a '.$N3coreNames[$a_class_type].' .').chr(10).chr(13).chr(10).chr(13);
 			
 				break;
 					
@@ -831,7 +847,7 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 							$object='"s3dbLink_'.$subClass_info['file_name'].'_'.S3DB_URI_BASE.'/download.php?key='.$inputs['key'].'&statement_id='.$subClass_info['statement_id'].'"';
 						}
 						#echo $object;exit;
-						#echo $subClass_info['file_name'].chr(13).chr(10);
+						#echo $subClass_info['file_name'].chr(13).chr(10).chr(13);
 						}
 					#echo $object;exit;
 					#ereg('<a href(.*)download.php(.*)>(.*)</a>', $stat_info['value'], $linkdata);
@@ -876,7 +892,7 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 				#unreified statement
 				
 				$addStat .= sprintf("%s", $objectPredicates['rdf:subject']);
-				$addStat .= chr(9).sprintf("%s", $objectPredicates['rdf:predicate'].' '.(($subClass_info['object_id']!='')?$objectPredicates['rdf:object']:$objectPredicates['rdf:object']).' .').chr(10);
+				$addStat .= chr(9).sprintf("%s", $objectPredicates['rdf:predicate'].' '.(($subClass_info['object_id']!='')?$objectPredicates['rdf:object']:$objectPredicates['rdf:object']).' .').chr(10).chr(13);
 				break;
 		}
 		
@@ -894,9 +910,9 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 		$specified_id_info['permissions']=array_combine($users, $permissions);
 		}
 		if(is_array($specified_id_info['permissions'])){
-			$n3permissions .= chr(10);
+			$n3permissions .= chr(10).chr(13);
 			foreach ($specified_id_info['permissions'] as $user_code=>$pcode) {
-			$n3permissions .= sprintf(n3UID('U'.$user_code).' s3dbpc:VCU'.$pcode.' '.n3UID($uid_info['uid']).' .').chr(10);
+			$n3permissions .= sprintf(n3UID('U'.$user_code).' s3dbpc:VCU'.$pcode.' '.n3UID($uid_info['uid']).' .').chr(10).chr(13);
 		}
 		}
 		}
@@ -910,17 +926,37 @@ function getSubClassStats($uid, $subClass_info, $inData, $user_id, $db, $N3coreN
 		
 		foreach ($objectPredicates as $predicate=>$object) {
 			if($object!='""')
-			$n3 .= sprintf("%s", ' '.$predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(10):' ;'.chr(10).chr(9)));
+			$n3 .= sprintf("%s", ' '.$predicate.' '.$object.(($predicate==end(array_keys($objectPredicates)))?' .'.chr(10).chr(13).chr(10).chr(13):' ;'.chr(10).chr(13).chr(9)));
 		}
 		}
 		if(is_array($user2declare))
 		foreach ($user2declare as $user=>$toDeclare) {
 			$uid_info = uid($user);
-			$addStat .= sprintf(n3UID('U'.$user), 'rdfs:label "'. getUserName($user, $db).'"').chr(10);
+			$addStat .= sprintf(n3UID('U'.$user), 'rdfs:label "'. getUserName($user, $db).'"').chr(10).chr(13);
 		}
 
 		$n3 .=$addStat.$n3permissions;
 		#echo $n3;exit;
 		return ($n3);
 	}
+function addRules($user_id,$db, $class_id, $inputs, $metaData) {
+	if(!$inputs['nocore'])
+				$n3 .= sprintf(':C'.$class_id).chr(10).chr(13).chr(10).chr(13);
+	//do rules exst in metadata?
+	if($metaData['rule']==''){
+		$s3ql=compact('user_id','db');
+		$s3ql['select']='*';
+		$s3ql['from']='rule';
+		$s3ql['where']['project_id']=$inputs['project_id'];
+		
+	$rules = S3QLaction($s3ql);#find them, output them. 
+	$metaData['rule'] = $rules;
+	}
+	foreach($metaData['rule'] as $ind=>$rule_info){
+		if($rule_info['subject_id']==$class_id){
+						
+		}
+
+	}
+}
 ?>

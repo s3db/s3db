@@ -153,12 +153,17 @@ else
 				
 				$done = S3QLaction($s3ql);
 				$msg = html2cell($done);
-				#echo '<pre>';print_r($s3ql);
-				#echo '<pre>';print_r($msg);
-				#exit;
-
-				#ereg('<error>([0-9]+)</error>(.*)<message>(.*)</message>', $done, $s3qlout);
 				
+				//create biportal link
+				//do we have the verb_id? probably not since it was not created now;
+				$rule_info = get_rule_info($_REQUEST['rule_id']);
+				if ($_REQUEST['verb_bioportal_concept_id']) {
+					createBioportalLink('verb', 'I', $rule_info['verb_id'], $db, $user_id);
+				}
+				if ($_REQUEST['object_bioportal_concept_id']) {
+					createBioportalLink('object', 'C', $_REQUEST['object_id'], $db, $user_id);
+				}
+
 				if($msg[2]['error_code']=='0')
 					{
 						
@@ -227,20 +232,28 @@ else
 				
 				$s3ql['where']['validation'] = $_POST['validation'];
 				$s3ql['where']['notes'] = nl2br($_POST['notes']);
-				$s3ql['format']='html';
+				$s3ql['format']='php';
 				#echo '<pre>';print_r($s3ql);
 				$done = S3QLaction($s3ql);
-				$msg=html2cell($done);
-				#echo '<pre>';print_r($msg);
-				#exit;
-				#echo $done;
-				#ereg('<error>(.*)</error>(.*)<(rule_id|message)>(.*)</(rule_id|message)>', $done, $s3qlout);
-				#echo '<pre>';print_r($s3qlout);
+				$msg = unserialize($done);
+				
 				if($msg[0]['error_code']=='0')
 				{	
 					$rule_id = $msg[0]['rule_id'];
 					#echo '<pre>';print_r($users);exit;
 					$message .= addUsers(compact('users','user_id', 'db', 'rule_id', 'element'));
+
+					//create bioportal link
+					//do we have the verb_id? probably not since it was not created now;
+					$rule_info = get_rule_info($rule_id);
+					if ($_REQUEST['verb_bioportal_concept_id']) {
+						
+						createBioportalLink('verb', 'I', $rule_info['verb_id'], $db, $user_id);
+						createBioportalLink('object', 'C', $_REQUEST['object_id'], $db, $user_id);
+					}
+					if ($_REQUEST['object_bioportal_concept_id']) {
+						createBioportalLink('object', 'C', $_REQUEST['object_id'], $db, $user_id);
+					}	
 						
 				}
 				else
@@ -256,12 +269,14 @@ else
 			$owner= find_user_loginID(array('account_id'=>$user_id, 'db'=>$db));
 			$action_name='newrule'; 
 			$action_value='Create'; 
+			
 			if($resource_info!='')
 			$subject_input= $newrule['subject'];
 			else
 			$subject_input='<input name="subject" style="background: lightyellow" value="'.$subject.'" size="10">'; 
+			
 			$verb_input='<input name="verb" style="background: lightyellow" value="" size="10">'; 
-			$object_input='<input name="object" style="background: lightyellow" value="" size="10">'; 
+			$object_input='<input name="object" class="bp_form_complete-all-name ac_input" style="background: lightyellow" value="" size="10">'; 
 			$notes_input= $newrule['notes'];
 			
 			
@@ -307,7 +322,7 @@ else
 			$verb_input_name = 'Verb';
 			$verb_input='<input name="verb" style="background: lightyellow" value="" size="10">'; 
 			$verb_browser='<input type="button" name="verbBrowser" style="background: lightyellow" onClick = "window.open(\''.$action['verbpeek'].'\')" value="'.$rule['verb'].'" size="10">'; 
-			$object_input='<input name="object" style="background: lightyellow" value="" size="10">'; 
+			$object_input='<input name="object" class="bp_form_complete-all-name ac_input" style="background: lightyellow" value="" size="10">'; 
 			$displayed_rule_id='New'; 
 			$displayed_resource_id=$resource_info['id']; 
 
@@ -504,6 +519,18 @@ else
 		else if(selected=='other'){
 			window.location = window.location.href.replace('literal_verb=1','').replace('item_verb=0','') +'&any_item=1';
 		}
+		else if(selected=='ontology'){
+			
+			document.getElementById('verb_holder').innerHTML = '<input type="text" name="verb" id="verb" class="bp_form_complete-all-name" size="30">Type 3 or more letters<input type="button" name="edit_item_verb" value="Choose from Items" onClick="window.location=window.location.href.replace(\'literal_verb=1\',\'\').replace(\'item_verb=0\',\'\')">';
+
+			// Grab the specific scripts we need and fires it start event
+			jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+				formComplete_setup_functions();
+			});
+			
+			
+			
+		}
 		}
 
 		function objectSelected()
@@ -513,11 +540,15 @@ else
 		var selected = obj_id.options[obj_id.selectedIndex].value;
 		if (selected=='new') {
 			
-			document.getElementById('object_holder').innerHTML = '<input type="text" name="object" id="object"><input type="button" name="edit_item_verb" value="Choose from Collections" onClick="window.location=window.location.href.replace(\'literal_object=1\',\'\')">';
+			document.getElementById('object_holder').innerHTML = '<input type="text" name="object" id="object" class="bp_form_complete-all-name ac_input" ><input type="button" name="edit_item_verb" value="Choose from Collections" onClick="window.location=window.location.href.replace(\'literal_object=1\',\'\')">';
 			//now for validation field, remove "UID" and allow any validation
 			document.getElementById('validation').value = '';
 			document.getElementById('validation').disabled = false;
 			
+			// Grab the specific scripts we need and fires it start event
+			jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+				formComplete_setup_functions();
+			});
 
 		}
 		else if(selected=='all'){
@@ -633,6 +664,7 @@ function verbInputSelect($V)
 		$verb_select .= '<option value="#"></option>';
 		#$verb_select .= '<option value="'.str_replace(array('literal_verb=0', 'item_verb=1'), array('', ''), $action['inspectrules']).'&literal_verb=1">(New)</option>';
 		$verb_select .= '<option value="new">(New)</option>';
+		$verb_select .= '<option value="ontology">(Select from a Bio-Ontology!)</option>';
 		$verb_select .= '<option value="other">(Item_id from another collection)</option>';
 		$verb_select .= '</select>';
 

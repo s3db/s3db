@@ -835,7 +835,7 @@ function sparql_navigator($c)
 		case 'object':
 				
 				#echo '<pre>';print_r($where);exit;
-
+				
 				if($isCore)	{
 					
 					##Who can be connected to an element of the core? The object can eliminate some "from" options by discarding those that,according to the core, cannot be connected to this property as object
@@ -1325,7 +1325,7 @@ function trimBasedOnSub($s)
 }
 function isCoreOntology($uri)
 {
-	if(ereg('^http://www.s3db.org/core.owl#s3db(.*)', $uri,$ont))
+	if(ereg('^http://www.s3db.org/core#s3db(.*)', $uri,$ont))
 	{return ($ont[1]);
 	}
 	else {
@@ -1731,7 +1731,7 @@ function parse_sparql_query($q, $s3ql)
 	}
 	
 	if(!in_array("prefix", array_keys($sp))){
-		$sp['prefix'] = array("rdfs: <http://www.w3.org/2000/01/rdf-schema#>", "rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>", "s3db: <http://www.s3db.org/core.owl#>", ': <'.$s3ql['url'].((substr($s3ql['url'], strlen($s3ql['url'])-1, 1)=='/')?'':'/').'>');
+		$sp['prefix'] = array("rdfs: <http://www.w3.org/2000/01/rdf-schema#>", "rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>", "s3db: <http://www.s3db.org/core#>", ': <'.$s3ql['url'].((substr($s3ql['url'], strlen($s3ql['url'])-1, 1)=='/')?'':'/').'>');
 		}
 	##Now fix the prefixes such that they are in the format qname=>url
 	$qnames = array();$url_qnames = array();

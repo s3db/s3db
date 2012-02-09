@@ -7,6 +7,7 @@ echo '
 
 <script language="javascript" src="'.S3DB_URI_BASE.'/js/shownhidden.js"></script>
 <script language="javascript" src="'.S3DB_URI_BASE.'/js/tooltip.js"></script>
+<script language="javascript" src="'.S3DB_URI_BASE.'/js/form_complete.js"></script>
 
 <script type="text/Javascript">';
 

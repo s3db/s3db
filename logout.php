@@ -18,6 +18,5 @@
 	
 	session_start();
 	$_SESSION['db'] ='';
-	$_SESSION['user'] ='';  
 	Header('Location: login.php?error=1');
 ?>

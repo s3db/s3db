@@ -82,22 +82,28 @@ else if(!$project_info['add_data'])
 			$s3ql['where']['entity'] = htmlentities($_POST['entity'], ENT_QUOTES);
 			if($_POST['notes']!='')
 			$s3ql['where']['notes'] = htmlentities($_POST['notes'], ENT_QUOTES);
-			#$s3ql['format']='html';
+			$s3ql['format']='php';
 			$done = S3QLaction($s3ql);
-			$msg = html2cell($done);
+			$msg = unserialize($done);
+			#$msg = html2cell($done);
 			#ereg('<error>(.*)</error>(.*)<(message|collection_id)>(.*)</(message|collection_id)>', $done, $s3qlout);
 			#echo '<pre>';print_r($msg);
 			#if the class was created
-			if($msg[2]['error_code']!='0')
+			if($msg[0]['error_code']!='0')
 			{
 				
-					$message .=$msg[2]['message'];
+					$message .=$msg[0]['message'];
 				
 
 			}
 			else {
-				$class_id = $msg[2]['collection_id'];
+				$class_id = $msg[0]['collection_id'];
 				
+				//now check if an ontology term was used;
+				if($_REQUEST['entity_bioportal_full_id']!=''){
+					createBioportalLink('entity', 'C', $class_id, $db, $user_id);
+				}
+
 				if(is_array($users)){
 					$s3ql=compact('user_id','db');
 					$s3ql['insert']='user';
@@ -122,8 +128,8 @@ else if(!$project_info['add_data'])
 						$msg = html2cell($done);
 						}
 						#ereg('<error>([0-9]+)</error>.*<message>(.*)</message>', $done, $s3qlout1);
-						if($msg[2]['error_code']!='0')
-							$message.=$msg[2]['message'];
+						//if($msg[2]['error_code']!='0')
+							//$message.=$msg[2]['message'];
 					}
 				
 				
@@ -149,6 +155,12 @@ echo '
 echo '<table class="create_resource" width="70%">';
 echo '<tr><td class="message" colspan="9">'.$message.'</td></tr>';
 ?>
+	<script type="text/javascript">
+	// Grab the specific onto widget scripts we need and fires at start event
+		jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+			formComplete_setup_functions();
+		});
+	</script>
 	<tr bgcolor="#80BBFF"><td colspan="9" align="center">Create New Class</td></tr>
 	<tr><td colspan="9" align="center">Class names must be unique on the project.
 	</td></tr>
@@ -164,7 +176,7 @@ echo '<tr><td class="message" colspan="9">'.$message.'</td></tr>';
 		<?php
 		
 		echo '<td  width="10%">'.find_user_loginID(array('account_id'=>$user_id, 'db'=>$db)).'</td>';
-		echo '<td width="10%"><input name="entity" style="background: lightyellow" value=""></td>';
+		echo '<td width="10%"><input name="entity" class="bp_form_complete-all-name"></td>';
 		echo '<td  width="20%"><textarea name="notes"  style="background: lightyellow" rows="2" cols="30" ></textarea></td>';
 		echo '<td width="10%" align="center"><input type="submit" name="new_resource" value="Create"></td>';
 		?>

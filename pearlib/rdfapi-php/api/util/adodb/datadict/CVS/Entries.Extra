@@ -1,0 +1,12 @@
+/datadict-access.inc.php////*///
+/datadict-db2.inc.php////*///
+/datadict-firebird.inc.php////*///
+/datadict-generic.inc.php////*///
+/datadict-ibase.inc.php////*///
+/datadict-informix.inc.php////*///
+/datadict-mssql.inc.php////*///
+/datadict-mysql.inc.php////*///
+/datadict-oci8.inc.php////*///
+/datadict-postgres.inc.php////*///
+/datadict-sapdb.inc.php////*///
+/datadict-sybase.inc.php////*///

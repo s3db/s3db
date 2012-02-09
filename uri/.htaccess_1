@@ -1,0 +1,7 @@
+RewriteEngine on
+
+
+RewriteRule ^S3QL/$ S3QL.php
+RewriteRule ^S3QL/(.*)/(from|insert|update|delete)/(user|group|project|collection|item|rule|statement)/$ S3QL.php?key=$1&query=<$2>$3</$2>
+RewriteRule ^URI/(P|C|R|I|S)(.*)/(.*)$ URI.php?key=$3&uid=$1$2
+RewriteRule ^URI/(P|C|R|I|S)(.*)$ URI.php?&uid=$1$2

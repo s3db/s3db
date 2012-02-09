@@ -25,12 +25,12 @@
 /**
  * RSA error handling facilities
  */
-require_once 'ErrorHandler.php';
+require_once 'pearlib/RSACrypt/Crypt/RSA/ErrorHandler.php';
 
 /**
  * loader for RSA math wrappers
  */
-require_once 'MathLoader.php';
+require_once 'pearlib/RSACrypt/Crypt/RSA/MathLoader.php';
 
 /**
  * Crypt_RSA_Key class, derived from Crypt_RSA_ErrorHandler

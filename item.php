@@ -53,11 +53,6 @@ if($instance_id=='')
 echo "Please provide an item_id";
 exit;
 }
-elseif(!$instance_info)
-{
-echo "Item_id ".$instance_id." does not exist";
-exit;
-}
 elseif(!$instance_info['view'])
 {echo ('User does not have permission in this instance');
 exit;

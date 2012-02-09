@@ -146,8 +146,7 @@ class Crypt_RSA_ErrorHandler
      */
     function isError($err = null)
     {
-       
-		return is_null($err) ? (sizeof($this->_errors) > 0) : PEAR::isError($err);
+        return is_null($err) ? (sizeof($this->_errors) > 0) : PEAR::isError($err);
     }
 
     /**

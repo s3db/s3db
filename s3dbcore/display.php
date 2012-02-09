@@ -746,6 +746,7 @@ function columnsToDisplay($letter,$returnFields=array(),$data=array())
 	
 	$cols = (empty($returnFields))?array_merge($GLOBALS['dbstruct'][$element], $returnFields):$GLOBALS['dbstruct'][$element];
 	$outputNames = $GLOBALS['dbstruct'][$element];
+	$outputNames = array_merge($GLOBALS['common_attr'], $outputNames);
 	}
 	else {
 		$outputNames = array();
@@ -755,7 +756,7 @@ function columnsToDisplay($letter,$returnFields=array(),$data=array())
 			switch ($letter) {
 				
 				case 'D':
-					$moreOutputs = array('mothership', 'description','message','self');
+					$moreOutputs = array('mothership', 'message','self');
 				break;
 				case 'G':
 					$moreOutputs = array('group_id', 'groupname', 'name','change', 'add_data', 'uid','uri');
@@ -772,7 +773,7 @@ function columnsToDisplay($letter,$returnFields=array(),$data=array())
 				
 				break;
 				case 'P':
-				$moreOutputs = array('name', 'description', 'permission_level','assigned_permission','effective_permission', 'uid','uri');
+				$moreOutputs = array('name', 'permission_level', 'assigned_permission','effective_permission', 'uid','uri');
 				$lessOutputs = array('project_folder');
 				
 				break;

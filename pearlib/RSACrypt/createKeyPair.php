@@ -4,6 +4,8 @@
 require_once 'Crypt/RSA.php';
 
 $keys = generate_key_pair(); 
+echo '<pre>';print_r($keys);
+exit;
 
 /***********************************************************/
 function generate_key_pair()

@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> S3QL API and Protocol for S3DB </TITLE>
+  <script type="text/javascript" src="js/jquery-1.4.2.js"></script> 
+  <script type="text/javascript" src="js/include.jquery.js"></script> 
+  <script type="text/javascript" src="js/get.js"></script> 
+  <script type="text/javascript" src="js/uid_resolve.js"></script> 
+  <script type="text/javascript" src="js/s3ql_translator.js"></script> 
+  
+ <script type="text/javascript">
+	var query_core = {};//make it global
+	window.onload = function () {
+		get();
+		//include core if not s3db
+		
+		if(typeof(GET.core)!=='undefined' && GET.core!=='js/s3db.js'){
+			//document.write('<script type="text/javascript" src="'
+			//#	+ GET.core + '"></scr' + 'ipt>'); 
+			$.include(GET.core);
+		}
+		else {
+			$.include('js/s3db.js');
+		}
+	}
+	
+	function querycore(core) {
+		query_core  = core;
+			
+		if(typeof(GET.query) === 'undefined'){
+				var q = unescape(window.location.search);
+				var q1 = q.match(/\?([^&]+)/);
+				if (typeof(GET.q) !== 'undefined') {
+					var query = GET.q;
+				}
+				else if(q1 && q1[0]!==''){
+					var query =q1[1];
+				}
+				
+				
+			}
+			else {
+				var query = GET.query;
+			}
+		
+		//if the url is present, redirect to the query unless the user specifically asked not to
+		if(query){
+				var s3ql_query = S3QLtranslator(query, core);
+			
+				
+				if(typeof(GET.url)==='undefined'){
+					//use the current deployment
+					
+					var newURL = window.location.href.replace('S3QL.html', 'S3QL.php').replace('?query='+query, '?query='+s3ql_query);
+					var exec = 1;
+				}
+				
+				var exec = 1;
+								
+			
+				window.location= newURL;
+				return newURL;
+			
+		}
+	}
+
+ </script>
+ 
+ </HEAD>
+
+ <BODY>
+  
+ </BODY>
+</HTML>

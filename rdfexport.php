@@ -311,6 +311,8 @@ function class_triples($triples, $root, $specified_id, $specified_id_info, $s3Ty
 	
 	$subClassTriples = rdf_encode($subClasses,letter($GLOBALS['plurals'][$a_class]), 'array', $db,$namespaces,$subClasses);
 	
+	
+
 	if(!empty($subClassTriples)){
 	$triples = array_merge($triples, $subClassTriples);
 	}

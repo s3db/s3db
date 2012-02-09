@@ -308,13 +308,13 @@ function bottom_up_propagation_list($toFind, $db,$X=array(), $Hlist=array(),$toF
 		if(!empty($newHlist) && !empty($mother_ids))
 			foreach ($newHlist as $parent_id=>$kids) {
 			
-			#$Hlist = bottom_up_propagation_list($parent_id, $db,$X,$Hlist_file);	
+			//$Hlist = bottom_up_propagation_list($parent_id, $db,$X,$Hlist_file);	
 			$tmpList = bottom_up_propagation_list($parent_id, $db,$X,$Hlist);	
 			$Hlist = array_merge($Hlist, $tmpList);
 			
 		}
 	}
-
+	if(is_file($Hlist_file)) {unlink($Hlist_file);}
 	return ($Hlist);
 	}
 
@@ -400,7 +400,9 @@ function top_down_propagation_list($toFind, $root, $db, $Hlist=array(), $all_dat
 					#$sql .= " ".$connector." ((subject_id = '".$id_value."') or (object_id = '".$id_value."')) ";
 
 					}
-					
+					elseif ($tC=='R' && $pl=='C') {
+							$sql .= " ".$connector." ((subject_id = '".$id_value."') OR (object_id = '".$id_value."'))";
+					}
 					else {
 					$sql .= " ".$connector." (".$parent_id." = '".$id_value."') ";	
 					}
@@ -514,11 +516,14 @@ function top_down_propagation_list($toFind, $root, $db, $Hlist=array(), $all_dat
 			foreach ($all_data[$tC] as $uid=>$element_info) {
 				##a little trick to asusme subject-Id and object_id as collections; verb_id as items;
 				if($tC=='R'){ 
-					if($pl=='C') { $sw = $pl.$element_info['subject_id']; }
-					if($pl=='I') { $sw = $pl.$element_info['verb_id']; }
+					if($pl=='C') { $sw = $pl.$element_info['subject_id']; 
+					$sw1 = ($element_info['object_id']!='')?$pl.$element_info['object_id']:'';
+					}
+					elseif($pl=='I') { $sw = $pl.$element_info['verb_id']; }
+					else { $sw = $pl.$element_info[$parent_id];	}
 				}
 				else {
-				$sw = $pl.$element_info[$parent_id];	
+					$sw = $pl.$element_info[$parent_id];	
 				}
 				
 				#when there is not data for parent (for example, object_id is empty), there is not need to propagate
@@ -532,6 +537,16 @@ function top_down_propagation_list($toFind, $root, $db, $Hlist=array(), $all_dat
 						$moreC[] = $uid;
 					}
 				}
+				if($sw1!=''){
+						if(!is_array($Hlist[$sw1])){$Hlist[$sw1]=array();}
+						if(!in_array($uid,$Hlist[$sw1])){
+							array_push($Hlist[$sw1], $uid);
+							#is there child data for this element yet?
+							#if(!($e=='R' && !ereg('^S',$uid))) #because there can be some many items, and rule query should be fast, will not propagate from I to rule, for now...
+						if(in_array(letter($uid), $e_upstream))
+							$moreC[] = $uid;
+							}
+					}
 			}
 			}
 		}
@@ -560,7 +575,7 @@ function top_down_propagation_list($toFind, $root, $db, $Hlist=array(), $all_dat
 		}
 	
 	
-	
+	if(is_file($all_data_file)) {unlink($all_data_file);}
 	return ($Hlist);
 }
 
@@ -660,14 +675,15 @@ function permissionPropagation($Z)
 	
 	if(is_array($X))
 	{
-	#convert pl to the right model
-	$model_p = str_split($model);
-	foreach ($X as $key_id=>$key_pl) {
-		$X[$key_id] = str_ireplace(array('0','1','2'), $model_p, $key_pl);
+		#convert pl to the right model
+		$model_p = str_split($model);
+		foreach ($X as $key_id=>$key_pl) {
+			$X[$key_id] = str_ireplace(array('0','1','2'), $model_p, $key_pl);
+		}
 	}
 	
-	if(is_array($X) && is_array($Hlist))
-	$result = s3dbPercolate($Hlist,$X,$toFind,$result=array(), $u=1,$state=3,$model);
+	if(is_array($X) && is_array($Hlist)){
+		$result = s3dbPercolate($Hlist,$X,$toFind,$result=array(), $u=1,$state=3,$model);
 	}
 	else {
 		$result = $X;

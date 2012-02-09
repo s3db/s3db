@@ -744,9 +744,8 @@ $messages = $GLOBALS['message'];
 	#
 	if($uid!=''){
 	$deleteSQL = "delete from s3db_permission where uid='".$uid."' or shared_with = '".$uid."'";
-	
+	#echo $deleteSQL.'<BR>';
 	$db->query($deleteSQL);
-	
 	}
 
 	$dbdata = get_object_vars($db);

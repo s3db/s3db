@@ -103,7 +103,19 @@ function notes($instance_id, $db)
 		return ($instance_id);
 	}
 }
+
 function letter($from)
+{
+	$uid_info = uid_resolve($from);
+	$letter = $uid_info['letter'];
+	if(!$letter)
+	return (strtoupper(substr($from,0,1)));
+	else {
+		return ($letter);
+	}
+}
+
+function letter1($from)
 {
 	return (strtoupper(substr($from,0,1)));
 }
@@ -1896,12 +1908,12 @@ function rdf_encode($data,$letter, $format, $db,$namespaces=false,$collected_dat
 		define('s3db', 'http://www.s3db.org/core');
 		define('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns');
 		define('rdfs', 'http://www.w3.org/2000/01/rdf-schema');
+		define('void', 'http://rdfs.org/ns/void');
 		
 		
-
 		#any more namespaces?
 		$uri_deployment = (substr(S3DB_URI_BASE, strlen($uri_deployment), 1)=="/")?S3DB_URI_BASE:S3DB_URI_BASE."/";
-		$usedNS = array(''=>$uri_deployment,'dc'=>'http://purl.org/dc/terms/','s3db'=>'http://www.s3db.org/core#','rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#','rdfs'=>'http://www.w3.org/2000/01/rdf-schema#');
+		$usedNS = array(''=>$uri_deployment,'dc'=>'http://purl.org/dc/terms/','s3db'=>'http://www.s3db.org/core#','rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#','rdfs'=>'http://www.w3.org/2000/01/rdf-schema#', 'foaf'=>'http://xmlns.com/foaf/0.1/', 'void'=>'http://rdfs.org/ns/void#');
 		if($namespaces){
 		foreach ($namespaces as $nInfo) {
 			 if($nInfo['qname'] && $nInfo['url']){
@@ -2089,40 +2101,90 @@ function rdf_encode($data,$letter, $format, $db,$namespaces=false,$collected_dat
 					}
 					}
 
-			if($letter=='S'){
-			##Outputalso a statment for the unserialized statement where subject is item_id, pred is rule, object is value
-			
-			
-			
-			if(!empty($collected_data) &&  !empty($collected_data['R'.$data[$ind]['rule_id']]))
-			{
-				
-				if($collected_data['R'.$data[$ind]['rule_id']][0]['object_id']){
-					$obj = $D.'I'.$data[$ind]['value'];
-					$objType = 'uri';
-				}
-				else {
-					$obj = $data[$ind]['value'];	
-					$objType = 'literal';
-				}
-			
-			}
-			elseif(!empty($db) && RuleHasObjectId($ID, $db))
-			{$obj = $D.'I'.$data[$ind]['value'];
-			$objType = 'uri';
-			}
-			else 
-			{$obj = $data[$ind]['value'];	
-			$objType = 'literal';
-			}
+			if($letter=='R' || $letter=='C'){
+				//project id will be connecting to C or R via s3db:PC
+				$triple['s']=$D.'P'.$data[$ind]['project_id'];
+				$triple['p']=s3db.'#P'.$letter;
+				$triple['o']=$s;
+				$triple['s_type']='uri';
+				$triple['p_type']='uri';
+				$triple['o_type']='uri';
+				$triples[] = $triple;
 
-			$triple['s']=$D.'I'.$data[$ind]['item_id'];
-			$triple['p']=$D.'R'.$data[$ind]['rule_id'];
-			$triple['o']=$obj;
-			$triple['s_type']='uri';
-			$triple['o_type']=$objType;
-			$triples[] = $triple;
-			
+				
+			}
+			if($letter=='S'){
+				##Outputalso a statment for the unserialized statement where subject is item_id, pred is rule, object is value
+				
+				
+				
+				if(!empty($collected_data) &&  !empty($collected_data['R'.$data[$ind]['rule_id']]))
+				{
+					
+					if($collected_data['R'.$data[$ind]['rule_id']][0]['object_id']){
+						$obj = $D.'I'.$data[$ind]['value'];
+						$objType = 'uri';
+					}
+					else {
+						$obj = $data[$ind]['value'];	
+						$objType = 'literal';
+					}
+				
+				}
+				elseif(!empty($db) && RuleHasObjectId($ID, $db))
+				{$obj = $D.'I'.$data[$ind]['value'];
+				$objType = 'uri';
+				}
+				else 
+				{$obj = $data[$ind]['value'];	
+				$objType = 'literal';
+				}
+
+				$triple['s']=$D.'I'.$data[$ind]['item_id'];
+				$triple['p']=$D.'R'.$data[$ind]['rule_id'];
+				$triple['o']=$obj;
+				$triple['s_type']='uri';
+				$triple['o_type']=$objType;
+				$triples[] = $triple;
+				
+			}
+			if($letter=='D'){
+				##add the void stuff
+				$triple['s']=$s;
+				$triple['p']='rdf:type';
+				$triple['o']='void:dataset';
+				$triple['s_type']='uri';
+				$triple['o_type']='uri';
+				$triples[] = $triple;
+
+				$triple['s']=$s;
+				$triple['p']='foaf:homepage';
+				$triple['o']=$uri_deployment;
+				$triple['s_type']='uri';
+				$triple['o_type']='uri';
+				$triples[] = $triple;
+
+				$triple['s']=$s;
+				$triple['p']='void:uriRegexPattern';
+				$triple['o']=$uri_deployment.'[D|P|R|C|I|S][0-9]+';
+				$triple['s_type']='uri';
+				$triple['o_type']='literal';
+				$triples[] = $triple;
+
+				$triple['s']=$s;
+				$triple['p']='void:sparqlEndpoint';
+				$triple['o']=$uri_deployment.'sparql.php';
+				$triple['s_type']='uri';
+				$triple['o_type']='uri';
+				$triples[] = $triple;
+
+				$triple['s']=$s;
+				$triple['p']='void:vocabulary';
+				$triple['o']='http://s3db.org/coremodel/s3dbcore.rdf';
+				$triple['s_type']='uri';
+				$triple['o_type']='uri';
+				$triples[] = $triple;
+
 			}
 			#And for every element that is part of the core, output a statement that mentions where in the ontology they belong
 			if($dont_skip_core_names){
@@ -2899,5 +2961,117 @@ function bindRemoteUser($I)
 		return (true);
 	 }
 	
+}
+
+##Added 090812
+function capture($data,$what2capture)
+{
+	foreach ($data as $tmp) {
+		$captured[] = $tmp[$what2capture];
+	}
+	return ($captured);
+}
+
+
+function insersect_ids($data1,$data2,$ids2grab)
+{
+	foreach ($data1 as $tmp1) {
+		$id1 = $tmp1[$ids2grab];
+		foreach ($data2 as $tmp2) {
+			if($tmp2[$ids2grab]==$id1){
+				$ids[] = $id1;
+				$data[] = $tmp1;
+			}
+		}
+	}
+	return (array($data, $ids));
+	
+}
+
+
+function createBioportalLink($name, $entity, $id, $db, $user_id)
+{
+	
+		include_once(S3DB_SERVER_ROOT.'/s3dbcore/dictionary.php');
+			
+		if(preg_match('/^http/', $_REQUEST[$name.'_bioportal_concept_id'], $reg)){
+			$a = preg_match('/^(http[^#]*)#([^#]*)$/', $_REQUEST[$name.'_bioportal_concept_id'], $reg);
+			if($a){
+			$newQname = 'bioontology_'.$_REQUEST[$name.'_bioportal_ontology_id'];
+			$newUrlQname =  $reg[1].'#';
+			$concept_id = $newQname.':'.$reg[2];
+			}
+			$b = preg_match('/^(http.*\/[^\/]*)$/', $_REQUEST[$name.'_bioportal_concept_id'], $regb);
+			//NOT YET TESTED (need to find a uri in this format
+			if($b){
+			$newQname = 'bioontology_'.$_REQUEST[$name.'_bioportal_ontology_id'];
+			$newUrlQname =  $regb[1].'#';
+			$concept_id = $newQname.':'.$regb[2];
+			}
+
+		}
+		else {
+			$newQname = 'bioontology_'.$_REQUEST[$name.'_bioportal_ontology_id'];
+			//This is the uri to the ontology in rdf, but does not respond to concepts; however, for sparql this is the only way to get the rdf
+			//$newUrlQname = "http://rest.bioontology.org/bioportal/ontology/dump_n3/".trim($_REQUEST['verb_bioportal_ontology_id'])."/"
+			$newUrlQname = "http://rest.bioontology.org/bioportal/concepts/".trim($_REQUEST[$name.'_bioportal_ontology_id'])."/";
+			$concept_id = $newQname.':'.$_REQUEST[$name.'_bioportal_concept_id'];
+		}
+			
+		
+		
+		$s3ql=compact('user_id','db');
+		$s3ql['insert']='namespace';
+		$s3ql['where']['url']=$newUrlQname;
+		$s3ql['where']['qname'] = $newQname;
+		
+		$tmp=query_user_dictionaries($s3ql,$db, $user_id,'php');
+		
+			
+		$s3ql=compact('user_id','db');
+		$s3ql['insert']='link';
+		$s3ql['where']['uid']=$entity.$id;
+		$s3ql['where']['relation']='rdfs:seeAlso';
+		$s3ql['where']['value']=$concept_id;
+
+		$tmp=query_user_dictionaries($s3ql,$db, $user_id,'php');
+
+		
+}
+
+
+function replaceRemoteUID($remoteData,$remoteDid, $entity)
+{
+	 $entity_plural = ($GLOBALS['plurals'][$entity]!='')?$GLOBALS['plurals'][$entity]:$entity;
+	 $entity_singular = ($GLOBALS['singulars'][$entity]!='')?$GLOBALS['singulars'][$entity]:$entity;
+	 $entityIDname = $GLOBALS['COREids'][$entity_singular];
+	 
+	 foreach ($remoteData as $ind=>$info) {
+	 foreach ($info as $field=>$val) {
+	 #is fields one of those old things that was replaced?
+	 if(preg_match('/(_id)$|^(created_by)$|^(creator)$/', $field, $match)){
+	 
+	 $repield = array_search($field, $GLOBALS['s3map'][$entity_plural]);
+	 if($GLOBALS['s3map'][$entity_plural][$repield]!=$field){
+		$repield = $field;
+	 }
+	 
+	 if($match[2]!='' ||  $match[3]!=''){
+	 $letter = 'U';
+	 }
+	 else {
+	 $letter = letter($repield);
+	 }
+	 
+	 if(preg_match('/^\d+$/', $val)){
+	 $remoteData[$ind][$field] = $remoteDid.$letter.$val;
+	 }
+	 }
+	 }
+	 $remoteData[$ind]['id'] = $remoteData[$ind][$entityIDname];
+	 }
+	 
+	 return ($remoteData);
+	 
 }
 ?>

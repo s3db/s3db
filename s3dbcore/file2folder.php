@@ -20,7 +20,7 @@ function tmpfile2folder($F)
 					$project_folder = $maindir.'/'.$newProj;
 					if(mkdir($project_folder))
 						$folder=$newProj;
-
+						chmod($project_folder, 0775);
 					}
 				
 			

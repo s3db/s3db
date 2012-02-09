@@ -25,7 +25,7 @@ if($_SERVER['HTTP_X_FORWARDED_HOST']!='')
 		Header('Location: http://'.$def.'/s3db/');
 		exit;
 	}
-	
+
 foreach($_GET as $name => $value)
         {
          $get[strtolower($name)] = $value;
@@ -100,18 +100,19 @@ else{
 		
 		$data[0] = $element_info;
 		}
-
-	
-	$data[0]['uid']=$GLOBALS['Did'].(($letter!='U')?('|U'.$user_id):'').'|'.$letter.$ID;
-	$data[0]['uri']=S3DB_URI_BASE.'/'.$uid;
-	$data[0] = array_filter(array_diff_key($data[0], array('project_folder'=>'', 'account_pwd'=>'','status'=>'', 'view'=>'','change'=>'','add_data'=>'','delete'=>'')));
-	
-	if($letter=='U' && ($user_id!=1 && $user_id!=$element_info['created_by'] && $user_id!=$element_info['account_id'])){
-		$data[0]['email'] = "";	$data[0]['account_email'] = "";
+	   if(!$data['remote_uri']){  #this applies only to local data
+			$localDid = (substr($GLOBALS['Did'], 0,1)=='D')?$GLOBALS['Did']:'D'.$GLOBALS['Did'];
+			$data[0]['uid']=$localDid.(($letter!='U')?('|U'.$user_id):'').'|'.$letter.$ID;
+			$data[0]['uri']=S3DB_URI_BASE.'/'.$uid;
+			$data[0] = array_filter(array_diff_key($data[0], array('project_folder'=>'', 'account_pwd'=>'','status'=>'', 'view'=>'','change'=>'','add_data'=>'','delete'=>'')));
+			
+			if($letter=='U' && ($user_id!=1 && $user_id!=$element_info['created_by'] && $user_id!=$element_info['account_id'])){
+				$data[0]['email'] = "";	$data[0]['account_email'] = "";
+			}
+	   }
+	}
 	}
 	
-	}
-	}
 	if(!is_array($data[0]))
 		{echo formatReturn($GLOBALS['error_codes'][$something_does_not_exist], "uid ".$uid." does not exist", $s3ql['format'],'');
 		exit;
@@ -131,6 +132,9 @@ else{
 	}
 	
 	$z = compact('data','cols', 'format','letter');
+	if($format=='rdf'){
+	header('Content-type: application/rdf+xml');	
+	}
 	echo (outputFormat($z));
 	
 	exit;

@@ -17,6 +17,11 @@ if(ereg('edit|update', $action))
 	$action = 'edit';
 	if(empty($inputs))
 		{$inputs=$info;}
+	else {
+		foreach ($info as $inK=>$inV) {
+			$inputs[$inK] = $inV;
+		}
+	}
 	}
 	else {
 		$action = 'create';
@@ -25,6 +30,12 @@ if(ereg('edit|update', $action))
 $code = $GLOBALS['s3codesInv'][$element];
 #echo '<pre>';print_r($inputs);
 switch ($code) {
+	case 'D':
+		$ruleValid[$element]=array(
+		'<error>'.$error_codes['something_missing'].'</error><message>URL cannot be empty</message>'=>(!empty($inputs['url']) || !in_array('url', array_keys($inputs))),
+		'<error>'.$error_codes['something_missing'].'</error><message>publickey cannot be empty</message>'=>(!empty($inputs['publickey']) || !in_array('publickey', array_keys($inputs)))
+		);
+	break;
 	case 'U':
 		$ruleValid[$element]=array('<error>'.$error_codes['something_missing'].'</error><message>Login cannot be empty</message>'=>!empty($inputs['account_lid']),
 						'<error>'.$error_codes['wrong_input'].'</error><message>Account type must be a,u,g or p</message>'=>ereg('^(a|u|g|p|r)$', $inputs['account_type']),

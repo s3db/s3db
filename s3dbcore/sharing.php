@@ -91,7 +91,17 @@ function DidURL($uid_info, $db)
 	}
 	
 	if(!$did_is_local || !$did_is_recent){
-		//ask the mothership
+		//ask the mothership; if origin is not a url, then the url must be retrieved first; how far will this go will depend on user input!
+		$GoDeep = $_REQUEST['resolve_level'];$deepLevel = 1;
+		while(preg_match('/^D/',$uid_info['origin']) && $deepLevel<=$GoDeep){
+			$ms_resolve = uid_resolve($uid_info['origin']);
+			
+			$ms_info = mothershipAskUrl($uid_info['origin'], $ms_resolve['origin']);
+			if($ms_info['url']!==''){
+				$uid_info['origin'] = $ms_info['url'];
+			}
+			$deepLevel++;
+		}
 		$did_info = mothershipAskUrl($uid_info['did'], $uid_info['origin']);
 	}
 	else {

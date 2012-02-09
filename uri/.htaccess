@@ -7,6 +7,7 @@ RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?R?(\d+)?/?
 RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?S?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$6</key><from>statements</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><resource_id>$5</resource_id></where></S3QL>
 RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?S?(\d+)?/?R?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$7</key><from>rules</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><statement_id>$5</statement_id><resource_id>$6</resource_id></where></S3QL>
 RewriteRule ^(xml|json|rdf|html|n3|sif)/P?(\d+)?/?C?(\d+)?/?I?(\d+)?/?R?(\d+)?/?S?(\d+)?/?([A-Za-z0-9_]{9,})?/?$ S3QL.php?format=$1&query=<S3QL><key>$7</key><from>statements</from><where><project_id>$2</project_id><collection_id>$3</collection_id><item_id>$4</item_id><rule_id>$5</rule_id><resource_id>$6</resource_id></where></S3QL>
+RewriteRule ^(D[^/]+)$ URI.php?uid=$1&format=rdf
 RewriteRule ^(D|P|C|R|I|S|U|G)(\d+)$ URI.php?uid=$1$2&format=xml
 RewriteRule ^(P|C|R|I|S)(\d+)/(.*)$ URI.php?uid=$1$2&format=xml&key=$3
 RewriteRule ^S3QL/(key|format|query|user_id)/(\w+|\d+|.+)/?(key|format|query|user_id)?/?(\w+|\d+|.+)/?(key|format|query|user_id)/?(.+)? S3QL.php?$1=$2&$3=$4&$5=$6

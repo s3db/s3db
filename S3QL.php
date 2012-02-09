@@ -229,7 +229,27 @@ if($action=='')
 	#When there is no XML, rely on GET
 	$s3ql = $xml;
 	$s3ql = get_object_vars($s3ql);
+	
 	#echo '<pre>';print_r($s3ql);	
+	#strtolower
+	foreach ($s3ql as $attr=>$attrvalue) {
+								
+		if(is_object($s3ql[$attr])){
+			$tmp = get_object_vars($s3ql[$attr]);
+			
+			foreach ($tmp as $newattr=>$newvalue) {
+				$Ls3ql[strtolower($attr)][strtolower($newattr)]=$newvalue;
+				
+			}
+			
+			
+		}
+		else {
+			$Ls3ql[strtolower($attr)] = $attrvalue;
+			
+		}
+	}
+	$s3ql = $Ls3ql;
 	
 	$s3ql['key'] = ($s3ql['key']!='')?$s3ql['key']:$_REQUEST['key'];
 	

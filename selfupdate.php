@@ -33,7 +33,9 @@ ini_set('allow_call_time_pass_reference','1');
 ###
 #Retrieve the new updates.rdf from the mothership
 #$url2call = $GLOBALS['s3db_info']['deployment']['mothership'].'/s3dbupdates.rdf';
-$url2call = $GLOBALS['s3db_info']['deployment']['mothership'].'scanModified.php?&date='.$_REQUEST['date']; #This is the mothership's dynamic url.
+$codeSource = ($GLOBALS['s3db_info']['deployment']['code_source']!='')?$GLOBALS['s3db_info']['deployment']['code_source']:$GLOBALS['s3db_info']['deployment']['mothership'];
+
+$url2call = $codeSource.'scanModified.php?&date='.$_REQUEST['date']; #This is the mothership's dynamic url.
 
 $fid = fopen($url2call, 'r');
 ###

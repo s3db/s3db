@@ -232,7 +232,7 @@
 			#echo $user_id;
 			#echo '<pre>';print_r($user_info);exit;
 
-function authenticate($key, $url)
+function authenticate_OLD($key, $url)
 {
 			
 		
@@ -372,6 +372,65 @@ function authenticate($key, $url)
 		}
 }
 		
+function authenticate($key, $user_id)
+{
+	if($key!='')
+	{
+		$key_valid = check_key_validity($key, $db);
+		
+		if($key_valid)
+		{
+		
+		return 0;
+		
+		}
+		elseif (!$key_valid) 
+		{
+			#if key is not valid, check if there is a username (including remote url) and a key		
+			
+			if ($user_id=='') {
+				#sorry, no access :-(
+				return 1;
+				exit;
+			}
+			
+			else 
+			{
+				$valid = authenticate_remote_user($key, $user_id);
+				
+				return ($valid);
+			}
+		}
+	}
+
+	#if there is a session, no need to authenticate the user again
+	elseif ($key=='') 
+	{
+		if ($_SESSION['db']!='') {
+			$db = $_SESSION['db'];
+			$user_id = $_SESSION['user']['account_id'];
+		}
+		elseif(in_array('key', array_keys($_REQUEST)))
+		{
+			#the url seems prepared to take in a key, but it is empty
+			echo '<S3QL>';
+			echo '<error>0</error>';
+			echo '<connection>Successfully connected to <uri>'.$http.$def.S3DB_URI_BASE.'/</uri></connection><BR>';
+			echo '<message>Please provide a key to access S3DB</message><BR>';
+			echo '<message>For syntax specification and instructions refer to http://s3db.org/apibasic.html</message>';
+			echo '</S3QL>';
+			exit;
+		}
+	else
+		{
+			#no key and no session found
+			echo '<body onload="window.parent.location=\''.S3DB_URI_BASE.'/login.php?error=2\'">';
+			exit;
+			
+		}
+	
+	}
+}
 		
 		
 		

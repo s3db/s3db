@@ -119,7 +119,7 @@ $aclGrid = aclGrid(compact('user_id', 'db', 'users','new'));
 			<tr class="odd" align="center">
 				<td width="10%">Owner</td>
 				<td width="10%">Resource<sup class="required"></sup></td>
-				<td width="20%">Notes</td>
+				<td width="20%">Label</td>
 				<td width="10%">Action</td>
 			</tr>
 	
@@ -129,8 +129,22 @@ $aclGrid = aclGrid(compact('user_id', 'db', 'users','new'));
 				echo '<td width="10%">'.find_user_loginID(array('db'=>$db, 'account_id'=>$user_id)).'</td>';
 				echo '<td width="15%">'.$resource_info['entity'].'</td>';
 				?>
-				<td width="30%"><textarea name="notes" style="background: lightyellow" rows="2" cols="40"></textarea></td>
+				<td width="30%">
+				<input type="text" name="notes" size="70" class="bp_form_complete-all-name ac_input">
+				
+				<input type="hidden" id="notes_bioportal_ontology_id">
+				<input type="hidden" id="notes_bioportal_full_id">
+				
+				</td>
 				<td width="10%" align="center">
+				
+				<script type="text/javascript">
+				// Grab the specific scripts we need and fires it start event
+				jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+				formComplete_setup_functions();
+				});
+				</script>
+				
 				
 				<?php
 				echo '<input type="submit" name="add_resource" value="Add '.$resource_info['entity'].'"></td>';

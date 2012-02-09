@@ -92,7 +92,7 @@ function hideAndShow() {
      <td><div class="advanced"><input name="site_logo" type="text" style="background: lightyellow" size="30" value="{site_logo}"></div></td>
    </tr>
    <tr>
-     <td align="right"><sup><font color="red">{site_title_required}</font></sup>Deployment Name</td>
+     <td align="right"><sup><font color="red">{site_title_required}</font></sup>Name</td>
      <td><input name="site_title" type="text"  style="background: lightyellow" size="30" value="{site_title}"></td>
 	 <td><font color="navy" size="2">This name will be used to register this S3DB. <b>Please chose a descriptive name, as names must be unique</b>, or leave this field empty and a name will automatically be generated.</font></td>
    </tr>
@@ -136,6 +136,13 @@ function hideAndShow() {
 	</select></div></td>
 	 <td>
 	<font color="navy" size="2">{database_message}</font>
+	</td>
+   </tr>
+   <tr>
+     <td align="right"><div class="advanced"><sup><font color="red">{db_host_required}</font></sup>Database Host</div></td>
+     <td><div class="advanced"><input type="text" name="db_host" style="background: lightyellow" size="30" value={db_host_default}></input></div></td>
+	 <td>
+	<font color="navy" size="2">{db_host_message}</font>
 	</td>
    </tr>
    <tr>
@@ -184,12 +191,12 @@ function hideAndShow() {
      
      <td width="30%" align="right">{mothership_intro}</td>
      <td>{mothership_text}</td>
-	 <!-- <td><font color="navy" size="2">To Register in another S3DB, please use the <a href="javascript:hideAndShow()">Advanced</a> options</font></td> -->
+	 <td><font color="navy" size="2">To Register in another S3DB, please use the <a href="javascript:hideAndShow()">Advanced</a> options</font></td>
 	 <br>{uncheck}
 	</td>
 	<tr>
-	<!-- <td width="30%" align="right"><div class="advanced">Choose a different Registry URL</div></td> -->
-	<!-- <td><div class="advanced"><input type="text" name = "mothership_new"></div></td> -->
+	<!-- <td width="30%" align="right"><div class="advanced">Choose a different Registry URL</div></td>
+	<td><div class="advanced"><input type="text" name = "mothership_new"></div></td> -->
 	<td><div class="message">{mothership_error}</div></td>
 	</tr>
    

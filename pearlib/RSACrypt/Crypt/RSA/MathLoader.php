@@ -25,7 +25,7 @@
 /**
  * RSA error handling facilities
  */
-require_once 'ErrorHandler.php';
+require_once 'pearlib/RSACrypt/Crypt/RSA/ErrorHandler.php';
 
 /**
  * Crypt_RSA_MathLoader class.

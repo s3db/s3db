@@ -42,7 +42,7 @@ elseif($argv!=""){
 }
 */
 
-function uid_resolve($complete_uid, $sep='\|')
+function uid_resolve($complete_uid, $sep='\:')
 {
 #Valid UID rules
 #	1.  Individual non-D entities must be preceded by a D entity 

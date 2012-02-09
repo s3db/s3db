@@ -13,8 +13,11 @@
 		Header('Location: login.php?error=7');
 		exit;
 	}
+	ini_set('display_errors',0);
+	if($_REQUEST['su3d'])
+	ini_set('display_errors',1);
 		//include_once(S3DB_API_INC.'/common_functions.inc.php');
-	
+		
 	include_once(S3DB_SERVER_ROOT.'/s3dbcore/s3encription.php');
 	include_once(S3DB_SERVER_ROOT.'/s3dbcore/common_functions.inc.php');
 	
@@ -48,7 +51,7 @@
 	}
 	foreach($_GET as $name => $value)
 	{
-		if (ereg('s3db_',$name))
+		if (preg_match('/s3db_/',$name))
 		{
 			$extra_vars .= '&' . $name . '=' . urlencode($value);
 		}
@@ -61,6 +64,7 @@
 	
 	#
 	#echo '<pre>';print_r($_POST);exit;
+	$mothership = $GLOBALS['s3db_info']['deployment']['mothership'];
 	 if(!empty($_POST['logout']))
          {
 	       $_SESSION['db'] ='';
@@ -81,26 +85,28 @@
 		#}
 	}
 	elseif(!empty($_POST['register']))
-	{#echo 'ola';exit;
-	#send message to update url
-	$newUrl = $_POST['NewUrl'];
-	
-	$mothership = $GLOBALS['s3db_info']['deployment']['mothership'];
+	{
+		
+		#send message to update url
+		$newUrl = preg_replace('/\?su3d=1/','',$_POST['NewUrl']);
+		
+		$mothership = $GLOBALS['s3db_info']['deployment']['mothership'];
+		
+		
+		if($Did!='' && $Did!='localhost')
+			{
+			list($valid, $resp) = update_url_registry(compact('mothership', 'newUrl', 'publicKey', 'Did'));
 
-	
-	if($Did!='' && $Did!='localhost')
-		{
-		$resp = update_url_registry(compact('mothership', 'newUrl', 'publicKey', 'Did'));
-		#echo '<pre>';print_r($resp);
-		}
-		if ($resp[0]) {
-			  $tpl->set_var('updated', 'URL updated');	
-		}
-		else {
-			$tpl->set_var('updated', 'Could not update URL, please check if deployment ID was provided by '.$mothership);	
-		}
+		
+			}
+			if ($valid) {
+				  $tpl->set_var('updated', 'URL updated');	
+			}
+			else {
+				$tpl->set_var('updated', 'Could not update URL, please check 1) if you are online and 2) if this deployment ID ('.$Did.') is registered in '.$mothership);	
+			}
 
-	
+		
 	}
 	//else if (!empty($_GET['action']) && $_GET['action']=='droptables')
 	else if (!empty($_POST['droptables']))
@@ -150,14 +156,14 @@
         $tpl->set_var('account_title', 'Administrator Account Setup');
         $tpl->set_var('account_text', 'white');
         $tpl->set_var('account_action_img', 'images/redsphere.png');
-		$tpl->set_var('mothership', 'http://s3db.org/central');
+		$tpl->set_var('mothership', $mothership);
 		#$tpl->set_vat('default_mothership', 'http://s3db.virtual.vps-host.net/central/');
 
-		if(ereg('localhost',S3DB_URI_BASE)){
+		if(preg_match('/localhost/',S3DB_URI_BASE)){
 		$ip= captureIp();
 		$protocol = ($_SERVER['HTTPS']!='')?'https://':'http://';
 		$url = $protocol.(($ip!='')?$ip:$_SERVER['SERVER_ADDR']).str_replace('dbconfig.php', '', $_SERVER['REQUEST_URI']);
-		#$url = ereg('127.0.0.1', $url)?$protocol.getIP().str_replace($protocol.'127.0.0.1', '', $url):$url;
+		
 		}
 		else {
 		$protocol = ($_SERVER['HTTPS']!='')?'https://':'http://';	
@@ -165,7 +171,7 @@
 		}
 		
 		
-		if(!ereg('localhost|127.0.0.1', $url))
+		if(!preg_match('/localhost|127.0.0.1/', $url))
 		$tpl->set_var('current_ip', $url);
 
 		$tpl->set_var('Current_deploymenent_ID', 'Current deployment ID: '.$GLOBALS['Did']);
@@ -277,7 +283,7 @@
 		{
 							
 				##Check if deployment_id already exists. If not,create it at this point. 
-				$DidNum = ereg_replace('^D','',$GLOBALS['s3db_info']['deployment']['Did']);
+				$DidNum = preg_replace('/^D/','',$GLOBALS['s3db_info']['deployment']['Did']);
 				$sql = "select * from s3db_deployment where deployment_id = '".$DidNum."'";
 				$db->query($sql, __LINE__,__FILE__);
 				
@@ -339,7 +345,7 @@
 			else 
 			{
 				#Insert deployment_id in deployments table
-				$sql = "insert into s3db_deployment (deployment_id, url, publickey, checked_on, checked_valid) values ('".ereg_replace('^D','',$GLOBALS['s3db_info']['deployment']['Did'])."','".S3DB_URI_BASE."', '".$GLOBALS['s3db_info']['deployment']['public_key']."',now(), now())";
+				$sql = "insert into s3db_deployment (deployment_id, url, publickey, checked_on, checked_valid) values ('".preg_replace('/^D/','',$GLOBALS['s3db_info']['deployment']['Did'])."','".S3DB_URI_BASE."', '".$GLOBALS['s3db_info']['deployment']['public_key']."',now(), now())";
 				$db->query($sql, __LINE__, __FILE__);
 				
 				//$db->Debug = True;

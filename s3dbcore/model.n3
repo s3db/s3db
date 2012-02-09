@@ -1,0 +1,97 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix s3db: <http://www.s3db.org/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+s3db:entity a rdfs:Class ;
+	rdfs:label "S3DB entity" ;
+	rdfs:comment "The class of all entities from the S3DB core model" .
+
+s3db:relationship a rdfs:Class ;
+	rdfs:label "S3DB relationship" ;
+	rdfs:comment "The class of all relationships between entities of the S3DB core model" .
+
+s3db:deployment rdfs:label "S3DB Deployment" ;
+	rdfs:comment "The physical location of an S3DB Deployment" ;
+	rdfs:subClassOf s3db:entity .
+
+s3db:project rdfs:label "S3DB Project" ;
+	rdfs:comment "A contextualizer entity; can be used as the common attribute in a list of instances of s3db:rules describing the same domain" ;
+	rdfs:subClassOf s3db:entity .
+
+s3db:rule rdfs:label "S3DB Rule" ;
+	rdfs:subClassOf s3db:entity ;
+	rdfs:comment "A triple describing an attribute from the domain; the subject of the s3db:Rule is an instance of s3db:collection, the predicate is an instance of s3db:item and the object may either be an instance of s3db:collection or a literal value" .
+
+s3db:collection rdfs:label "S3DB Collection" ;
+	rdfs:subClassOf s3db:entity ;
+	rdfs:comment "The subject of an instance of s3db:rule" .
+
+s3db:item rdfs:label "S3DB Item" ;
+	rdfs:subClassOf s3db:entity ;
+	rdfs:comment "The subject of an instance of s3db:statement" .
+
+s3db:statement rdfs:label "S3DB Statement" ;
+	rdfs:subClassOf s3db:entity ;
+	rdfs:comment "A triple describing an attribute/value pair; the subject of an  an instance of s3db:Statement is an instance of s3db:item, the predicate is an instance of s3db:rule and the object can either be an  an instance of s3db:item or a literal, according to the object used in the predicate s3db:rule" .
+
+s3db:user rdfs:label "S3DB User" ;
+	rdfs:subClassOf s3db:entity ;
+	rdfs:comment "The subject of a permission assignment operation" .
+
+s3db:DP rdfs:subClassOf s3db:relationship ;
+	rdfs:domain s3db:deployment ; 
+	rdfs:range s3db:project.
+
+s3db:PC rdfs:subClassOf s3db:relationship ;
+	rdfs:domain s3db:project ; 
+	rdfs:range s3db:collection .
+
+s3db:PR rdfs:subClassOf s3db:relationship ;
+	rdfs:domain s3db:project ; 
+	rdfs:range s3db:rule .
+
+s3db:CI rdfs:subClassOf s3db:relationship ;
+	rdfs:domain s3db:collection ; 
+	rdfs:range s3db:item .
+
+s3db:Rsubject rdfs:subClassOf s3db:relationship ; 
+		owl:inverseOf rdf:subject ; 
+		rdfs:domain s3db:collection ; 
+		rdfs:range s3db:rule .
+
+s3db:Robject rdfs:subClassOf s3db:relationship ; 
+		owl:inverseOf rdf:object ; 
+		rdfs:domain s3db:collection ; 
+		rdfs:range s3db:rule .
+
+s3db:Rpredicate rdfs:subClassOf s3db:relationship ; 
+		owl:inverseOf rdf:predicate ; 
+		rdfs:domain s3db:item ; 
+		rdfs:range s3db:rule .
+
+s3db:Spredicate rdfs:subClassOf s3db:relationship ; 
+		owl:inverseOf rdf:predicate ; 
+		rdfs:domain s3db:rule ; 
+		rdfs:range s3db:statement .
+
+s3db:Ssubject rdfs:subClassOf s3db:relationship ; 
+		owl:inverseOf rdf:subject ;
+		rdfs:domain s3db:item ;
+		rdfs:range s3db:statement .
+
+s3db:Sobject rdfs:subClassOf s3db:relationship ; 
+		owl:inverseOf rdf:object ; 
+		rdfs:domain s3db:item ;
+		rdfs:range s3db:statement .
+
+s3db:DU rdfs:subClassOf s3db:relationship ; 
+	rdfs:domain s3db:deployment ; 
+	rdfs:range s3db:user .
+
+s3db:UU rdfs:subClassOf s3db:relationship ; 
+	rdfs:domain s3db:user ; 
+	rdfs:range s3db:user .
+
+s3db:user s3db:operator s3db:entity .

@@ -6,7 +6,8 @@
 	ini_set('display_errors',0);
 	if($_REQUEST['su3d'])
 	ini_set('display_errors',1);
-	
+
+	$a = set_time_limit(0);
 	if(file_exists('config.inc.php'))
 	{
 		include('config.inc.php');
@@ -84,10 +85,21 @@ include_once('html2cell.php');
 	if($_POST['Save_configuration'] || $_POST['Create_configuration'])
 	{	
 		$Did = $GLOBALS['s3db_info']['deployment']['Did']; #first find the Did in the config
-		$mothership =  'http://root.s3db.org/';
 		
+		if($_REQUEST['mothership']=='')	$mothership =  'http://root.s3db.org/';
+		else {
+			$mothership = $_REQUEST['mothership'];
+		}
+		
+		
+
 		if ($Did=='') {
-			#is user connected to the internet?
+		//mothserhip registration has been the weakest point in s3db deployment so far; as such, I am adding some redundancy here
+		//unfortunatelly, root.s3db.org almost always breaks so it will be translated to its more direct url
+		if($mothership=='http://root.s3db.org/')
+			$mothership = 'http://204.232.200.16/s3dbCentral/';
+		#is user connected to the internet?
+			
 			//$mothership = ($_POST['mothership_new']!='')?$_POST['mothership_new']:$_POST['mothership'];
 			//$mothership = (substr($mothership,-1,1)=='/')?$mothership:$mothership.'/';
 			
@@ -96,25 +108,38 @@ include_once('html2cell.php');
 			
 			$message = stream_get_contents($connected);
 			
+		
+			if($message=='') {
+				$mothership = "http://204.232.200.16/s3dbCentral/";
+				$connected = @fopen($mothership.'s3rl.php', "r"); 
+				$message = stream_get_contents($connected);
+				$newMs = $mothership;
+				}
+			
 			
 			if($message=='') {
 				//Try again, this time with another url;
-				$mothership2 = "http://s3db.virtual.vps-host.net/root/";
-				//$mothership2 = "http://ibl.mdanderson.org/central/";
-				#$connected = @fopen($mothership2.'s3rl.php', "r"); 
-				$connected = @fopen($mothership2.'s3rl.php', "r"); 
+				$mothership =  'http://ibl.mdanderson.org/s3dbCentral';
+				$connected = @fopen($mothership.'s3rl.php', "r"); 
 				$message = stream_get_contents($connected);
-				
-				if($message=='') {
+				$newMs = $mothership;
+			}
+
+			if($message=='') {
+				$mothership = "http://s3db.virtual.vps-host.net/root/";
+				$connected = @fopen($mothership.'s3rl.php', "r"); 
+				$message = stream_get_contents($connected);
+				$newMs = $mothership;
+				}
+
+			if($message=='') {
 				$validate_error =  'Could not connect to mothership '.$mothership.'. Please check your internet connection - s3db needs to be registered in order to allow distributed use. Refer to <a href="http://s3db.org">http://s3db.org</a> for instructions.';
 				$tpl->set_var('error', $validate_error);
 				$tpl->pfp('out','_output');
 				exit;
-				}
-				else {
-					$mothership = $mothership2;
-				}
 			}
+			
+		
 			
 			
 			$RSAkeys = generate_key_pair(); 			
@@ -127,15 +152,13 @@ include_once('html2cell.php');
 			
 			$di = array('mothership'=>$deployInfo['mothership'], 'url'=>$_POST['uri_base'], 'publicKey'=>$publicKey, 'did_keywords'=>$_POST['deployment_keywords'], 'did_title'=>$_POST['site_title'],'did_intro'=>$_POST['site_intro'], 'userName'=>$_POST['userName'], 'email'=>$_POST['email']);
 			
-			#$deployment_info = send_public_key($di);
-			list($valid,$deployment_info) = send_public_key($di);
+			
+			list($valid,$deployment_info, $mothership) = send_public_key($di);
+			
 				if(!$valid)
-					$validate_error =  'Could not register this S3DB in mothership '.$mothership.'. Reason: '.$deployment_info.'.<br /> Refer to <a href="http://s3db.org">http://s3db.org</a> for instructions.';
-			
-			
-			
-		
-
+					{$validate_error =  'Could not register this S3DB in mothership '.$mothership.'. Reason: '.$deployment_info.'.<br /> Refer to <a href="http://s3db.org">http://s3db.org</a> for instructions.';
+					}
+					
 		}
 		
 		$inputs = Array('server_root'=>$_POST['server_root'],
@@ -155,6 +178,7 @@ include_once('html2cell.php');
 				'privateKey'=>$RSAkeys['private'],
 				'publicKey'=>$RSAkeys['public'],
 				'mothership'=>$mothership,
+				'code_source'=>'http://ibl.mdanderson.org/central/',
 				'Did'=>$deployment_info,
 				'did_keywords'=>$_POST['deployment_keywords']);
 		
@@ -184,12 +208,12 @@ include_once('html2cell.php');
 				if($config_file) #create the file
 				{
 					#$dbCreate = createS3DBDatabase($inputs);
-					$dbRunning = testS3DB($inputs);
+					list($dbRunning, $msg) = testS3DB($inputs);
 					
 					if (!$dbRunning)
 					{	
 						unlink('config.inc.php');
-						$tpl->set_var('error', 'Could not create the database. Please check if the database user and password is correct, or use a diffent name for your Database. Refer to README file/http://www.s3db.org for further instructions.');
+						$tpl->set_var('error', 'Could not create the database. Please check that username/password are correct, or use a diffent name for your Database. Refer to README file/http://www.s3db.org for further instructions.');
 					}
 					
 					
@@ -205,9 +229,9 @@ include_once('html2cell.php');
 				$config_file = create_configuration_file($inputs);
 				if($config_file)
 				{
-					
+					list($dbRunning, $msg) = testS3DB($inputs);
 					##Lets test the database - was it created?
-					if(!testS3DB($inputs))
+					if(!$dbRunning)
 					{
 						
 						unlink('config.inc.php');
@@ -269,6 +293,8 @@ include_once('html2cell.php');
 			$tpl->set_var('action_url', 'setup.php');
 			$tpl->set_var('website_title', 'S3DB site configuration');
 			$tpl->set_var('db_options', $db_option);
+			$tpl->set_var('db_host_default', $_SERVER['SERVER_NAME']);
+			$tpl->set_var('db_host_message', 'Type here the database host');
 			$tpl->set_var($db_server.'_selected', 'selected');
 			$tpl->set_var('site_config_admin', 'Admin');
 			$tpl->set_var('site_config_admin_pass', random_string(10));
@@ -306,7 +332,9 @@ include_once('html2cell.php');
 
 			#$tpl->set_var('list_motherships', $motherships);
 			$tpl->set_var('mothership_intro', "This S<sup>3</sup>DB will be registered in:");
-			$tpl->set_var('mothership_text', '<input type="hidden" value = "http://root.s3db.org/" name="mothership"><b>http://root.s3db.org/</b>');
+			$tpl->set_var('mothership_text', '<input type="text" id="mothership" value = "http://root.s3db.org/" name="mothership" disabled>
+			<BR><input type="checkbox" onClick="alert(\'Please make sure you are introducing a VALID S3DB mothership\');$(\'#mothership\').attr(\'disabled\', false)" unchecked>Choose another mothership');
+			
 			
 			#$tpl->set_var('uncheck', '<input type="checkbox" name="register" style="background: lightyellow" size="30" checked><font color="navy" size="2"> Uncheck this box if you do not wish this S<sup>3</sup>DB implementation to be registered within the S<sup>3</sup>DB community.</font>');
 			$tpl->set_var('db_user', 's3dbuser');
@@ -470,6 +498,8 @@ include_once('html2cell.php');
 		$content .= sprintf("\t%s\n", "\$GLOBALS['s3db_info']['deployment']['private_key']='".$inputs['privateKey']."';");
 		$content .= sprintf("\t%s\n", "\$GLOBALS['s3db_info']['deployment']['public_key']='".$inputs['publicKey']."';");
 		$content .= sprintf("\t%s\n", "\$GLOBALS['s3db_info']['deployment']['mothership']='".$inputs['mothership']."';");
+		$content .= sprintf("\t%s\n", 
+		"\$GLOBALS['s3db_info']['deployment']['code_source']='".$inputs['code_source']."';");
 		$content .= sprintf("\t%s\n", "\$GLOBALS['s3db_info']['deployment']['Did']='".$inputs['Did']."';");
 		$content .= sprintf("\t%s\n", "\$GLOBALS['s3db_info']['deployment']['did_keywords']='".addslashes($inputs['did_keywords'])."';");
 		$content .= sprintf("\t%s\n", "\$GLOBALS['s3db_info']['deployment']['userName']='".addslashes($inputs['userName'])."';");
@@ -603,10 +633,10 @@ function testS3DB($inputs)
 	$db->connect();
 	
 	if($db->Errno=='0')
-	{return True;}
+	{return array(True);}
 	else
 	{	
-	return False;
+	return array(False, "Connection to database failed! Please make sure username/password are correct");
 	}
 	
 }
@@ -617,20 +647,38 @@ function send_public_key($U)
 
 #send a url and a key by post to mothership
 #$url2register = $mothership."s3rl.php?format=php";
+if(!preg_match('/\/$/',$mothership)) $mothership .='/';
+
+
 $url2register = $mothership."s3rl.php?format=php";
 
 
 $a = fopen($url2register, "r");
 $b = stream_get_contents($a);
-while (unserialize($b)=="" && $i<5) {
-	//change the ms;
-	$mothership = "http://s3db.virtual.vps-host.net/root/";
-	#$url2register = $mothership."s3rl.php?format=php";
-	$url2register = $mothership."s3rl.php?format=php";
+if(unserialize($b)=="" && preg_match('/src="([^"]*)"/', $b, $match)){
+	$b=file_get_contents($match[1]);
+}
 
-	$a = fopen($url2register, "r");
-	$b = stream_get_contents($a);
-	$i++;
+if(unserialize($b)=="" && $mothership=='http://root.s3db.org/'){
+	
+	while (unserialize($b)=="" && $i<5) {
+		//change the ms;
+		//$mothership = "http://s3db.virtual.vps-host.net/root/";
+		
+		if($i>=2){
+			$mothership = 'http://ibl.mdanderson.org/central/';
+		}
+		if($i>=3){//this means that root is finally offline - go the alternative ms
+			$mothership = "http://204.232.200.16/s3dbCentral/";
+		}
+		
+		#$url2register = $mothership."s3rl.php?format=php";
+		$url2register = $mothership."s3rl.php?format=php";
+
+		$a = fopen($url2register, "r");
+		$b = stream_get_contents($a);
+		$i++;
+	}
 }
 if($i>5){
 	//Register failed
@@ -651,37 +699,76 @@ if($did_keywords) $data["keywords"] = urlencode($did_keywords);
 if($userName) $data["username"] = urlencode($userName);
 if($email) $data["email"] = urlencode($email);
 
-$postdata = http_build_query(
-    $data
-);
-#Prepare the POST
-$opts = array(
-  'http'=>array(
-    'method'=>"POST",
-    'header'=>"Content-type: application/x-www-form-urlencoded",
-	'content' => $postdata
-  )
-);
-
-#Send
-$response = file_get_contents($url2register, false, $context);
-
+//if curl is installed, we can just USE it!
+if (in_array('curl', get_loaded_extensions())) {
+	//traverse array and prepare data for posting (key1=value1)
+	foreach ( $data as $key => $value) {
+		$post_items[] = $key . '=' . $value;
+	}
+	//create the final string to be posted using implode()
+	$post_string = implode ('&', $post_items);
+	//create cURL connection
+	
+	$curl_connection = 
+	  curl_init($url2register);
+	
+	//set options
+	curl_setopt($curl_connection, CURLOPT_CONNECTTIMEOUT, 30);
+	curl_setopt($curl_connection, CURLOPT_USERAGENT, 
+	  "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
+	curl_setopt($curl_connection, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($curl_connection, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($curl_connection, CURLOPT_FOLLOWLOCATION, 1);
+	
+	//set data to be posted
+	curl_setopt($curl_connection, CURLOPT_POSTFIELDS, $post_string);
+	//perform our request
+	$response = curl_exec($curl_connection);
+	
+	curl_close($curl_connection);
+	
+	//show information regarding the request
+	//print_r(curl_getinfo($curl_connection));
+	//echo curl_errno($curl_connection) . '-' . 
+	//				curl_error($curl_connection);
+	
+	//close the connection
+	
+}
+else {
+	$postdata = http_build_query($data);
+	
+	#Prepare the POST
+	$opts = array(
+	  'http'=>array(
+		'method'=>"POST",
+		'header'=>"Content-type: application/x-www-form-urlencoded",
+		'content' => $postdata
+	  )
+	);
+	$context = stream_context_create($opts);
+	$response = file_get_contents($url2register, false, $context);
+	
+}
 
 if($response){
 	 
 	$msg=unserialize($response);
+	if($msg=='' && preg_match('/src="([^"]*)"/', $response, $match)){
+		$msg=unserialize(file_get_contents($match[1]));
+	}
 	$msg=$msg[0];
 	
 	if($msg['deployment_id']!=''){
-	return array(true,$msg['deployment_id']);
+	return array(true,$msg['deployment_id'], $mothership);
 	}
 	else {
-		return (array(false, $msg['message']));
+		return (array(false, $msg['message'], $mothership));
 	}
 	
 	
 
 }
-return (array(False));
+	return (array(False, 'Root deployment could not be contacted. You can try again later or register your deployment in an alternative Root deployment, such as http://q.s3db.org/s3dbCentral/'));
 }
 ?>
