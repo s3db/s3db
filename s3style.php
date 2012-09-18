@@ -1,10 +1,11 @@
-<script language="javascript" src="'.S3DB_URI_BASE.'/js/m-x.js"></script>
-<script language="javascript" src="'.S3DB_URI_BASE.'/js/DcomboBox.js"></script>
-<script language="javascript" src="'.S3DB_URI_BASE.'/js/autocomplete.js"></script>
-<script language="javascript" src="'.S3DB_URI_BASE.'/js/shownhidden.js"></script>
-<script language="javascript" src="'.S3DB_URI_BASE.'/js/tooltip.js"></script>
+<?php
+	echo '<script language="javascript" src="'.S3DB_URI_BASE.'/js/m-x.js"></script>
+		<script language="javascript" src="'.S3DB_URI_BASE.'/js/DcomboBox.js"></script>
+		<script language="javascript" src="'.S3DB_URI_BASE.'/js/autocomplete.js"></script>
+		<script language="javascript" src="'.S3DB_URI_BASE.'/js/shownhidden.js"></script>
+		<script language="javascript" src="'.S3DB_URI_BASE.'/js/tooltip.js"></script>';
+?>
 <script type="text/Javascript">
-
 function popUp(URL) {
 	day = new Date();
 	id = day.getTime();

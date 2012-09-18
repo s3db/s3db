@@ -285,8 +285,23 @@
 			'ix' => array(),
 			'fk' => array(),
 			'uc' => array()
+		),
+		's3db_config' => array(
+			'fd' => array(
+				'config_id' => array('type' => 'auto','nullable' => False),
+				'config_name' => array('type' => 'varchar','precision' => '255','nullable' => False),
+				'config_value' => array('type' => 'varchar','precision' => '255','nullable' => False),
+				'config_type' => array('type' => 'varchar','precision' => '3','default' => 'str','nullable' => False),		//[int, num, str]
+				'config_note' => array('type' => 'varchar','precision' => '255','nullable' => True),
+				'created_on' => array('type' => 'timestamp','nullable' => False),
+				'modified_on' => array('type' => 'timestamp','nullable' => True),
+				'modified_by' => array('type' => 'int','nullable' => True),
+			),
+			'pk' => array('config_id'),
+			'fk' => array(),
+			'ix' => array(),
+			'uc' => array()
 		)
 	);
-
 	#echo '<pre>';print_R($s3db_tables);
 ?>

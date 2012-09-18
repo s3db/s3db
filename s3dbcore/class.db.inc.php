@@ -19,7 +19,7 @@
 	/**
 	* Include concrete database implementation
 	*/
-	include(S3DB_SERVER_ROOT.'/s3dbcore/class.db_'.$GLOBALS['s3db_info']['server']['db']['db_type'].'.inc.php');
+	include_once(S3DB_SERVER_ROOT.'/s3dbcore/class.db_'.$GLOBALS['s3db_info']['server']['db']['db_type'].'.inc.php');
 
 
 	/**

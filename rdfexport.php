@@ -2,22 +2,18 @@
 #rdfproject.php parses a project in s3db into n3.
 #reads database info from the session or from key
 
-if($_SERVER['HTTP_X_FORWARDED_HOST']!='')
-			$def = $_SERVER['HTTP_X_FORWARDED_HOST'];
-		else 
-			$def = $_SERVER['HTTP_HOST'];
+if($_SERVER['HTTP_X_FORWARDED_HOST']!='') {
+	$def = $_SERVER['HTTP_X_FORWARDED_HOST'];
+} else {
+	$def = $_SERVER['HTTP_HOST'];
+}
 			
-if(file_exists('config.inc.php'))
-	{
-		include('config.inc.php');
-	}
-	else
-	{
-		
-
-		Header('Location: http://'.$def.'/s3db/');
-		exit;
-	}
+if(file_exists('config.inc.php')) {
+	include('config.inc.php');
+} else {
+	Header('Location: http://'.$def.'/s3db/');
+	exit;
+}
 
 $a = set_time_limit(0);
 #ini_set('max_execution_time','30');
@@ -26,13 +22,16 @@ ini_set('post_max_size', '256M');
 ini_set('display_errors',1);
 ini_set('memory_limit','3000M');
 
-	$key = $_GET['key'];
-	if($key=='') $key = $s3ql['key'];
-	if($key=='') $key=$argv[1];	
-	$file=$_REQUEST['file'];
-	if($file=='') $file=$argv[3];
-	if($id=='') $id = $argv[4];
-	if($argv!=''){
+/*
+$key = $_GET['key'];
+if($key=='') { $key = $s3ql['key']; }
+if($key=='') { $key=$argv[1]; }
+$file=$_REQUEST['file'];
+if($file=='') $file=$argv[3];
+if($id=='') $id = $argv[4];
+*/
+
+if($argv!=''){
 	#whn the script is called via CLI, we need a direc way to accept the inputs. The syntax will be the saem (attr-value pairs)
 	$inputsOrder = array('key','file','outputOption','uid');
 	
@@ -279,64 +278,51 @@ function rootIDinfo($s3idNames, $REQUESTdat, $argv, $user_id, $key, $db)
 	return (compact('letter', 'specified_id', 'specified_id_type', 'specified_id_info', 'inData', 'rootID'));
 	}
 
-function class_triples($triples, $root, $specified_id, $specified_id_info, $s3Types, $user_id, $db,$inputs, $s3db=array(), $fork=0, $nest=0)
-{	
+function class_triples($triples, $root, $specified_id, $specified_id_info, $s3Types, $user_id, $db,$inputs, $s3db=array(), $fork=0, $nest=0) {	
 	$s3idNames = $GLOBALS['COREids'];
 	
 	##this is the else, but since we re returninng...
 	foreach ($s3Types[$root] as $k=>$a_class) {
-	$uid_p = letter($specified_id).$specified_id_info[$specified_id];
-	
-	
-	#each class has a descriptive statement
-	
-	$a_class_id = $s3idNames[$a_class];
-	
-	$a_class_letter = strtoupper(substr($a_class,0,1));
-	$a_class_type = $GLOBALS['s3codes'][$a_class_letter];
-	$s3ql=compact('user_id','db');
-	$s3ql['select']='*';
-	$s3ql['from']=$GLOBALS['plurals'][$a_class];
-	$s3ql['where'][$specified_id]=$specified_id_info[$specified_id];
-	
-	if(ereg('(rule|statement)', $a_class_type))
-		{$s3ql['where']['object']="!=UID";}
-	
-	
-	$subClasses = S3QLaction($s3ql);#find them, output them. 
-	#$verbs=array();
-	$s3db[$uid_p][letter($a_class)] = $subClasses; 	
-	
-	#triples for teh rdf api
-	
-	$subClassTriples = rdf_encode($subClasses,letter($GLOBALS['plurals'][$a_class]), 'array', $db,$namespaces,$subClasses);
-	
-	
+		$uid_p = letter($specified_id).$specified_id_info[$specified_id];
 
-	if(!empty($subClassTriples)){
-	$triples = array_merge($triples, $subClassTriples);
-	}
-	
-	
-	
-	if(is_array($subClasses) && is_array($s3Types[$a_class])){
-		##prepare triples for the rdf-api
-			
-			foreach ($subClasses as $subSub=>$subSubInfo) {
-			if($inputs['all']==1 || ($a_class=='collection' && $subSubInfo['name']=='s3dbVerb')){
-			$triples = class_triples($triples, $a_class, $a_class_id, $subSubInfo, $s3Types, $user_id, $db,$s3db, $fork, $nest=1);
-			}
-			
+		#each class has a descriptive statement
+		$a_class_id = $s3idNames[$a_class];
+
+		$a_class_letter = strtoupper(substr($a_class,0,1));
+		$a_class_type = $GLOBALS['s3codes'][$a_class_letter];
+		$s3ql=compact('user_id','db');
+		$s3ql['select']='*';
+		$s3ql['from']=$GLOBALS['plurals'][$a_class];
+		$s3ql['where'][$specified_id]=$specified_id_info[$specified_id];
+
+		if(ereg('(rule|statement)', $a_class_type)) {
+			$s3ql['where']['object']="!=UID";
 		}
-		
-	}
-	
-	
-	$nest = 0;
-	$fork++;	
+
+		$subClasses = S3QLaction($s3ql);#find them, output them.
+		#$verbs=array();
+		$s3db[$uid_p][letter($a_class)] = $subClasses;
+
+		#triples for teh rdf api
+		$subClassTriples = rdf_encode($subClasses,letter($GLOBALS['plurals'][$a_class]), 'array', $db,$namespaces,$subClasses);
+
+		if(!empty($subClassTriples)){
+			$triples = array_merge($triples, $subClassTriples);
+		}
+
+		if(is_array($subClasses) && is_array($s3Types[$a_class])){
+			##prepare triples for the rdf-api
+				
+			foreach ($subClasses as $subSub=>$subSubInfo) {
+				if($inputs['all']==1 || ($a_class=='collection' && $subSubInfo['name']=='s3dbVerb')){
+					$triples = class_triples($triples, $a_class, $a_class_id, $subSubInfo, $s3Types, $user_id, $db,$s3db, $fork, $nest=1);
+				}
+			}
+		}
+		$nest = 0;
+		$fork++;
 	}
 	
 	return ($triples);
 }
-
 ?>

@@ -19,17 +19,6 @@
 	header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
 	header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');
 	
-//	===========LOG Stuff===========
-/*
-	function blog($str='') {
-		$myFile = "s3dbuserlog.txt";
-		$fh = fopen($myFile, 'a') or die("can't open file");
-		fwrite($fh, date('n-j-Y H:i:s :::').$str."\r\n");
-		fclose($fh);
-	}
-	blog(print_r($_REQUEST,true));
-	blog(print_r($_FILES,true));
-*/
 	switch ($_SERVER['REQUEST_METHOD']) {
 		case 'OPTIONS':
 			break;
