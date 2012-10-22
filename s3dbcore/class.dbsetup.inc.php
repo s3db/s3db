@@ -62,6 +62,7 @@
 		 */	
 		function detectdb() 
 		{
+			$names = array();
 			$this->db->Halt_On_Error = 'no';
 			$tables = $this->db->table_names();
 			

@@ -262,40 +262,30 @@
 			return $this->m_odb->query($sQuery, $line, $file);
 		}
 
-		function _GetTableSQL($sTableName, $aTableDef, &$sTableSQL, &$sSequenceSQL)
-		{
+		function _GetTableSQL($sTableName, $aTableDef, &$sTableSQL, &$sSequenceSQL) {
 			global $DEBUG;
-
-			if(!is_array($aTableDef))
-			{
+			if(!is_array($aTableDef)) {
 				return False;
 			}
 
 			$sTableSQL = '';
 			reset($aTableDef['fd']);
-			while(list($sFieldName, $aFieldAttr) = each($aTableDef['fd']))
-			{
+			while(list($sFieldName, $aFieldAttr) = each($aTableDef['fd'])) {
 				$sFieldSQL = '';
-				if($this->_GetFieldSQL($aFieldAttr, $sFieldSQL))
-				{
-					if($sTableSQL != '')
-					{
+				if($this->_GetFieldSQL($aFieldAttr, $sFieldSQL)) {
+					if($sTableSQL != '') {
 						$sTableSQL .= ",\n";
 					}
 
 					$sTableSQL .= "$sFieldName $sFieldSQL";
 
-					if($aFieldAttr['type'] == 'auto')
-					{
+					if($aFieldAttr['type'] == 'auto') {
 						$this->m_oTranslator->GetSequenceSQL($sTableName, $sSequenceSQL);
-						if($sSequenceSQL != '')
-						{
+						if($sSequenceSQL != '') {
 							$sTableSQL .= sprintf(" DEFAULT nextval('seq_%s')", $sTableName);
 						}
 					}
-				}
-				else
-				{
+				} else {
 					if($DEBUG) { echo 'GetFieldSQL failed for ' . $sFieldName; }
 					return False;
 				}
@@ -306,57 +296,41 @@
 			$sIXSQL = '';
                        $sFKSQL = '';
 
-			if(count($aTableDef['pk']) > 0)
-			{
-				if(!$this->_GetPK($aTableDef['pk'], $sPKSQL))
-				{
-					if($bOutputHTML)
-					{
+			if(isset($aTableDef['pk']) && count($aTableDef['pk']) > 0) {
+				if(!$this->_GetPK($aTableDef['pk'], $sPKSQL)) {
+					if($bOutputHTML) {
 						print('<br>Failed getting primary key<br>');
 					}
-
 					return False;
 				}
 			}
 
-			if(count($aTableDef['uc']) > 0)
-			{
-				if(!$this->_GetUC($aTableDef['uc'], $sUCSQL))
-				{
-					if($bOutputHTML)
-					{
+			if(isset($aTableDef['uc']) && count($aTableDef['uc']) > 0) {
+				if(!$this->_GetUC($aTableDef['uc'], $sUCSQL)) {
+					if($bOutputHTML) {
 						print('<br>Failed getting unique constraint<br>');
 					}
-
 					return False;
 				}
 			}
 
-			if(count($aTableDef['ix']) > 0)
-			{
-				if(!$this->_GetIX($aTableDef['ix'], $sIXSQL))
-				{
-					if($bOutputHTML)
-					{
+			if(isset($aTableDef['ix']) && count($aTableDef['ix']) > 0) {
+				if(!$this->_GetIX($aTableDef['ix'], $sIXSQL)) {
+					if($bOutputHTML) {
 						echo '<br>Failed generating indexes<br>';
 					}
-
 					return False;
 				}
 			}
 
-                       if(count($aTableDef['fk']) > 0)
-                       {
-                         if(!$this->_GetFK($aTableDef['fk'], $sFKSQL))
-                         {
-                           if($bOutputHTML)
-                           {
-                             echo '<br>Failed generating foreign keys<br>';
-                           }
-
-                            return False;
-                         }
-                       }
+			if(isset($aTableDef['fk']) && count($aTableDef['fk']) > 0) {
+				if(!$this->_GetFK($aTableDef['fk'], $sFKSQL)) {
+					if($bOutputHTML) {
+						echo '<br>Failed generating foreign keys<br>';
+					}
+					return False;
+				}
+			}
 
 
 			if($sPKSQL != '')

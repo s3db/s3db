@@ -295,7 +295,7 @@
 				'config_note' => array('type' => 'varchar','precision' => '255','nullable' => True),
 				'created_on' => array('type' => 'timestamp','nullable' => False),
 				'modified_on' => array('type' => 'timestamp','nullable' => True),
-				'modified_by' => array('type' => 'int','nullable' => True),
+				'modified_by' => array('type' => 'int','precision' => 4,'nullable' => True),
 			),
 			'pk' => array('config_id'),
 			'fk' => array(),
