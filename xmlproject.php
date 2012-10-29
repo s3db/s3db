@@ -5,7 +5,6 @@
 	 * Helena F Deus (helenadeus@gmail.com)
 	 * 
 	 */
-
 	ini_set('display_errors',0);
 	if($_REQUEST['su3d']) {
 		ini_set('display_errors',1);
@@ -43,7 +42,7 @@
 	//$acl = find_final_acl($user_id, $project_id, $db);
 	$uni = compact('db', 'acl','user_id','key', 'project_id', 'dbstruct');
 
-	if ($project_id=='') {
+	if($project_id=='') {
 		echo "Please specify a project_id";
 		exit;
 	} elseif(!$project_info['view']) {		
@@ -56,7 +55,7 @@
 		$file = $project_info['project_name'].'.s3db.xml';
 		$filename=$GLOBALS['s3db_info']['server']['db']['uploads_folder'].$GLOBALS['s3db_info']['server']['db']['uploads_file'].'/'.$file;
 		
-		if (!$handle = fopen($filename, 'w')) {
+		if(!$handle = fopen($filename, 'w')) {
 			echo "Cannot open file ($filename)";
 			exit;
 		}
@@ -64,7 +63,7 @@
 		$xmlfileStr .= sprintf("%s\n", '<?xml version="1.0" encoding="UTF-8"?>');
 		$xmlfileStr .= create_project_set($P);
 
-   		if (fwrite($handle, $xmlfileStr) === FALSE) {
+   		if(fwrite($handle, $xmlfileStr) === FALSE) {
 			echo "Cannot write to file ($filename)";
 			exit;
    		}
@@ -97,12 +96,8 @@
 			Header('Location: '.S3DB_URI_BASE.'/'.$linkname);
 			exit;
 		}
-		//echo $filename;exit;
-		//echo $xmlfileStr;	
 		//Header('Location: '.$filename);
 		//exit;
-		
-		//echo urldecode(create_xml_string($P));
 	}
 
 	function create_project_set($P) {
@@ -135,9 +130,8 @@
 
 		$resources = S3QLaction($s3ql);
 	
-		if (is_array($resources)) {
+		if(is_array($resources)) {
 			foreach($resources as $node) {
-				
 				//$x = array('subject'=>$node['entity'], 'project_id'=>$project_id, 'db'=>$db);
 				//find all the rules
 				//get classes
@@ -149,7 +143,6 @@
 				
 				//$rule_triplets = list_shared_rules($x);
 				$nr_of_rules = count($rules);
-				//echo '<pre>';print_r($rules);
 				$resource_node .= sprintf("\t\t%s\n", '<RESOURCE>');
 				$resource_node .= sprintf("\t\t%s\n", '<ID>'.urlencode($node['resource_id']).'</ID>');
 				$resource_node .= sprintf("\t\t%s\n", '<ENTITY>'.urlencode($node['entity']).'</ENTITY>');
@@ -157,7 +150,6 @@
 				//$resource_node .= sprintf("\t\t%s\n", '<TOTAL_RULES>'.$nr_of_rules.'</TOTAL_RULES>');
 				
 				//create the verbs and objects
-				
 				if (is_array($rules)) {
 					foreach($rules as $node) {
 						$node['created_by'] = get_info('account', $node['created_by'], $db);

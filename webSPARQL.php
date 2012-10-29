@@ -1,7 +1,7 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-	<title> s3db  </title>
+	<title>s3db</title>
 <?php
 	/*
 	 * @author Helena F Deus <helenadeus@gmail.com>

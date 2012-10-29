@@ -1,12 +1,8 @@
-function shownhidden(id) 
-{
+function shownhidden(id) {
 	details = document.getElementById(id);
-	if (details.className=="shown")
- 	{ 
+	if (details.className=="shown") {
 		details.className="hidden"; 
-	}
-	else 
-	{ 
+	} else { 
 		details.className="shown";
 	}
 }

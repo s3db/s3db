@@ -1,4 +1,5 @@
 3.5.15
 - Update tools to work with PHP v5.3 & v5.4
+- Beautify code
 
 3.5.14

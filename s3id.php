@@ -36,8 +36,9 @@ function s3id() {
 		#$dbo->disconnect();
 		return $newid;
 	} else {
-		//TODO: Consider creating table since it may not exist and handling it with multiple databases products 
-		$dbo->disconnect();
+		//TODO: Consider creating table since it may not exist and handling it with multiple databases products.
+		//NOTE: This is not the case with a fresh install of s3db 
+		#$dbo->disconnect();
 		return false;
 	}
 }

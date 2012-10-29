@@ -8,7 +8,6 @@
 	 * Helena F Deus, November 8, 2006
 	 * 
 	 */
-
 	ini_set('display_errors',0);
 	if($_REQUEST['su3d']) {
 		ini_set('display_errors',1);
@@ -32,9 +31,7 @@
 	$time= date('s');
 	$key = $_GET['key'];
 
-	//echo '<pre>';print_r($_GET);
 	//Get the key, send it to check validity
-
 	include_once('core.header.php');
 	$a = set_time_limit(0);
 	if($key) {
@@ -84,7 +81,6 @@
 
 	// sending HTTP headers
 	// Creating a worksheet per resource
-
 	if($class_id!='') { 
 		$class_id = $_REQUEST['class_id'];
 		$resources[0] = $class_info;
@@ -97,7 +93,7 @@
 	$instSum = 0;
 	$statSum = 0;
 	
-	if (is_array($resources)) {
+	if(is_array($resources)) {
 		for($i=0;$i<count($resources);$i++) {
 			$resource_info = $resources[$i];
 			if(strlen($resource_info['entity'])>30) {
@@ -108,7 +104,6 @@
 	
 			$worksheet = $workbook->addWorksheet($sheetName);
 
-			//echo '<pre>';print_r($worksheet);exit;
 			//Grab the rules, change the data structure
 			$s3ql=compact('user_id','db');
 			$s3ql['from'] = 'rules';
@@ -145,10 +140,8 @@
 			}
 			$instSum = $instSum+count($instances);
 	
-			//echo '<pre>';print_r($instances);exit;
 			// The actual data
 			//2 cols for resource_id and  notes
-	
 			if($worksheet->message!='') {
 				echo $worksheet->message;
 				exit;
@@ -172,7 +165,6 @@
 			$addtoNextRow = 0;
 		
 			//Spit out the instance resource id and notes
-			//echo '<pre>';print_r($instances);
 			//is there a query page limit?
 			if($_REQUEST['num_per_page']!='' && $_REQUEST['current_page']!='') {
 				$start = (($_REQUEST['current_page']-1)*$_REQUEST['num_per_page']);
@@ -198,12 +190,9 @@
 					} else {
 						$all_values = $instances[$k]['stats'];
 					}
-					//echo '<pre>';print_r($s3ql);
-					//echo '<pre>';print_r($all_values);exit;
 					//reset rule keys
 		
 					$statSum = $statSum + count($all_values);
-					//echo '<pre>';print_r($all_values);
 		
 					$row = $kk+3+$addtoNextRow;
 					//resources with statements, put an lines for more than 1 stat per rule
@@ -220,14 +209,11 @@
 								$rule_id = $rules[$j]['rule_id'];
 								$values = get_value_by_rule($all_values, $rule_id);
 					
-								//echo $rule_id;
-								//echo '<pre>';print_r($values);
 								//show only the filename and not the values
 								if($values[$m]['file_name'] != '') {
 									$worksheet->write($subrow, $j+2, $values[$m]['file_name']);
 									//elseif(object_is_resource(array('project_id'=>$values[$m]['project_id'],'subject'=>$value['object'], 'db'=>$db)) && $values[$m]['value']!='')
 									//elseif(resourceObject(array('project_id'=>$values[$m]['project_id'],'rule_id'=>$rule_id, 'db'=>$db)) && $values[$m]['value']!='')
-								
 									//$worksheet->write($subrow, $j+2, $values[$m]['value']);
 								} elseif(ereg('<a href=(.*)>(.*)<\/a>',	$values[$m]['value'], $href)) {
 									$worksheet->write($subrow, $j+2, $href[1]);
@@ -244,7 +230,6 @@
 		}
 		//exit;
 		// Let's send the file
-
 		$namefile =(count($resources)>1)?urlencode($project_info['project_name']):urlencode($resource_info['entity']);
 		$workbook->send($namefile.'.xls');
 		$workbook->close();

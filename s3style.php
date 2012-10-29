@@ -1,9 +1,9 @@
 <?php
 	echo '<script language="javascript" src="'.S3DB_URI_BASE.'/js/m-x.js"></script>
-		<script language="javascript" src="'.S3DB_URI_BASE.'/js/DcomboBox.js"></script>
-		<script language="javascript" src="'.S3DB_URI_BASE.'/js/autocomplete.js"></script>
-		<script language="javascript" src="'.S3DB_URI_BASE.'/js/shownhidden.js"></script>
-		<script language="javascript" src="'.S3DB_URI_BASE.'/js/tooltip.js"></script>';
+<script language="javascript" src="'.S3DB_URI_BASE.'/js/DcomboBox.js"></script>
+<script language="javascript" src="'.S3DB_URI_BASE.'/js/autocomplete.js"></script>
+<script language="javascript" src="'.S3DB_URI_BASE.'/js/shownhidden.js"></script>
+<script language="javascript" src="'.S3DB_URI_BASE.'/js/tooltip.js"></script>';
 ?>
 <script type="text/Javascript">
 function popUp(URL) {
@@ -11,128 +11,92 @@ function popUp(URL) {
 	id = day.getTime();
 	eval("page" + id + " = window.open(URL, '" + id + "', 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=1024,height=768,left = 0,top = 0');");
 }
-
-function shownhidden (id)
-{
-        details = document.getElementById(id);
-        if (details.className=="shown")
-        {
-                details.className="hidden";
-        }
-        else
-        {
-                details.className="shown";
-        }
+function shownhidden(id) {
+	details = document.getElementById(id);
+	if (details.className=="shown") {
+		details.className="hidden";
+	} else {
+		details.className="shown";
+	}
 }
 var checkflag = "false";
-
-
-
-function check() 
-{
-	if(checkflag == "false")
-	{
-		for(j = 0; j < document.queryresource.elements.length; j++) 
-		{
-			if(document.queryresource.elements[j].name == "show_me[]")
-			{
+function check() {
+	if(checkflag == "false") {
+		for(j = 0; j < document.queryresource.elements.length; j++) {
+			if(document.queryresource.elements[j].name == "show_me[]") {
 				document.queryresource.elements[j].checked = true;
 			}
 		}
 		checkflag = "true";
 		return "Uncheck All";
-	}
-	else
-	{
-		for(j = 0; j < document.queryresource.elements.length; j++) 
-		{
-			if(document.queryresource.elements[j].name == "show_me[]")
-			{
+	} else {
+		for(j = 0; j < document.queryresource.elements.length; j++) {
+			if(document.queryresource.elements[j].name == "show_me[]") {
 				document.queryresource.elements[j].checked = false; 
 			}
 		}
 		checkflag = "false";
 		return "Check All";
-
 	}
 }
-
-function check_rule(col) 
-{
-	if(checkflag == "false")
-	{
-		for(j = 0; j < document.importform.elements.length; j++) 
-		{
-			if(document.importform.elements[j].id == "confirm_me" + col + "[]")
-			{
+function check_rule(col) {
+	if(checkflag == "false") {
+		for(j = 0; j < document.importform.elements.length; j++) {
+			if(document.importform.elements[j].id == "confirm_me" + col + "[]") {
 				document.importform.elements[j].checked = true;
 			}
 		}
 		checkflag = "true";
 		return "Unckeck all";
-	}
-	else
-	{
-		for(j = 0; j < document.importform.elements.length; j++) 
-		{
-			if(document.importform.elements[j].id == "confirm_me" + col + "[]")
-			{
+	} else {
+		for(j = 0; j < document.importform.elements.length; j++) {
+			if(document.importform.elements[j].id == "confirm_me" + col + "[]") {
 				document.importform.elements[j].checked = false; 
 			}
 		}
 		checkflag = "false";
 		return "Check all";
-
 	}
 }
-
-function set_num_per_page(value)
-{
+function set_num_per_page(value) {
 	document.write('<input type="hidden" name="numperpage" value="'+value+'">');
 }
 </script>
 <!-- BEGIN menu -->
 <style type="text/css" media="screen">
-
 <!-- Lenas -->
 p {
-  background-color: lightyellow;
-  font-family: "comic sans ms";
-  font-size: 13;
-  color: dodgerblue;
-  }
+	background-color: lightyellow;
+	font-family: "comic sans ms";
+	font-size: 13;
+	color: dodgerblue;
+}
  
- p1 {
-  background-color: lightblue;
-  font-family: "comic sans ms";
-  font-size: 13;
-  color: dodgerblue;
-  }
-
+p1 {
+	background-color: lightblue;
+	font-family: "comic sans ms";
+	font-size: 13;
+	color: dodgerblue;
+}
 <!-- End Lena\'s -->
-
 body {
 	margin : 0px;
 	font: Verdana, Helvetica, Arial;
 	padding: 0px;
 	background: #fff;
 }
-
 #menu {
 	border-bottom : 1px solid dodgerblue;
 	margin : 0;
 	padding-bottom : 19px;
 	padding-left : 10px;
 }
-
 #menu ul, #menu li	{
 	display : inline;
 	list-style-type : none;
 	margin : 0;
 	padding : 0;
 }
-
-	
 #menu a:link, #menu a:visited	{
 	/*background : #E8EBF0; */
 	background-image: url(<?php echo S3DB_URI_BASE.'/images/gradient_thead.gif' ?>);
@@ -148,19 +112,15 @@ body {
 	padding : 2px 10px 2px 10px;
 	text-decoration : none;
 }
-
 #menu a:link.active, #menu a:visited.active	{
 	background : #fff;
 	border-bottom : 1px solid #fff;
 	color : navy;
 }
-
 #menu a:hover	{
 	/*color : #f00;*/
 	color : yellow;
 }
-
-	
 body.section-1 #menu li#nav-1 a, 
 body.section-2 #menu li#nav-2 a,
 body.section-3 #menu li#nav-3 a,
@@ -172,7 +132,6 @@ body.section-7 #menu li#nav-7 a {
 	border-bottom : 1px solid #fff;
 	color : navy;
 }
-
 table.section-1 #menu li#nav-1 a, 
 table.section-2 #menu li#nav-2 a,
 table.section-3 #menu li#nav-3 a,
@@ -184,7 +143,6 @@ table.section-7 #menu li#nav-7 a {
 	border-bottom : 1px solid #fff;
 	color : navy;
 }
-
 #menu #subnav-1,
 #menu #subnav-2,
 #menu #subnav-3,
@@ -195,7 +153,6 @@ table.section-7 #menu li#nav-7 a {
 	display : none;
 	width: 90%;
 }
-
 body.section-1 #menu ul#subnav-1, 
 body.section-2 #menu ul#subnav-2,
 body.section-3 #menu ul#subnav-3,
@@ -208,7 +165,6 @@ body.section-7 #menu ul#subnav-7 {
 	position : absolute;
 	top : 83px;
 }
-
 table.section-1 #menu ul#subnav-1, 
 table.section-2 #menu ul#subnav-2,
 table.section-3 #menu ul#subnav-3,
@@ -221,7 +177,6 @@ table.section-7 #menu ul#subnav-7 {
 	position : absolute;
 	top : 125px;
 }
-
 body.section-1 #menu ul#subnav-1 a, 
 body.section-2 #menu ul#subnav-2 a,
 body.section-3 #menu ul#subnav-3 a,
@@ -241,7 +196,6 @@ body.section-7 #menu ul#subnav-7 a {
 	padding : 2px 10px 2px 10px;
 	text-decoration : none;
 }
-
 table.section-1 #menu ul#subnav-1 a, 
 table.section-2 #menu ul#subnav-2 a,
 table.section-3 #menu ul#subnav-3 a,
@@ -261,12 +215,9 @@ table.section-7 #menu ul#subnav-7 a {
 	padding : 2px 10px 2px 10px;
 	text-decoration : none;
 }
-
-
- #menu ul a:hover {
+#menu ul a:hover {
 	color : #f00 !important;
 }
-
 #contents {
 	background : #fff;
 	border : 1px solid dodgerblue;
@@ -282,7 +233,6 @@ div.message {
 	color : red;
 	font-size: smaller;	
 }
-
 td.message {
 	color : red;
 }
@@ -299,7 +249,6 @@ table.contents {
 	padding : 15px;
 	width : 100%;
 }
-
 table.insidecontents {
 	color: navy;
 }
@@ -367,7 +316,6 @@ sup.required{
 	color: red;
 	
 }
-
 h1 {
 	color: red;
 }	
@@ -386,7 +334,6 @@ table.middle {
 	text-align : center;
 	width : 100%;
 }
-
 table.bottom {
 	font-size: smaller;	
 	background : #fff;
