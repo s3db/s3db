@@ -5,13 +5,13 @@
 
 var tree_tpl = {
 	'target'  : 'main_page',	// name of the frame links will be opened in
-							// other possible values are: _blank, _parent, _search, _self and _top
+								// other possible values are: _blank, _parent, _search, _self and _top
 
 	'icon_e'  : 'icons/empty.gif', // empty image
 	'icon_l'  : 'icons/line.gif',  // vertical line
 
-        'icon_32' : 'icons/base.gif',   // root leaf icon normal
-        'icon_36' : 'icons/base.gif',   // root leaf icon selected
+    'icon_32' : 'icons/base.gif',   // root leaf icon normal
+    'icon_36' : 'icons/base.gif',   // root leaf icon selected
 
 	'icon_48' : 'icons/base.gif',   // root icon normal
 	'icon_52' : 'icons/base.gif',   // root icon selected
@@ -33,4 +33,3 @@ var tree_tpl = {
 	'icon_26' : 'icons/minusbottom.gif',// junction for opened node
 	'icon_27' : 'icons/minus.gif'       // junctioin for last opended node
 };
-

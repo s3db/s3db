@@ -1,11 +1,11 @@
 <?php
-/*
- * Uploads accepts file fragments, identified by a file_id and inserts the file in an appropriate location where it can be retrieved by s3db and linked in a statement
- * 
- * Helena F Deus, Dec 1, 2006
- * Bade Iriabho, June 28, 2012
- * 
- */
+	/*
+	 * Uploads accepts file fragments, identified by a file_id and inserts the file in an appropriate location where it can be retrieved by s3db and linked in a statement
+	 * 
+	 * Helena F Deus, Dec 1, 2006
+	 * Bade Iriabho, June 28, 2012
+	 * 
+	 */
 	if(file_exists('config.inc.php')) {
 		include('config.inc.php');
 	} else {
