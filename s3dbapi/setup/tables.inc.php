@@ -303,5 +303,4 @@
 			'uc' => array()
 		)
 	);
-	#echo '<pre>';print_R($s3db_tables);
 ?>

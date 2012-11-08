@@ -33,7 +33,7 @@
 		echo "User cannot view this statement";
 		exit;
 	}
-	$grid = render_elements(array('0'=>$statement_info), $acl, $resource_acl, $_REQUEST['project_id'], $owner_project_id)
+	$grid = render_elements(array('0'=>$statement_info), $acl, $resource_acl, $_REQUEST['project_id'], $owner_project_id);
 	$tpl->set_var('data_grid_statements', '');
 	$tpl->set_block('statement', 'list_statements', '_statement');
 	$tpl->parse('_output', 'list_statements', True);

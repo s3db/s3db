@@ -1,5 +1,3 @@
 <?php
-
-Header('Location:../index.php');
-
+	Header('Location:../index.php');
 ?>

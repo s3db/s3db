@@ -22,21 +22,19 @@ function ComboInit(BaseName)
 }
 function AllComboInit()
 {
-  for (var i = 0; i < arrAllComboBoxes.length; i++)
-    {
-      ComboInit(arrAllComboBoxes[i]);
-    }
+	for (var i = 0; i < arrAllComboBoxes.length; i++) {
+		ComboInit(arrAllComboBoxes[i]);
+	}
 }
 function DComboBoxOnloadHandler()
 {
-  if (pOldDComboBoxOnloadHandler) pOldDComboBoxOnloadHandler();
-  AllComboInit();
+	if (pOldDComboBoxOnloadHandler) pOldDComboBoxOnloadHandler();
+	AllComboInit();
 }
 function DComboBoxResizeHandler()
 {
-  if (pOldDComboBoxResizeHandler) pOldDComboBoxResizeHandler();
-  AllComboInit();
-
+	if (pOldDComboBoxResizeHandler) pOldDComboBoxResizeHandler();
+	AllComboInit();
 }
 function UpdateDCBoxGeneric(evt)
 {
@@ -54,14 +52,11 @@ function UpdateDCBoxGeneric(evt)
 function UnSelectAnyOptions(selectElement)
 {
 	// this unselects any records
-	for (var n = 0; n < selectElement.options.length; n++)
-	{
+	for (var n = 0; n < selectElement.options.length; n++) {
 		selectElement.options[n].selected = false;
 	}
-	if (selectElement.options.length > 0)  // this is for NS4 on X-Windows
-	{
-		if (document.layers) 
-		{  
+	if (selectElement.options.length > 0) { // this is for NS4 on X-Windows
+		if (document.layers) {
 			// this is for NS4 on X-Windows
 			selectElement.options[0].selected = true;
 		}
@@ -72,27 +67,27 @@ function UnSelectAnyOptions(selectElement)
 }
 function BuildDCBox(BaseName, StartValue, Options, PixelWidth, Other, AdditionalStyle)
 {
-	var DCOptions
+	var DCOptions;
 	if (!(PixelWidth)) PixelWidth = 180;
 	if (!(StartValue)) StartValue = "";
-	if ((typeof Options) == "string")  { DCOptions = Options.split(",") } else { DCOptions = Options }
+	if ((typeof Options) == "string")  { DCOptions = Options.split(","); } else { DCOptions = Options; }
 	var strBuild = "";
-	var property="text";
+	//var property="text";
 	if (document.layers)
 		strBuild += "<table border=0><tr><td align=center>";
 	strBuild += "<input type='text' value='" + StartValue;
-	strBuild += "' name='" + BaseName + "' id='" + BaseName + "' "
+	strBuild += "' name='" + BaseName + "' id='" + BaseName + "' ";
 	//strBuild += "onkeyup='autoComplete(this, this.form."+ BaseName +", "+property+", true)' "
 	//strBuild += "onkeyup='AutoCompeleteInput(event)' "
 	if (!(document.layers))
 		strBuild += "style='width: " + (PixelWidth - 19) + "px; position: relative; " + AdditionalStyle + "' ";
-	strBuild += Other + " />"
+	strBuild += Other + " />";
 	if (document.layers)
 		strBuild += "</td></tr><tr><td align=center>- Or Select -</td></tr><tr><td align=center>";
 	else
 		strBuild += "<img border='0' height='1' width='23' />";
 	strBuild += "<select name='" + BaseName + "DcboBox' id='" + BaseName ;
-	strBuild += "DcboBox' "
+	strBuild += "DcboBox' ";
 	if (!(document.layers))
 		strBuild += "style='width: " + PixelWidth + "px; position: absolute; visibility: hidden; " + AdditionalStyle + "' ";
 	strBuild += "readonly='true'  onchange='UpdateDCBoxGeneric(event);' >" ;

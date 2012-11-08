@@ -3,12 +3,10 @@
 	#Includes links to edit and delete resource, as well as edit rules
 	#Helena F Deus (helenadeus@gmail.com)
 	#Modified by Bade Iriabho, August 20, 2012
-
 	ini_set('display_errors',0);
 	if($_REQUEST['su3d']) {
 		ini_set('display_errors',1);
 	}
-	
 	include('classheader.php');
 	
 	if(!$class_info['change']) {#check projectAcl
@@ -16,15 +14,12 @@
 		exit;
 	} else {
 		if($_POST['editresource']) {
-			#echo '<pre>';print_r($_POST);
 			#this is the structure that the query to edit a class must have
 			$s3ql = compact('user_id', 'db');
 			$s3ql['edit'] = 'collection';
 			$s3ql['where']['collection_id'] = $class_id;
 			$s3ql['where']['entity'] = $_REQUEST['new_entity'];
 			$s3ql['where']['notes'] = $_REQUEST['new_notes'];
-	
-			#echo '<pre>';print_r($s3ql);exit;
 			$done = S3QLaction($s3ql);
 	
 			ereg('<error>(.*)</error>.*<message>(.*)</message>', $done, $s3qlout);
@@ -35,7 +30,6 @@
 	
 			#now add the users
 			$message .= addUsers(compact('users','user_id', 'db', 'class_id', 'collection_id','element'));
-			#echo $message;exit;
 			if($message=='') {
 				Header('Location:'.$action['class']);
 				exit;
@@ -43,7 +37,6 @@
 				$message .= '<input type="button" value="Return to class" onclick="window.location=\''.$action['class'].'\'">';
 			}
 		}
-		#echo "<font color = 'red'>".$done."</font>";
 		#include the form
 		#include all the javascript functions for the menus...
 		include('../S3DBjavascript.php');
@@ -51,7 +44,6 @@
 		include('../action.header.php');
 		echo "<br /><br />";
 	
-		#echo '<pre>';print_r($_REQUEST);
 		$new = 0;
 		$aclGrid = aclGrid(compact('user_id', 'db', 'users','new','uid'));
 ?>

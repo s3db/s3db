@@ -5,7 +5,7 @@
 	$user 		= $GLOBALS['s3db_info']['server']['db']['db_user'];
 	$pass 		= $GLOBALS['s3db_info']['server']['db']['db_pass'];
 
-	if ($db_engine == 'mysql') {
+	if($db_engine == 'mysql') {
 		$connect = mysql_connect($hostname);
 		$db = mysql_create_db($dbname, $connect);
 		$sql = "grant all privileges on ".$db_engine.".* to ".$user." identified by ".$pass."";

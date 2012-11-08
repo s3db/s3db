@@ -11,7 +11,6 @@
 	
 	#define actions for the page
 	#include('../webActions.php');
-	#echo '<pre>';print_r($resource_info);
 	$class_id = ($_REQUEST['collection_id']!='')?$_REQUEST['collection_id']:$_REQUEST['class_id'];
 	$resource_info = URIinfo('C'.$class_id, $user_id, $key, $db);
 	
@@ -36,7 +35,6 @@
 				$s3ql['format']='html';
 				$done = S3QLaction($s3ql);
 				$msg = html2cell($done);
-				#echo $done;
 	
 				#ereg('<item_id>([0-9]+)</item_id>', $done, $s3qlout);
 				$instance_id = $msg[2]['item_id'];
@@ -67,7 +65,9 @@
 	<tr>
 		<td class="message" colspan="9"></td>
 	</tr>
-	<tr><td></td></tr>
+	<tr>
+		<td></td>
+	</tr>
 	<tr bgcolor="#FF9900">
 		<td colspan="9" align="center">
 		<?php
@@ -119,8 +119,12 @@
 		?>
 		</td>
 	</tr>
-	<tr><td colspan="9" align="center"><br /><br /></td></tr>
-	<tr bgcolor="#FF9900"><td colspan="9" align="center">Users</td></tr>
+	<tr>
+		<td colspan="9" align="center"><br /><br /></td>
+	</tr>
+	<tr bgcolor="#FF9900">
+		<td colspan="9" align="center">Users</td>
+	</tr>
 	<?php echo $aclGrid; ?>
 	</tr>
 	<?php
