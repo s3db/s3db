@@ -22,7 +22,7 @@
 		<td><h2>Admin</h2></td>
 	</tr>
 	<tr>
-		<td>As the site administrator, you can manage the user and group account. You can also manage other's projects and work on your own projects.</td>
+		<td>As the site administrator, you can manage the user and group account. You can also manage others' projects and work on your own projects.</td>
 	</tr>
 	<tr>
 		<td><br /><br /><br /></td>
