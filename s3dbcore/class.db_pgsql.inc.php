@@ -1,23 +1,23 @@
 <?php
  	/**
-	* Database class for PostgreSQL
-	* @author SH Online Dienst GmbH Boris Erdmann, Kristian Koehntopp
-    * @author Dan Kuykendall, Michael Dean, Dave Hall and others
-	* @copyright Copyright (C) 1998-2000 SH Online Dienst GmbH Boris Erdmann, Kristian Koehntopp
-	* @copyright Portions Copyright (C) 2001-2004 Free Software Foundation, Inc. http://www.fsf.org/
-	* @license http://www.fsf.org/licenses/lgpl.html GNU Lesser General Public License
-	* @link http://www.sanisoft.com/phplib/manual/DB_sql.php
-	* @package phpgwapi
-	* @subpackage database
-	* @version $Id: class.db_pgsql.inc.php,v 1.30.2.1.2.8 2004/02/10 13:51:18 ceb Exp $
-	*/
+	 * Database class for PostgreSQL
+	 * @author SH Online Dienst GmbH Boris Erdmann, Kristian Koehntopp
+     * @author Dan Kuykendall, Michael Dean, Dave Hall and others
+	 * @copyright Copyright (C) 1998-2000 SH Online Dienst GmbH Boris Erdmann, Kristian Koehntopp
+	 * @copyright Portions Copyright (C) 2001-2004 Free Software Foundation, Inc. http://www.fsf.org/
+	 * @license http://www.fsf.org/licenses/lgpl.html GNU Lesser General Public License
+	 * @link http://www.sanisoft.com/phplib/manual/DB_sql.php
+	 * @package phpgwapi
+	 * @subpackage database
+	 * @version $Id: class.db_pgsql.inc.php,v 1.30.2.1.2.8 2004/02/10 13:51:18 ceb Exp $
+	 */
 
 	/**
-	* Database class for PostgreSQL
-	* 
-	* @package phpgwapi
-	* @subpackage database
-	*/
+	 * Database class for PostgreSQL
+	 * 
+	 * @package phpgwapi
+	 * @subpackage database
+	 */
 	class db extends db_
 	{
 		var $Seq_Table = 'db_sequence';
@@ -25,66 +25,50 @@
 		// PostgreSQL changed somethings from 6.x -> 7.x
 		var $db_version;
 
-		function ifadd($add, $me)
-		{
-			if($add != '')
-			{
+		function ifadd($add, $me) {
+			if($add != '') {
 				return ' ' . $me . $add;
 			}
 		}
 
 		/* public: constructor */
-		function db($query = '')
-		{
+		function db($query = '') {
 			$this->db_($query);
 		}
 
-		function connect($Database = '', $Host = '', $User = '', $Password = '')
-		{
+		function connect($Database = '', $Host = '', $User = '', $Password = '') {
 			/* Handle defaults */
-			if ($Database == '')
-			{
+			if ($Database == '') {
 				$Database = $this->Database;
 			}
-			if ($Host == '')
-			{
+			if ($Host == '') {
 				$Host     = $this->Host;
 			}
-			if ($User == '')
-			{
+			if ($User == '') {
 				$User     = $this->User;
 			}
-			if ($Password == '')
-			{
+			if ($Password == '') {
 				$Password = $this->Password;
 			}
 
-			if (! $this->Link_ID)
-			{
+			if (! $this->Link_ID) {
 				$cstr = 'dbname=' . $Database
 					. $this->ifadd($Host, 'host=')
 					. $this->ifadd($Port, 'port=')
 					. $this->ifadd($User, 'user=')
 					. $this->ifadd("'".$Password."'", 'password=');
-				if ($GLOBALS['sdi_info']['server']['db']['db_persistent'])
-				{
+				if ($GLOBALS['sdi_info']['server']['db']['db_persistent']) {
 					$this->Link_ID=@pg_pconnect($cstr);
-				}
-				else
-				{
+				} else {
 					$this->Link_ID=@pg_connect($cstr);
 				}
-				if (! $this->Link_ID)
-				{
+				if (! $this->Link_ID) {
 					$this->halt('Link-ID == false, '.($GLOBALS['sdi_info']['server']['db']['db_persistent']?'p':'').'connect failed');
 					$this->Errno=2;
 					return 0; 
-				}
-				else
-				{
+				} else {
 					$this->query("select version()",__LINE__,__FILE__);
 					$this->next_record();
-
 					$version          = $this->f('version');
 					$parts            = explode(' ',$version);
 					$this->db_version = $parts[1];
@@ -93,82 +77,59 @@
 			return $this->Link_ID; 
 		}
 
-		function to_timestamp($epoch)
-		{
+		function to_timestamp($epoch) {
 			$db_version = $this->db_version;
-			if (floor($db_version) == 6)
-			{
+			if (floor($db_version) == 6) {
 				return $this->to_timestamp_6($epoch);
-			}
-			else
-			{
+			} else {
 				return $this->to_timestamp_7($epoch);
 			}
 		}
 
-		function from_timestamp($timestamp)
-		{
-			if (floor($this->db_version) == 6)
-			{
+		function from_timestamp($timestamp) {
+			if (floor($this->db_version) == 6) {
 				return $this->from_timestamp_6($timestamp);
-			}
-			else
-			{
+			} else {
 				return $this->from_timestamp_7($timestamp);
 			}
 		}
 
 		// For PostgreSQL 6.x
-		function to_timestamp_6($epoch)
-		{
-
-		}
+		function to_timestamp_6($epoch) {}
 
 		// For PostgreSQL 6.x
-		function from_timestamp_6($timestamp)
-		{
-
-		}
+		function from_timestamp_6($timestamp) {}
 
 		// For PostgreSQL 7.x
-		function to_timestamp_7($epoch)
-		{
+		function to_timestamp_7($epoch) {
 			// This needs the GMT offset!
 			return date('Y-m-d H:i:s-00',$epoch);
 		}
 
 		// For PostgreSQL 7.x
-		function from_timestamp_7($timestamp)
-		{
+		function from_timestamp_7($timestamp) {
 			ereg('([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})',$timestamp,$parts);
-	
 			return mktime($parts[4],$parts[5],$parts[6],$parts[2],$parts[3],$parts[1]);
 		}
 
 		/* This only affects systems not using persistant connections */
-		function disconnect()
-		{
+		function disconnect() {
 			return @pg_close($this->Link_ID);
 		}
 
-		function query($Query_String, $line = '', $file = '')
-		{
-			if ($Query_String == '')
-			{
+		function query($Query_String, $line = '', $file = '') {
+			if ($Query_String == '') {
 				return 0;
 			}
-			if (!$this->connect())
-			{
+			if (!$this->connect()) {
 				return 0; /* we already complained in connect() about that. */
 			};
 			# New query, discard previous result.
-			if ($this->Query_ID)
-			{
+			if ($this->Query_ID) {
 				$this->free();
 			} 
 			
-			if ($this->Debug)
-			{
+			if ($this->Debug) {
 				printf("Debug: query = %s<br>\n", $Query_String);
 			} 
 
@@ -177,8 +138,7 @@
 
 			$this->Error = @pg_ErrorMessage($this->Link_ID);
 			$this->Errno = ($this->Error == '') ? 0 : 1;
-			if (! $this->Query_ID)
-			{
+			if (! $this->Query_ID) {
 				$this->halt('Invalid SQL: ' . $Query_String, $line, $file);
 				return $Query_String; 
 				#return 0; 
@@ -187,153 +147,113 @@
 			return $this->Query_ID;
 		}
 
-		function limit_query($Query_String, $offset, $line = '', $file = '', $num_rows = 0)
-		{
+		function limit_query($Query_String, $offset, $line = '', $file = '', $num_rows = 0) {
 			$offset		= intval($offset);
 			$num_rows	= intval($num_rows);
 
-			if ($num_rows == 0)
-			{
+			if ($num_rows == 0) {
 				$maxmatches = $GLOBALS['phpgw_info']['user']['preferences']['common']['maxmatchs'];
 				$num_rows = (isset($maxmatches)?intval($maxmatches):15);
 			}
 
-			if ($offset == 0)
-			{
+			if ($offset == 0) {
 				$Query_String .= ' LIMIT ' . $num_rows;
-			}
-			else
-			{
+			} else {
 				$Query_String .= ' LIMIT ' . $num_rows . ' OFFSET ' . $offset;
 			}
 
-			if ($this->Debug)
-			{
+			if ($this->Debug) {
 				printf("Debug: limit_query = %s<br>offset=%d, num_rows=%d<br>\n", $Query_String, $offset, $num_rows);
 			}
-
 			return $this->query($Query_String, $line, $file);
 		}
 
-		function free()
-		{
+		function free() {
 			@pg_freeresult($this->Query_ID);
 			$this->Query_ID = 0;
 		}
 
-		function next_record()
-		{
+		function next_record() {
 			$this->Record = @pg_fetch_array($this->Query_ID, $this->Row++);
-
-			if ($this->Link_ID)
-			{ 
+			if ($this->Link_ID) { 
 				$this->Error = pg_ErrorMessage($this->Link_ID);
 				$this->Errno = ($this->Error == '') ? 0 : 1;
 			}
 
 			$stat = is_array($this->Record);
-			if (!$stat && $this->Auto_Free)
-			{
+			if (!$stat && $this->Auto_Free) {
 				pg_freeresult($this->Query_ID);
 				$this->Query_ID = 0;
 			}
 			return $stat;
 		}
 
-		function seek($pos)
-		{
+		function seek($pos) {
 			$this->Row = $pos;
 		}
 
-		function transaction_begin()
-		{
+		function transaction_begin() {
 			return $this->query('begin');
 		}
 
-		function transaction_commit()
-		{
-			if (! $this->Errno)
-			{
+		function transaction_commit() {
+			if (! $this->Errno) {
 				return pg_Exec($this->Link_ID,'commit');
-			}
-			else
-			{
+			} else {
 				return False;
 			}
 		}
 
-		function transaction_abort()
-		{
+		function transaction_abort() {
 			return @pg_Exec($this->Link_ID,'rollback');
 		}
 
-		function get_last_insert_id($table, $field)
-		{
-			if (!isset($table) || $table == '' || !isset($field) || $field == '')
-			{
+		function get_last_insert_id($table, $field) {
+			if (!isset($table) || $table == '' || !isset($field) || $field == '') {
 				return -1;
 			}
 
 			$oid = pg_getlastoid($this->Query_ID);
-			if ($oid == -1)
-			{
+			if ($oid == -1) {
 				return -1;
 			}
 
 			$result = @pg_Exec($this->Link_ID, "select $field from $table where oid=$oid");
-			if (!$result)
-			{
+			if (!$result) {
 				return -1;
 			}
 
 			$Record = @pg_fetch_array($result, 0);
 			@pg_freeresult($result);
-			if (!is_array($Record)) /* OID not found? */
-			{
+			if (!is_array($Record)) {		 /* OID not found? */
 				return -1;
 			}
-
 			return $Record[0];
 		}
 
-		function lock($table, $mode = 'write')
-		{
+		function lock($table, $mode = 'write') {
 			$result = $this->transaction_begin();
-
-			if ($mode == 'write')
-			{
-				if (is_array($table))
-				{
-					while ($t = each($table))
-					{
+			if ($mode == 'write') {
+				if (is_array($table)) {
+					while ($t = each($table)) {
 						$result = pg_Exec($this->Link_ID,'lock table ' . $t[1] . ' in share mode');
 					}
-				}
-				else
-				{
+				} else {
 					$result = pg_Exec($this->Link_ID, 'lock table ' . $table . ' in share mode');
 				}
-			}
-			else
-			{
+			} else {
 				$result = 1;
 			}
-
 			return $result;
 		}
 
-		function unlock()
-		{
+		function unlock() {
 			return $this->transaction_commit();
 		}
 
-
-		function nextid($seq_name)
-		{
+		function nextid($seq_name) {
 			$this->connect();
-
-			if ($this->lock($this->Seq_Table))
-			{
+			if ($this->lock($this->Seq_Table)) {
 				/* get sequence number (locked) and increment */
 				$q  = sprintf("select nextid from %s where seq_name = '%s'",
 					$this->Seq_Table,
@@ -342,17 +262,14 @@
 				$res = @pg_Fetch_Array($id, 0);
 
 				/* No current value, make one */
-				if (!is_array($res))
-				{
+				if (!is_array($res)) {
 					$currentid = 0;
 					$q = sprintf("insert into %s values('%s', %s)",
 						$this->Seq_Table,
 						$seq_name,
 						$currentid);
 					$id = @pg_Exec($this->Link_ID, $q);
-				}
-				else
-				{
+				} else {
 					$currentid = $res['nextid'];
 				}
 				$nextid = $currentid + 1;
@@ -362,33 +279,28 @@
 					$seq_name);
 				$id = @pg_Exec($this->Link_ID, $q);
 				$this->unlock();
-			}
-			else
-			{
+			} else {
 				$this->halt('cannot lock ' . $this->Seq_Table . ' - has it been created?');
 				return 0;
 			}
 			return $nextid;
 		}
 
-		function metadata($table)
-		{
+		function metadata($table) {
 			$count = 0;
 			$id    = 0;
 			$res   = array();
 
 			$this->connect();
 			$id = pg_exec($this->Link_ID, "select * from $table");
-			if ($id < 0)
-			{
+			if ($id < 0) {
 				$this->Error = pg_ErrorMessage($id);
 				$this->Errno = 1;
 				$this->halt('Metadata query failed.');
 			}
 			$count = pg_NumFields($id);
 
-			for ($i=0; $i<$count; $i++)
-			{
+			for ($i=0; $i<$count; $i++) {
 				$res[$i]['table'] = $table;
 				$res[$i]['name']  = pg_FieldName  ($id, $i); 
 				$res[$i]['type']  = pg_FieldType  ($id, $i);
@@ -400,26 +312,21 @@
 			return $res;
 		}
 
-		function affected_rows()
-		{
+		function affected_rows() {
 			return pg_cmdtuples($this->Query_ID);
 		}
 
-		function num_rows()
-		{
+		function num_rows() {
 			return pg_numrows($this->Query_ID);
 		}
 
-		function num_fields()
-		{
+		function num_fields() {
 			return pg_numfields($this->Query_ID);
 		}
 
-		function halt($msg, $line = '', $file = '')
-		{ 
+		function halt($msg, $line = '', $file = '') { 
 			/* private: error handling */ 
-			if ($this->Halt_On_Error == 'no')
-			{
+			if ($this->Halt_On_Error == 'no') {
 				$this->Error = @pg_ErrorMessage($this->Link_ID);
 				$this->Errno = 1;
 				return;
@@ -428,72 +335,51 @@
 			/* Just in case there is a table currently locked */
 			$this->transaction_abort();
 
-
-			if ($this->xmlrpc || $this->soap)
-			{
+			if ($this->xmlrpc || $this->soap) {
 				$s = sprintf("Database error: %s\n", $msg);
 				$s .= sprintf("PostgreSQL Error: %s\n\n (%s)\n\n",$this->Errno,$this->Error);
-			}
-			else
-			{
+			} else {
 				$s = sprintf("<b>Database error:</b> %s<br>\n", $msg);
 				$s .= sprintf("<b>PostgreSQL Error</b>: %s (%s)<br>\n",$this->Errno,$this->Error);
 			}
 
-			if ($file)
-			{
-				if ($this->xmlrpc || $this->soap)
-				{
+			if ($file) {
+				if ($this->xmlrpc || $this->soap) {
 					$s .=	sprintf("File: %s\n",$file);
-				}
-				else
-				{
+				} else {
 					$s .=	sprintf("<br><b>File:</b> %s",$file);
 				}
 			}
 
-			if ($line)
-			{
-				if ($this->xmlrpc || $this->soap)
-				{
+			if ($line) {
+				if ($this->xmlrpc || $this->soap) {
 					$s .=	sprintf("Line: %s\n",$line);
-				}
-				else
-				{
+				} else {
 					$s .=	sprintf("<br><b>Line:</b> %s",$line);
 				}
 			}
 
-			if ($this->Halt_On_Error == 'yes')
-			{
-				if (! $this->xmlrpc && ! $this->soap)
-				{
+			if ($this->Halt_On_Error == 'yes') {
+				if (! $this->xmlrpc && ! $this->soap) {
 					$s .= '<p><b>Session halted.</b>';
 				}
 			}
 
-			if ($this->xmlrpc)
-			{
+			if ($this->xmlrpc) {
 				xmlrpcfault($s);
-			}
-			elseif ($this->soap)
-			{
-
-			}
-			else
-			{
+			} elseif ($this->soap) {
+				#nothing
+			} else {
 				echo $s;
 				//$GLOBALS['phpgw']->common->phpgw_exit(True);
 			}
 		}
 
-		function table_names()
-		{
+		function table_names() {
 			$return = array();
 			$this->query("select relname from pg_class where relkind = 'r' and not relname like 'pg_%'");
 			$i=0;
-			while ($this->next_record())
-			{
+			while ($this->next_record()) {
 				$return[$i]['table_name']= $this->f(0);
 				$return[$i]['tablespace_name']=$this->Database;
 				$return[$i]['database']=$this->Database;
@@ -502,12 +388,10 @@
 			return $return;
 		}
 
-		function index_names()
-		{
+		function index_names() {
 			$this->query("SELECT relname FROM pg_class WHERE NOT relname ~ 'pg_.*' AND relkind ='i' ORDER BY relname");
 			$i=0;
-			while ($this->next_record())
-			{
+			while ($this->next_record()) {
 				$return[$i]['index_name']= $this->f(0);
 				$return[$i]['tablespace_name']=$this->Database;
 				$return[$i]['database']=$this->Database;
@@ -516,14 +400,11 @@
 			return $return;
 		}
 
-		function create_database($adminname = '', $adminpasswd = '')
-		{
+		function create_database($adminname = '', $adminpasswd = '') {
 			$currentUser = $this->User;
 			$currentPassword = $this->Password;
 			$currentDatabase = $this->Database;
-
-			if ($adminname != "")
-			{
+			if ($adminname != "") {
 				$this->User = $adminname;
 				$this->Password = $adminpasswd;
 				$this->Database = 'template1'; 
@@ -551,7 +432,6 @@
 			
 			$this->query("CREATE DATABASE $currentDatabase");
 			$this->query("grant all on $currentDatabase.* to $currentUser@localhost identified by '$currentPassword'"); 
-
 			$this->User = $currentUser;
 			$this->Password = $currentPassword;
 			$this->Database = $currentDatabase;

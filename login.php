@@ -53,7 +53,7 @@
 			$_SESSION['user']='DBAdmin';
 			Header('Location: dbconfig.php');
 			exit;
-		} else if($_POST['login'] == $GLOBALS['s3db_info']['server']['site_config_admin'] && $_POST['passwd']==$GLOBALS['s3db_info']['server']['site_config_admin_pass']) {
+		} elseif($_POST['login'] == $GLOBALS['s3db_info']['server']['site_config_admin'] && $_POST['passwd']==$GLOBALS['s3db_info']['server']['site_config_admin_pass']) {
 			$_SESSION['user']['login']=$_POST['login'];
 			$_SESSION['user']['passwd']=$_POST['passwd'];
 			Header('Location: setup.php');

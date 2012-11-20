@@ -1,33 +1,31 @@
 <?php
 	/**
-	* Commononly used functions
-	* @author Dan Kuykendall <seek3r@phpgroupware.org>
-	* @author Joseph Engo <jengo@phpgroupware.org>
-	* @author Mark Peters <skeeter@phpgroupware.org>
-	* @copyright Copyright (C) 2000-2004 Free Software Foundation, Inc http://www.fsf.org/
-	* @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License
-	* @package phpgwapi
-	* @subpackage utilities
-	* @version $Id: class.common.inc.php,v 1.123.2.9.2.28 2004/03/02 22:25:04 ceb Exp $
-	*/
+	 * Commononly used functions
+	 * @author Dan Kuykendall <seek3r@phpgroupware.org>
+	 * @author Joseph Engo <jengo@phpgroupware.org>
+	 * @author Mark Peters <skeeter@phpgroupware.org>
+	 * @copyright Copyright (C) 2000-2004 Free Software Foundation, Inc http://www.fsf.org/
+	 * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License
+	 * @package phpgwapi
+	 * @subpackage utilities
+	 * @version $Id: class.common.inc.php,v 1.123.2.9.2.28 2004/03/02 22:25:04 ceb Exp $
+	 */
 
 	$d1 = strtolower(@substr(PHPGW_API_INC,0,3));
 	$d2 = strtolower(@substr(PHPGW_SERVER_ROOT,0,3));
 	$d3 = strtolower(@substr(PHPGW_APP_INC,0,3));
-	if($d1 == 'htt' || $d1 == 'ftp' || $d2 == 'htt' || $d2 == 'ftp' || $d3 == 'htt' || $d3 == 'ftp')
-	{
+	if($d1 == 'htt' || $d1 == 'ftp' || $d2 == 'htt' || $d2 == 'ftp' || $d3 == 'htt' || $d3 == 'ftp') {
 		echo 'Failed attempt to break in via an old Security Hole!<br>'."\n";
 		exit;
 	}
 	unset($d1);unset($d2);unset($d3);
 
-
 	/**
-	* Commononly used functions
-	*
-	* @package phpgwapi
-	* @subpackage utilities
-	*/
+	 * Commononly used functions
+	 *
+	 * @package phpgwapi
+	 * @subpackage utilities
+	 */
 	class common
 	{
 		/**
@@ -45,25 +43,19 @@
 		* @param boolean $debug Debug flag
 		* @return integer 1 when str2 is newest (bigger version number) than str1
 		*/
-		function cmp_version($str1,$str2,$debug=False)
-		{
+		function cmp_version($str1,$str2,$debug=False) {
 			ereg("([0-9]+)\.([0-9]+)\.([0-9]+)[a-zA-Z]*([0-9]*)",$str1,$regs);
 			ereg("([0-9]+)\.([0-9]+)\.([0-9]+)[a-zA-Z]*([0-9]*)",$str2,$regs2);
 			if($debug) { echo "<br />$regs[0] - $regs2[0]"; }
 
-			for($i=1;$i<5;++$i)
-			{
+			for($i=1;$i<5;++$i) {
 				if($debug) { echo "<br />$i: $regs[$i] - $regs2[$i]"; }
-				if($regs2[$i] == $regs[$i])
-				{
+				if($regs2[$i] == $regs[$i]) {
 					continue;
 				}
-				if($regs2[$i] > $regs[$i])
-				{
+				if($regs2[$i] > $regs[$i]) {
 					return 1;
-				}
-				elseif($regs2[$i] < $regs[$i])
-				{
+				} elseif($regs2[$i] < $regs[$i]) {
 					return 0;
 				}
 			}
@@ -77,28 +69,22 @@
 		* @param boolean $debug Debug flag
 		* @return integer 1 when str2 is newest (bigger version number) than str1
 		*/
-		function cmp_version_long($str1,$str2,$debug=False)
-		{
+		function cmp_version_long($str1,$str2,$debug=False) {
 			ereg("([0-9]+)\.([0-9]+)\.([0-9]+)[a-zA-Z]*([0-9]*)\.([0-9]*)",$str1,$regs);
 			ereg("([0-9]+)\.([0-9]+)\.([0-9]+)[a-zA-Z]*([0-9]*)\.([0-9]*)",$str2,$regs2);
 			if($debug) { echo "<br />$regs[0] - $regs2[0]"; }
 
-			for($i=1;$i<6;++$i)
-			{
+			for($i=1;$i<6;++$i) {
 				if($debug) { echo "<br />$i: $regs[$i] - $regs2[$i]"; }
 
-				if($regs2[$i] == $regs[$i])
-				{
+				if($regs2[$i] == $regs[$i]) {
 					if($debug) { echo ' are equal...'; }
 					continue;
 				}
-				if($regs2[$i] > $regs[$i])
-				{
+				if($regs2[$i] > $regs[$i]) {
 					if($debug) { echo ', and a > b'; }
 					return 1;
-				}
-				elseif($regs2[$i] < $regs[$i])
-				{
+				} elseif($regs2[$i] < $regs[$i]) {
 					if($debug) { echo ', and a < b'; }
 					return 0;
 				}
@@ -114,21 +100,17 @@
 		* @return Comma separated list
 		* @deprecated Use ACL instead
 		*/
-		function array_to_string($access,$array)
-		{
+		function array_to_string($access,$array) {
 			$this->debug_info[] = 'array_to_string() is a depreciated function - use ACL instead';
 			$s = '';
-			if ($access == 'group' || $access == 'public' || $access == 'none')
-			{
-				if (count($array))
-				{
+			if ($access == 'group' || $access == 'public' || $access == 'none') {
+				if (count($array)) {
 					while ($t = each($array)) {
 						$s .= ',' . $t[1];
 					}
 					$s .= ',';
 				}
-				if (! count($array) && $access == 'none')
-				{
+				if (! count($array) && $access == 'none') {
 					$s = '';
 				}
 			}
@@ -143,19 +125,15 @@
 		* @return string SQL where clause
 		* @deprecated Use ACL instead
 		*/
-		function sql_search($table,$owner=0)
-		{
+		function sql_search($table,$owner=0) {
 			$this->debug_info[] = 'sql_search() is a deprecated function - use ACL instead';
 			$s = '';
-			if (!$owner)
-			{
+			if (!$owner) {
 				$owner = $GLOBALS['phpgw_info']['user']['account_id'];
 			}
 			$groups = $GLOBALS['phpgw']->accounts->membership(intval($owner));
-			if (gettype($groups) == 'array')
-			{
-				while ($group = each($groups))
-				{
+			if (gettype($groups) == 'array') {
+				while ($group = each($groups)) {
 					$s .= " or $table like '%," . $group[2] . ",%'";
 				}
 			}
@@ -167,14 +145,11 @@
 		*
 		* @return array List of installed languages
 		*/
-		function getInstalledLanguages()
-		{
+		function getInstalledLanguages() {
 			$GLOBALS['phpgw']->db->query('select distinct lang from phpgw_lang');
-			while (@$GLOBALS['phpgw']->db->next_record()) 
-			{
+			while (@$GLOBALS['phpgw']->db->next_record()) {
 				$installedLanguages[$GLOBALS['phpgw']->db->f('lang')] = $GLOBALS['phpgw']->db->f('lang');
 			}
-
 			return $installedLanguages;
 		}
 
@@ -184,30 +159,26 @@
 		* Uses HTTP_ACCEPT_LANGUAGE (from the users browser) to find out which languages are installed
 		* @return string Users preferred language (two character ISO code)
 		*/
-		function getPreferredLanguage()
-		{
+		function getPreferredLanguage() {
 			// create a array of languages the user is accepting
 			$userLanguages = explode(',',$_SERVER['HTTP_ACCEPT_LANGUAGE']);
 			$supportedLanguages = $this->getInstalledLanguages();
 
 			// find usersupported language
-			while (list($key,$value) = each($userLanguages))
-			{
+			while (list($key,$value) = each($userLanguages)) {
 				// remove everything behind '-' example: de-de
 				$value = trim($value);
 				$pieces = explode('-', $value);
 				$value = $pieces[0];
 				# print 'current lang $value<br>';
-				if ($supportedLanguages[$value])
-				{
+				if ($supportedLanguages[$value]) {
 					$retValue=$value;
 					break;
 				}
 			}
 
 			// no usersupported language found -> return english
-			if (empty($retValue))
-			{
+			if (empty($retValue)) {
 				$retValue='en';
 			}
 
@@ -222,29 +193,23 @@
 		* @param string $passwd LDAP password
 		* @return resource LDAP link identifier
 		*/
-		function ldapConnect($host = '', $dn = '', $passwd = '')
-		{
-			if (! $host)
-			{
+		function ldapConnect($host = '', $dn = '', $passwd = '') {
+			if (! $host) {
 				$host = $GLOBALS['phpgw_info']['server']['ldap_host'];
 			}
 
-			if (! $dn)
-			{
+			if (! $dn) {
 				$dn = $GLOBALS['phpgw_info']['server']['ldap_root_dn'];
 			}
 
-			if (! $passwd)
-			{
+			if (! $passwd) {
 				$passwd = $GLOBALS['phpgw_info']['server']['ldap_root_pw'];
 			}
 
 			// connect to ldap server
-			if (! $ds = ldap_connect($host))
-			{
+			if (! $ds = ldap_connect($host)) {
 				/* log does not exist in setup(, yet) */
-				if(is_object($GLOBALS['phpgw']->log))
-				{
+				if(is_object($GLOBALS['phpgw']->log)) {
 					$GLOBALS['phpgw']->log->message('F-Abort, Failed connecting to LDAP server');
 					$GLOBALS['phpgw']->log->commit();
 				}
@@ -252,35 +217,26 @@
 				printf("<b>Error: Can't connect to LDAP server %s!</b><br>",$host);
 				return False;
 			}
-			if(! @ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3))//LDAP protocol v3 support
-			{
-				if(is_object($GLOBALS['phpgw']->log))
-				{
+			if(! @ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3)) {		//LDAP protocol v3 support
+				if(is_object($GLOBALS['phpgw']->log)) {
 					//$GLOBALS['phpgw']->log->message('set_option(protocol v3) failed using v2');
 					//$GLOBALS['phpgw']->log->commit();
 				}
-			}
-			else
-			{
-				if(is_object($GLOBALS['phpgw']->log))
-				{
+			} else {
+				if(is_object($GLOBALS['phpgw']->log)) {
 					//$GLOBALS['phpgw']->log->message('set_option(protocol v3) succeded using v3');
 					//$GLOBALS['phpgw']->log->commit();
 				}
 			}
 			// bind as admin, we not to able to do everything
-			if (! ldap_bind($ds,$dn,$passwd))
-			{
-				if(is_object($GLOBALS['phpgw']->log))
-				{
+			if (! ldap_bind($ds,$dn,$passwd)) {
+				if(is_object($GLOBALS['phpgw']->log)) {
 					$GLOBALS['phpgw']->log->message('F-Abort, Failed binding to LDAP server');
 					$GLOBALS['phpgw']->log->commit();
 				}
-
 				printf("<b>Error: Can't bind to LDAP server: %s!</b><br>",$dn);
 				return False;
 			}
-
 			return $ds;
 		}
 
@@ -291,35 +247,28 @@
 		* @internal There may need to be some cleanup before hand
 		* @param boolean $call_footer When true then call footer else exit
 		*/
-		function phpgw_exit($call_footer = False)
-		{
-			if (!defined('PHPGW_EXIT'))
-			{
+		function phpgw_exit($call_footer = False) {
+			if (!defined('PHPGW_EXIT')) {
 				define('PHPGW_EXIT',True);
 
-				if ($call_footer)
-				{
+				if ($call_footer) {
 					$this->phpgw_footer();
 				}
 			}
 			exit;
 		}
 
-		function phpgw_final()
-		{
-			if (!defined('PHPGW_FINAL'))
-			{
+		function phpgw_final() {
+			if (!defined('PHPGW_FINAL')) {
 				define('PHPGW_FINAL',True);
 
 				// call the asyncservice check_run function if it is not explicitly set to cron-only
 				//
-				if (!$GLOBALS['phpgw_info']['server']['asyncservice'])	// is default
-				{
+				if (!$GLOBALS['phpgw_info']['server']['asyncservice']) {		// is default
 					ExecMethod('phpgwapi.asyncservice.check_run','fallback');
 				}
 				/* Clean up mcrypt */
-				if (@is_object($GLOBALS['phpgw']->crypto))
-				{
+				if (@is_object($GLOBALS['phpgw']->crypto)) {
 					$GLOBALS['phpgw']->crypto->cleanup();
 					unset($GLOBALS['phpgw']->crypto);
 				}
@@ -333,8 +282,7 @@
 		* @param integer $size Size of random string to return
 		* @return string STring with random generated characters and numbers
 		*/
-		function randomstring($size)
-		{
+		function randomstring($size) {
 			$s = '';
 			srand((double)microtime()*1000000);
 			$random_char = array('0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f',
@@ -342,16 +290,13 @@
 				'w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L',
 				'M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
 
-			for ($i=0; $i<$size; ++$i)
-			{
+			for ($i=0; $i<$size; ++$i) {
 				$s .= $random_char[rand(1,61)];
 			}
 			return $s;
 		}
 
-
-		function filesystem_separator()
-		{
+		function filesystem_separator() {
 			return filesystem_separator();
 		}
 
@@ -362,17 +307,14 @@
 		* @param string $text Heading error text
 		* @return boolean|string HTML table with error messages or false 
 		*/
-		function error_list($errors,$text='Error')
-		{
-			if (! is_array($errors))
-			{
+		function error_list($errors,$text='Error') {
+			if (! is_array($errors)) {
 				return False;
 			}
 
 			$html_error = '<table border="0" width="100%"><tr><td align="right"><strong>' . lang($text)
 				. '</strong>: </td><td align="left">' . $errors[0] . '</td></tr>';
-			for ($i=1; $i<count($errors); ++$i)
-			{
+			for ($i=1; $i<count($errors); ++$i) {
 				$html_error .= '<tr><td>&nbsp;</td><td align="left">' . $errors[$i] . '</td></tr>';
 			}
 			return $html_error . '</table>';
@@ -387,8 +329,7 @@
 		* @param array $extravars URL parameter
 		* @deprecated use ACL instead
 		*/
-		function check_owner($record,$link,$label,$extravars = '')
-		{
+		function check_owner($record,$link,$label,$extravars = '') {
 			$this->debug_info[] = 'check_owner() is a depreciated function - use ACL instead';
 			/*
 			$s = '<a href="' . $GLOBALS['phpgw']->link($link,$extravars) . '"> ' . lang($label) . ' </a>';
@@ -419,10 +360,8 @@
 		* @param string $lastname Lastname
 		* @return Fullname
 		*/
-		function display_fullname($lid = '', $firstname = '', $lastname = '')
-		{
-			if (! $lid && ! $firstname && ! $lastname)
-			{
+		function display_fullname($lid = '', $firstname = '', $lastname = '') {
+			if (! $lid && ! $firstname && ! $lastname) {
 				$lid       = $GLOBALS['phpgw_info']['user']['account_lid'];
 				$firstname = $GLOBALS['phpgw_info']['user']['firstname'];
 				$lastname  = $GLOBALS['phpgw_info']['user']['lastname'];
@@ -430,26 +369,19 @@
 
 			$display = $GLOBALS['phpgw_info']['user']['preferences']['common']['account_display'];
 
-			if (!$firstname && !$lastname || $display == 'username')
-			{
+			if (!$firstname && !$lastname || $display == 'username') {
 				return $lid;
 			}
-			if ($lastname)
-			{
+			if ($lastname) {
 				$a[] = $lastname;
 			}
-
-			if ($firstname)
-			{
+			if ($firstname) {
 				$a[] = $firstname;
 			}
-
 			$name = '';
-			switch($display)
-			{
+			switch($display) {
 				case 'all':
-					if ($lid)
-					{
+					if ($lid) {
 						$name = '['.$lid.'] ';
 					}
 					// fall-through
@@ -457,8 +389,7 @@
 					$name .= implode(', ',$a);
 					break;
 				case 'firstall':
-					if ($lid) 
-					{
+					if ($lid) {
 						$name = ' ['.$lid.']';
 					}
 					// fall-through
@@ -475,8 +406,7 @@
 		* @param integer $accountid Account id
 		* @return string Users fullname
 		*/
-		function grab_owner_name($accountid = '')
-		{
+		function grab_owner_name($accountid = '') {
 			$GLOBALS['phpgw']->accounts->get_account_name($accountid,$lid,$fname,$lname);
 			return $this->display_fullname($lid,$fname,$lname);
 		}
@@ -491,14 +421,11 @@
 		* @param boolean $no_image Do not use an image for the tabs
 		* @return string HTML output string
 		*/
-		function create_tabs($tabs, $selected, $fontsize = '', $lang = False, $no_image = True)
-		{
-			if($no_image)
-			{
+		function create_tabs($tabs, $selected, $fontsize = '', $lang = False, $no_image = True) {
+			if($no_image) {
 				$output_text = "<table style=\"{padding: 0px; border-collapse: collapse; width: 100%;}\">\n\t<tr>\n";
 //				$output_text = "<table style=\"{padding: 0px; width: 100%;}\">\n\t<tr>\n";
-				foreach($tabs as $id => $tab)
-				{
+				foreach($tabs as $id => $tab) {
 					$output_text .= "\t\t" . '<th class="';
 					$output_text .= ($id != $selected ? 'in' : '');
 					$output_text .= 'activetab">';
@@ -511,79 +438,53 @@
 				$output_text .= "\t</tr>\n</table>\n";
 				return $output_text;
 			}
-			
 			$output_text = '<table border="0" cellspacing="0" cellpadding="0"><tr>';
 
 			/* This is a php3 workaround */
-			if(PHPGW_IMAGES_DIR == 'PHPGW_IMAGES_DIR')
-			{
+			if(PHPGW_IMAGES_DIR == 'PHPGW_IMAGES_DIR') {
 				$ir = ExecMethod('phpgwapi.phpgw.common.get_image_path', 'phpgwapi');
-			}
-			else
-			{
+			} else {
 				$ir = PHPGW_IMAGES_DIR;
 			}
 
-			if ($fontsize)
-			{
+			if($fontsize) {
 				$fs  = '<font size="' . $fontsize . '">';
 				$fse = '</font>';
 			}
 
 			$i = 1;
-			while ($tab = each($tabs))
-			{
-				if ($tab[0] == $selected)
-				{
-					if ($i == 1)
-					{
+			while ($tab = each($tabs)) {
+				if ($tab[0] == $selected) {
+					if ($i == 1) {
 						$output_text .= '<td align="right"><img src="' . $ir . '/tabs-start1.gif" /></td>';
 					}
-
 					$output_text .= '<td nowrap="nowrap" align="left" background="' . $ir . '/tabs-bg1.gif">&nbsp;<strong><a href="'
 						. $tab[1]['link'] . '" class="tablink">' . $fs . $tab[1]['label']
 						. $fse . '</a></strong>&nbsp;</td>';
-					if ($i == count($tabs))
-					{
+					if ($i == count($tabs)) {
 						$output_text .= '<td align="left"><img src="' . $ir . '/tabs-end1.gif" /></td>';
-					}
-					else
-					{
+					} else {
 						$output_text .= '<td align="left"><img src="' . $ir . '/tabs-sepr.gif" /></td>';
 					}
-				}
-				else
-				{
-					if ($i == 1)
-					{
+				} else {
+					if ($i == 1) {
 						$output_text .= '<td align="right"><img src="' . $ir . '/tabs-start0.gif" /></td>';
 					}
 					$output_text .= '<td nowrap="nowrap" align="left" background="' . $ir . '/tabs-bg0.gif">&nbsp;<strong><a href="'
 						. $tab[1]['link'] . '" class="tablink">' . $fs . $tab[1]['label'] . $fse
 						. '</a></strong>&nbsp;</td>';
-					if (($i + 1) == $selected)
-					{
+					if (($i + 1) == $selected) {
 						$output_text .= '<td align="left"><img src="' . $ir . '/tabs-sepl.gif" /></td>';
-					}
-					elseif ($i == $selected || $i != count($tabs))
-					{
+					} elseif ($i == $selected || $i != count($tabs)) {
 						$output_text .= '<td align="left"><img src="' . $ir . '/tabs-sepm.gif" /></td>';
-					}
-					elseif ($i == count($tabs))
-					{
-						if ($i == $selected)
-						{
+					} elseif ($i == count($tabs)) {
+						if ($i == $selected) {
 							$output_text .= '<td align="left"><img src="' . $ir . '/tabs-end1.gif" /></td>';
-						}
-						else
-						{
+						} else {
 							$output_text .= '<td align="left"><img src="' . $ir . '/tabs-end0.gif" /></td>';
 						}
-					}
-					else
-					{
-						if ($i != count($tabs))
-						{
+					} else {
+						if ($i != count($tabs)) {
 							$output_text .= '<td align="left"><img src="' . $ir . '/tabs-sepr.gif" /></td>';
 						}
 					}
@@ -601,30 +502,22 @@
 		* @param string $appname Name of application defaults to $phpgw_info['flags']['currentapp']
 		* @return string|boolean Application directory or false
 		*/
-		function get_app_dir($appname = '')
-		{
-			if ($appname == '')
-			{
+		function get_app_dir($appname = '') {
+			if ($appname == '') {
 				$appname = $GLOBALS['phpgw_info']['flags']['currentapp'];
 			}
-			if ($appname == 'home' || $appname == 'logout' || $appname == 'login')
-			{
+			if ($appname == 'home' || $appname == 'logout' || $appname == 'login') {
 				$appname = 'phpgwapi';
 			}
 
 			$appdir         = PHPGW_INCLUDE_ROOT . '/'.$appname;
 			$appdir_default = PHPGW_SERVER_ROOT . '/'.$appname;
 
-			if (@is_dir ($appdir))
-			{
+			if (@is_dir ($appdir)) {
 				return $appdir;
-			}
-			elseif (@is_dir ($appdir_default))
-			{
+			} elseif (@is_dir ($appdir_default)) {
 				return $appdir_default;
-			}
-			else
-			{
+			} else {
 				return False;
 			}
 		}
@@ -635,30 +528,22 @@
 		* @param string $appname Name of application, defaults to $phpgw_info['flags']['currentapp']
 		* @return string|boolean Include directory or false
 		*/
-		function get_inc_dir($appname = '')
-		{
-			if (! $appname)
-			{
+		function get_inc_dir($appname = '') {
+			if (! $appname) {
 				$appname = $GLOBALS['phpgw_info']['flags']['currentapp'];
 			}
-			if ($appname == 'home' || $appname == 'logout' || $appname == 'login')
-			{
+			if ($appname == 'home' || $appname == 'logout' || $appname == 'login') {
 				$appname = 'phpgwapi';
 			}
  
 			$incdir         = PHPGW_INCLUDE_ROOT . '/' . $appname . '/inc';
 			$incdir_default = PHPGW_SERVER_ROOT . '/' . $appname . '/inc';
  
-			if (@is_dir ($incdir))
-			{
+			if (@is_dir ($incdir)) {
 				return $incdir;
-			}
-			elseif (@is_dir ($incdir_default))
-			{
-				return $incdir_default;
-			}
-			else
-			{
+			} elseif (@is_dir ($incdir_default)) {
+				return $incdir_default; 
+			} else {
 				return False;
 			}
 		}
@@ -669,27 +554,19 @@
 		* Themes can either be css files like in HEAD (if the template has a css-directory) or ordinary .14 themes-files
 		* @return array List with available themes
 		*/
-		function list_themes()
-		{
+		function list_themes() {
 			$tpl_dir = $this->get_tpl_dir('phpgwapi');
 
-			if ($dh = @opendir($tpl_dir . SEP . 'css'))
-			{
-				while ($file = readdir($dh))
-				{
-					if (eregi("\.css$", $file) && $file != 'phpgw.css')
-					{
+			if ($dh = @opendir($tpl_dir . SEP . 'css')) {
+				while ($file = readdir($dh)) {
+					if (eregi("\.css$", $file) && $file != 'phpgw.css') {
 						$list[] = substr($file,0,strpos($file,'.'));
 					}
 				}
-			}
-			else
-			{
+			} else {
 				$dh = opendir(PHPGW_SERVER_ROOT . '/phpgwapi/themes');
-				while ($file = readdir($dh))
-				{
-					if (eregi("\.theme$", $file))
-					{
+				while ($file = readdir($dh)) {
+					if (eregi("\.theme$", $file)) {
 						$list[] = substr($file,0,strpos($file,'.'));
 					}
 				}
@@ -704,24 +581,19 @@
 		*
 		* @return array Alphabetically sorted list of available templates
 		*/
-		function list_templates()
-		{
+		function list_templates() {
 			$d = dir(PHPGW_SERVER_ROOT . '/phpgwapi/templates');
-			while ($entry=$d->read())
-			{
+			while ($entry=$d->read()) {
 				if ($entry != 'CVS' && $entry != '.' && $entry != '..' 
 					&& $entry != 'phpgw_website' 
 					&& is_dir(PHPGW_SERVER_ROOT . '/phpgwapi/templates/' . $entry))
 				{
 					$list[$entry]['name'] = $entry;
 					$f = PHPGW_SERVER_ROOT . '/phpgwapi/templates/' . $entry . '/details.inc.php';
-					if (file_exists ($f))
-					{
+					if (file_exists ($f)) {
 						include($f);
 						$list[$entry]['title'] = 'Use '.$GLOBALS['phpgw_info']['template'][$entry]['title'].'interface';
-					}
-					else
-					{
+					} else {
 						$list[$entry]['title'] = $entry;
 					}
 				}
@@ -737,53 +609,37 @@
 		* @param string $appname Application name, defaults to $phpgw_info['flags']['currentapp']
 		* @return string Template directory of given application
 		*/
-		function get_tpl_dir($appname = '')
-		{
-			if (! $appname)
-			{
+		function get_tpl_dir($appname = '') {
+			if (! $appname) {
 				$appname = $GLOBALS['phpgw_info']['flags']['currentapp'];
 			}
-			if ($appname == 'home' || $appname == 'logout' || $appname == 'login')
-			{
+			if ($appname == 'home' || $appname == 'logout' || $appname == 'login') {
 				$appname = 'phpgwapi';
 			}
 
-			if (!isset($GLOBALS['phpgw_info']['server']['template_set']) && isset($GLOBALS['phpgw_info']['user']['preferences']['common']['template_set']))
-			{
+			if (!isset($GLOBALS['phpgw_info']['server']['template_set']) && isset($GLOBALS['phpgw_info']['user']['preferences']['common']['template_set'])) {
 				$GLOBALS['phpgw_info']['server']['template_set'] = $GLOBALS['phpgw_info']['user']['preferences']['common']['template_set'];
 			}
 
 			// Setting this for display of template choices in user preferences
-			if ($GLOBALS['phpgw_info']['server']['template_set'] == 'user_choice')
-			{
+			if ($GLOBALS['phpgw_info']['server']['template_set'] == 'user_choice') {
 				$GLOBALS['phpgw_info']['server']['usrtplchoice'] = 'user_choice';
 			}
 
-			if (($GLOBALS['phpgw_info']['server']['template_set'] == 'user_choice' ||
-				!isset($GLOBALS['phpgw_info']['server']['template_set'])) &&
-				isset($GLOBALS['phpgw_info']['user']['preferences']['common']['template_set']))
-			{
+			if (($GLOBALS['phpgw_info']['server']['template_set'] == 'user_choice' || !isset($GLOBALS['phpgw_info']['server']['template_set'])) && isset($GLOBALS['phpgw_info']['user']['preferences']['common']['template_set'])) {
 				$GLOBALS['phpgw_info']['server']['template_set'] = $GLOBALS['phpgw_info']['user']['preferences']['common']['template_set'];
-			}
-			elseif ($GLOBALS['phpgw_info']['server']['template_set'] == 'user_choice' ||
-				!isset($GLOBALS['phpgw_info']['server']['template_set']))
-			{
+			} elseif ($GLOBALS['phpgw_info']['server']['template_set'] == 'user_choice' || !isset($GLOBALS['phpgw_info']['server']['template_set'])) {
 				$GLOBALS['phpgw_info']['server']['template_set'] = 'default';
 			}
 
 			$tpldir         = PHPGW_SERVER_ROOT . '/' . $appname . '/templates/' . $GLOBALS['phpgw_info']['server']['template_set'];
 			$tpldir_default = PHPGW_SERVER_ROOT . '/' . $appname . '/templates/default';
 
-			if (@is_dir($tpldir))
-			{
+			if (@is_dir($tpldir)) {
 				return $tpldir;
-			}
-			elseif (@is_dir($tpldir_default))
-			{
+			} elseif (@is_dir($tpldir_default)) {
 				return $tpldir_default;
-			}
-			else
-			{
+			} else {
 				return False;
 			}
 		}
@@ -795,19 +651,14 @@
 		* @return boolean True when it is an image directory, otherwise false.
 		* @internal This is just a workaround for idots, better to use find_image, which has a fallback on a per image basis to the default dir
 		*/
-		function is_image_dir($dir)
-		{
-			if (!@is_dir($dir))
-			{
+		function is_image_dir($dir) {
+			if (!@is_dir($dir)) {
 				return False;
 			}
-			if ($d = opendir($dir))
-			{
-				while ($f = readdir($d))
-				{
+			if ($d = opendir($dir)) {
+				while ($f = readdir($d)) {
 					$ext = strtolower(strrchr($f,'.'));
-					if (($ext == '.gif' || $ext == '.png') && strstr($f,'navbar') === False)
-					{
+					if (($ext == '.gif' || $ext == '.png') && strstr($f,'navbar') === False) {
 						return True;
 					}
 				}
@@ -821,36 +672,25 @@
 		* @param string $appname Application name, defaults to $phpgw_info['flags']['currentapp']
 		* @return string|boolean Image directory of given application or false
 		*/
-		function get_image_dir($appname = '')
-		{
-			if ($appname == '')
-			{
+		function get_image_dir($appname = '') {
+			if ($appname == '') {
 				$appname = $GLOBALS['phpgw_info']['flags']['currentapp'];
 			}
-			if (empty($GLOBALS['phpgw_info']['server']['template_set']))
-			{
+			if (empty($GLOBALS['phpgw_info']['server']['template_set'])) {
 				$GLOBALS['phpgw_info']['server']['template_set'] = 'default';
 			}
 
-			$imagedir            = PHPGW_SERVER_ROOT . '/' . $appname . '/templates/'
-				. $GLOBALS['phpgw_info']['server']['template_set'] . '/images';
+			$imagedir            = PHPGW_SERVER_ROOT . '/' . $appname . '/templates/' . $GLOBALS['phpgw_info']['server']['template_set'] . '/images';
 			$imagedir_default    = PHPGW_SERVER_ROOT . '/' . $appname . '/templates/default/images';
 			$imagedir_olddefault = PHPGW_SERVER_ROOT . '/' . $appname . '/images';
 
-			if ($this->is_image_dir ($imagedir))
-			{
+			if ($this->is_image_dir ($imagedir)) {
 				return $imagedir;
-			}
-			elseif ($this->is_image_dir ($imagedir_default))
-			{
+			} elseif ($this->is_image_dir ($imagedir_default)) {
 				return $imagedir_default;
-			}
-			elseif ($this->is_image_dir ($imagedir_olddefault))
-			{
+			} elseif ($this->is_image_dir ($imagedir_olddefault)) {
 				return $imagedir_olddefault;
-			}
-			else
-			{
+			} else {
 				return False;
 			}
 		}
@@ -861,15 +701,12 @@
 		* @param string $appname Appication name, defaults to $phpgw_info['flags']['currentapp']
 		* @return string|boolean Image directory path of given application or false
 		*/
-		function get_image_path($appname = '')
-		{
-			if ($appname == '')
-			{
+		function get_image_path($appname = '') {
+			if ($appname == '') {
 				$appname = $GLOBALS['phpgw_info']['flags']['currentapp'];
 			}
 
-			if (empty($GLOBALS['phpgw_info']['server']['template_set']))
-			{
+			if (empty($GLOBALS['phpgw_info']['server']['template_set'])) {
 				$GLOBALS['phpgw_info']['server']['template_set'] = 'default';
 			}
 
@@ -877,65 +714,47 @@
 			$imagedir_default    = PHPGW_SERVER_ROOT . '/'.$appname.'/templates/default/images';
 			$imagedir_olddefault = PHPGW_SERVER_ROOT . '/'.$appname.'/images';
 
-			if ($this->is_image_dir ($imagedir))
-			{
+			if ($this->is_image_dir ($imagedir)) {
 				return $GLOBALS['phpgw_info']['server']['webserver_url'].'/'.$appname.'/templates/'.$GLOBALS['phpgw_info']['server']['template_set'].'/images';
-			}
-			elseif ($this->is_image_dir ($imagedir_default))
-			{
+			} elseif ($this->is_image_dir ($imagedir_default)) {
 				return $GLOBALS['phpgw_info']['server']['webserver_url'].'/'.$appname.'/templates/default/images';
-			}
-			elseif ($this->is_image_dir ($imagedir_olddefault))
-			{
+			} elseif ($this->is_image_dir ($imagedir_olddefault)) {
 				return $GLOBALS['phpgw_info']['server']['webserver_url'].'/'.$appname.'/images';
-			}
-			else
-			{
+			} else {
 				return False;
 			}
 		}
 
-		function find_image($appname,$image)
-		{
-			if (!@is_array($this->found_files[$appname]))
-			{
+		function find_image($appname,$image) {
+			if (!@is_array($this->found_files[$appname])) {
 				$imagedir_olddefault = '/'.$appname.'/images';
 				$imagedir_default    = '/'.$appname.'/templates/default/images';
 				$imagedir = '/'.$appname.'/templates/'.$GLOBALS['phpgw_info']['server']['template_set'].'/images';
 
-				if (@is_dir(PHPGW_INCLUDE_ROOT.$imagedir_olddefault))
-				{
+				if (@is_dir(PHPGW_INCLUDE_ROOT.$imagedir_olddefault)) {
 					$d = dir(PHPGW_INCLUDE_ROOT.$imagedir_olddefault);
-					while (false != ($entry = $d->read()))
-					{
-						if ($entry != '.' && $entry != '..')
-						{
+					while (false != ($entry = $d->read())) {
+						if ($entry != '.' && $entry != '..') {
 							$this->found_files[$appname][$entry] = $imagedir_olddefault;
 						}
 					}
 					$d->close();
 				}
 
-				if (@is_dir(PHPGW_INCLUDE_ROOT.$imagedir_default))
-				{
+				if (@is_dir(PHPGW_INCLUDE_ROOT.$imagedir_default)) {
 					$d = dir(PHPGW_INCLUDE_ROOT.$imagedir_default);
-					while (false != ($entry = $d->read()))
-					{
-						if ($entry != '.' && $entry != '..')
-						{
+					while (false != ($entry = $d->read())) {
+						if ($entry != '.' && $entry != '..') {
 							$this->found_files[$appname][$entry] = $imagedir_default;
 						}
 					}
 					$d->close();
 				}
 
-				if (@is_dir(PHPGW_INCLUDE_ROOT.$imagedir))
-				{
+				if (@is_dir(PHPGW_INCLUDE_ROOT.$imagedir)) {
 					$d = dir(PHPGW_INCLUDE_ROOT.$imagedir);
-					while (false != ($entry = $d->read()))
-					{
-						if ($entry != '.' && $entry != '..')
-						{
+					while (false != ($entry = $d->read())) {
+						if ($entry != '.' && $entry != '..') {
 							$this->found_files[$appname][$entry] = $imagedir;
 						}
 					}
@@ -943,111 +762,75 @@
 				}
 			}
 
-			if(isset($this->found_files[$appname][$image.'.png']))
-			{
+			if(isset($this->found_files[$appname][$image.'.png'])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files[$appname][$image.'.png'].'/'.$image.'.png';
-			}
-			elseif(isset($this->found_files[$appname][$image.'.jpg']))
-			{
+			} elseif(isset($this->found_files[$appname][$image.'.jpg'])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files[$appname][$image.'.jpg'].'/'.$image.'.jpg';
-			}
-			elseif(isset($this->found_files[$appname][$image.'.gif']))
-			{
+			} elseif(isset($this->found_files[$appname][$image.'.gif'])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files[$appname][$image.'.gif'].'/'.$image.'.gif';
-			}
-			elseif(isset($this->found_files[$appname][$image]))
-			{
+			} elseif(isset($this->found_files[$appname][$image])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files[$appname][$image].'/'.$image;
-			}
-			elseif(isset($this->found_files['phpgwapi'][$image.'.png']))
-			{
+			} elseif(isset($this->found_files['phpgwapi'][$image.'.png'])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files['phpgwapi'][$image.'.png'].'/'.$image.'.png';
-			}
-			elseif(isset($this->found_files['phpgwapi'][$image.'.jpg']))
-			{
+			} elseif(isset($this->found_files['phpgwapi'][$image.'.jpg'])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files['phpgwapi'][$image.'.jpg'].'/'.$image.'.jpg';
-			}
-			elseif(isset($this->found_files['phpgwapi'][$image.'.gif']))
-			{
+			} elseif(isset($this->found_files['phpgwapi'][$image.'.gif'])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files['phpgwapi'][$image.'.gif'].'/'.$image.'.gif';
-			}
-			elseif(isset($this->found_files['phpgwapi'][$image]))
-			{
+			} elseif(isset($this->found_files['phpgwapi'][$image])) {
 				$imgfile = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files['phpgwapi'][$image].'/'.$image;
-			}
-			else
-			{
+			} else {
 				$imgfile = '';
 			}
 			return $imgfile;
 		}
 
-		function image($appname,$image='',$ext='',$use_lang=True)
-		{
-			if (!is_array($image))
-			{
-				if (empty($image))
-				{
+		function image($appname,$image='',$ext='',$use_lang=True) {
+			if (!is_array($image)) {
+				if (empty($image)) {
 					return '';
 				}
 				$image = array($image);
 			}
-			if ($use_lang)
-			{
-				while (list(,$img) = each($image))
-				{
+			if ($use_lang) {
+				while (list(,$img) = each($image)) {
 					$lang_images[] = $img . '_' . $GLOBALS['phpgw_info']['user']['preferences']['common']['lang'];
 					$lang_images[] = $img;
 				}
 				$image = $lang_images;
 			}
-			while (!$image_found && (list(,$img) = each($image)))
-			{
-				if(isset($this->found_files[$appname][$img.$ext]))
-				{
+			while (!$image_found && (list(,$img) = each($image))) {
+				if(isset($this->found_files[$appname][$img.$ext])) {
 					$image_found = $GLOBALS['phpgw_info']['server']['webserver_url'].$this->found_files[$appname][$img.$ext].'/'.$img.$ext;
-				}
-				else
-				{
+				} else {
 					$image_found = $this->find_image($appname,$img.$ext);
 				}
 			}
 			return $image_found;
 		}
 
-		function image_on($appname,$image,$extension='_on')
-		{
+		function image_on($appname,$image,$extension='_on') {
 			$with_extension = $this->image($appname,$image,$extension);
 			$without_extension = $this->image($appname,$image);
-			if($with_extension != '')
-			{
+			if($with_extension != '') {
 				return $with_extension;
-			}
-			elseif($without_extension != '')
-			{
+			} elseif($without_extension != '') {
 				return $without_extension;
-			}
-			else
-			{
+			} else {
 				return '';
 			}
 		}
 
-		function navbar()
-		{
+		function navbar() {
 			$GLOBALS['phpgw_info']['navbar']['home']['title'] = 'Home';
 			$GLOBALS['phpgw_info']['navbar']['home']['url']   = $GLOBALS['phpgw']->link('/home.php');
 			$GLOBALS['phpgw_info']['navbar']['home']['icon']  = $this->image('phpgwapi',Array('home','nonav'));
 			$GLOBALS['phpgw_info']['navbar']['home']['icon_hover']  = $this->image_on('phpgwapi',Array('home','nonav'),'-over');
 
 			list($first) = each($GLOBALS['phpgw_info']['user']['apps']);
-			if(is_array($GLOBALS['phpgw_info']['user']['apps']['admin']) && $first != 'admin')
-			{
+			if(is_array($GLOBALS['phpgw_info']['user']['apps']['admin']) && $first != 'admin') {
 				$newarray['admin'] = $GLOBALS['phpgw_info']['user']['apps']['admin'];
-				foreach($GLOBALS['phpgw_info']['user']['apps'] as $index => $value)
-				{
-					if($index != 'admin')
-					{
+				foreach($GLOBALS['phpgw_info']['user']['apps'] as $index => $value) {
+					if($index != 'admin') {
 						$newarray[$index] = $value;
 					}
 				}
@@ -1058,26 +841,20 @@
 			unset($value);
 			unset($newarray);
 			
-			foreach($GLOBALS['phpgw_info']['user']['apps'] as $app => $data)
-			{
-				if (is_long($app))
-				{
+			foreach($GLOBALS['phpgw_info']['user']['apps'] as $app => $data) {
+				if (is_long($app)) {
 					continue;
 				}
 
-				if ($app == 'preferences' || $GLOBALS['phpgw_info']['apps'][$app]['status'] != 2 && $GLOBALS['phpgw_info']['apps'][$app]['status'] != 3)
-				{
+				if ($app == 'preferences' || $GLOBALS['phpgw_info']['apps'][$app]['status'] != 2 && $GLOBALS['phpgw_info']['apps'][$app]['status'] != 3) {
 					$GLOBALS['phpgw_info']['navbar'][$app]['title'] = $GLOBALS['phpgw_info']['apps'][$app]['title'];
 					$GLOBALS['phpgw_info']['navbar'][$app]['url']   = $GLOBALS['phpgw']->link('/' . $app . '/index.php');
 					$GLOBALS['phpgw_info']['navbar'][$app]['name']  = $app;
 
-					if ($app != $GLOBALS['phpgw_info']['flags']['currentapp'])
-					{
+					if ($app != $GLOBALS['phpgw_info']['flags']['currentapp']) {
 						$GLOBALS['phpgw_info']['navbar'][$app]['icon']  = $this->image($app,Array('navbar','nonav'));
 						$GLOBALS['phpgw_info']['navbar'][$app]['icon_hover']  = $this->image_on($app,Array('navbar','nonav'),'-over');
-					}
-					else
-					{
+					} else {
 						$GLOBALS['phpgw_info']['navbar'][$app]['icon']  = $this->image_on($app,Array('navbar','nonav'),'-over');
 						$GLOBALS['phpgw_info']['navbar'][$app]['icon_hover']  = $this->image($app,Array('navbar','nonav'));
 					}
@@ -1088,18 +865,14 @@
 //					}
 				}
 			}
-			if ($GLOBALS['phpgw_info']['flags']['currentapp'] == 'home' || $GLOBALS['phpgw_info']['flags']['currentapp'] == 'preferences' || $GLOBALS['phpgw_info']['flags']['currentapp'] == 'about')
-			{
+			if ($GLOBALS['phpgw_info']['flags']['currentapp'] == 'home' || $GLOBALS['phpgw_info']['flags']['currentapp'] == 'preferences' || $GLOBALS['phpgw_info']['flags']['currentapp'] == 'about') {
 				$app = $app_title = 'phpGroupWare';
-			}
-			else
-			{
+			} else {
 				$app = $GLOBALS['phpgw_info']['flags']['currentapp'];
 				$app_title = $GLOBALS['phpgw_info']['apps'][$app]['title'];
 			}
 
-			if ($GLOBALS['phpgw_info']['user']['apps']['preferences'])	// preferences last
-			{
+			if ($GLOBALS['phpgw_info']['user']['apps']['preferences']) {			// preferences last 
 				$prefs = $GLOBALS['phpgw_info']['navbar']['preferences'];
 				unset($GLOBALS['phpgw_info']['navbar']['preferences']);
 				$GLOBALS['phpgw_info']['navbar']['preferences'] = $prefs;
@@ -1121,10 +894,8 @@
 		/**
 		* Load header.inc.php for an application
 		*/
-		function app_header()
-		{
-			if (file_exists(PHPGW_APP_INC . '/header.inc.php'))
-			{
+		function app_header() {
+			if (file_exists(PHPGW_APP_INC . '/header.inc.php')) {
 				include(PHPGW_APP_INC . '/header.inc.php');
 			}
 		}
@@ -1132,26 +903,21 @@
 		/**
 		* Load the phpgw header
 		*/
-		function phpgw_header()
-		{
+		function phpgw_header() {
 			include(PHPGW_INCLUDE_ROOT . '/phpgwapi/templates/' . $GLOBALS['phpgw_info']['server']['template_set']
 				. '/head.inc.php');
 			$this->navbar(False);
 			include(PHPGW_INCLUDE_ROOT . '/phpgwapi/templates/' . $GLOBALS['phpgw_info']['server']['template_set']
 				. '/navbar.inc.php');
-			if (!@$GLOBALS['phpgw_info']['flags']['nonavbar'] && !@$GLOBALS['phpgw_info']['flags']['navbar_target'])
-			{
+			if (!@$GLOBALS['phpgw_info']['flags']['nonavbar'] && !@$GLOBALS['phpgw_info']['flags']['navbar_target']) {
 				echo parse_navbar();
 			}
 		}
 
-		function phpgw_footer()
-		{
-			if (!defined('PHPGW_FOOTER'))
-			{
+		function phpgw_footer() {
+			if (!defined('PHPGW_FOOTER')) {
 				define('PHPGW_FOOTER',True);
-				if (!isset($GLOBALS['phpgw_info']['flags']['nofooter']) || !$GLOBALS['phpgw_info']['flags']['nofooter'])
-				{
+				if (!isset($GLOBALS['phpgw_info']['flags']['nofooter']) || !$GLOBALS['phpgw_info']['flags']['nofooter']) {
 					include(PHPGW_API_INC . '/footer.inc.php');
 				}
 			}
@@ -1167,27 +933,21 @@
 		* @author Dave Hall (*based* on verdilak? css inclusion code)
 		* @return string Template including CSS definitions
 		*/
-		function get_css()
-		{
+		function get_css() {
 			$tpl = createObject('phpgwapi.Template', $this->get_tpl_dir('phpgwapi'));
 			$tpl->set_file('css', 'css.tpl');
 			$tpl->set_var($GLOBALS['phpgw_info']['theme']);
 			$app_css = '';
-		    	if(@isset($GLOBALS['phpgw_info']['menuaction']))
-		    	{
+		    	if(@isset($GLOBALS['phpgw_info']['menuaction'])) {
 	    			list($app,$class,$method) = explode('.',$GLOBALS['phpgw_info']['menuaction']);
-    				if(is_array($GLOBALS[$class]->public_functions) 
-					&& $GLOBALS[$class]->public_functions['css'])
-    				{
+    				if(is_array($GLOBALS[$class]->public_functions) && $GLOBALS[$class]->public_functions['css']) {
     					$app_css .= $GLOBALS[$class]->css();
     				}
     			}
-    			if (isset($GLOBALS['phpgw_info']['flags']['css']))
-    			{
+    			if (isset($GLOBALS['phpgw_info']['flags']['css'])) {
     				$app_css .= $GLOBALS['phpgw_info']['flags']['css'];
     			}
 			$tpl->set_var('app_css', $app_css);
-			
 			return $tpl->subst('css');			
 		}
 
@@ -1201,28 +961,22 @@
 		* @author Dave Hall (*vaguely based* on verdilak? css inclusion code)
 		* @return string The JavaScript code to include
 		*/
-		function get_java_script()
-		{
+		function get_java_script() {
 			$java_script = '';
-			if(@is_object($GLOBALS['phpgw']->js))
-			{
+			if(@is_object($GLOBALS['phpgw']->js)) {
 				$java_script .= $GLOBALS['phpgw']->js->get_script_links();
 			}
 			
-		    	if(@isset($GLOBALS['phpgw_info']['menuaction']))
-		    	{
-	    			list($app,$class,$method) = explode('.',$GLOBALS['phpgw_info']['menuaction']);
-    				if(is_array($GLOBALS[$class]->public_functions) 
-					&& $GLOBALS[$class]->public_functions['java_script'])
-    				{
-    					$java_script .= $GLOBALS[$class]->java_script();
-    				}
-    			}
+			if(@isset($GLOBALS['phpgw_info']['menuaction'])) {
+				list($app,$class,$method) = explode('.',$GLOBALS['phpgw_info']['menuaction']);
+				if(is_array($GLOBALS[$class]->public_functions) && $GLOBALS[$class]->public_functions['java_script']) {
+					$java_script .= $GLOBALS[$class]->java_script();
+				}
+			}
 			//you never know - best to protect the stupid ;)
-    			if (isset($GLOBALS['phpgw_info']['flags']['java_script']))
-    			{
-    				$java_script .= $GLOBALS['phpgw_info']['flags']['java_script'] . "\n";
-    			}
+			if (isset($GLOBALS['phpgw_info']['flags']['java_script'])) {
+				$java_script .= $GLOBALS['phpgw_info']['flags']['java_script'] . "\n";
+			}
 			return $java_script;
 		}
 
@@ -1232,21 +986,15 @@
 		* @author Dave Hall <skwashd@phpgroupware.org>
 		* @return string Body attributes or empty
 		*/
-		function get_body_attribs()
-		{
-			if(@is_object($GLOBALS['phpgw']->js))
-			{
+		function get_body_attribs() {
+			if(@is_object($GLOBALS['phpgw']->js)) {
 				return $GLOBALS['phpgw']->js->get_body_attribs();
-			}
-			else
-			{
+			} else {
 				return '';
 			}
 		}
 
-		
-		function hex2bin($data)
-		{
+		function hex2bin($data) {
 			$len = strlen($data);
 			return @pack('H' . $len, $data);
 		}
@@ -1257,8 +1005,7 @@
 		* @param string $data Data to be encrypted
 		* @return string Encrypted data
 		*/
-		function encrypt($data)
-		{
+		function encrypt($data) {
 			return $GLOBALS['phpgw']->crypto->encrypt($data);
 		}
 
@@ -1267,8 +1014,7 @@
 		* @param string $data Data to be decrypted
 		* @return string Decrypted data
 		*/
-		function decrypt($data)
-		{
+		function decrypt($data) {
 			return $GLOBALS['phpgw']->crypto->decrypt($data);
 		}
 
@@ -1279,8 +1025,7 @@
 		* @param string $random Random seed
 		* @return string DES encrypted password
 		*/
-		function des_cryptpasswd($userpass, $random)
-		{
+		function des_cryptpasswd($userpass, $random) {
 			$lcrypt = '{crypt}';
 			$password = crypt($userpass, $random);
 			$ldappassword = sprintf('%s%s', $lcrypt, $password);
@@ -1294,15 +1039,13 @@
 		* @param string $random Random seed
 		* @return string MD5 encrypted password
 		*/ 
-		function md5_cryptpasswd($userpass, $random)
-		{
+		function md5_cryptpasswd($userpass, $random) {
 			$bsalt = '$1$';
 			$esalt = '$';
 			$lcrypt = '{crypt}';
 			$modsalt = sprintf('%s%s%s', $bsalt, $random, $esalt);
 			$password = crypt($userpass, $modsalt);
 			$ldappassword = sprintf('%s%s', $lcrypt, $password);
-
 			return $ldappassword;
 		}
 
@@ -1312,23 +1055,16 @@
 		* @param string $password Password to encrypt
 		* @return Encrypted password or false
 		*/
-		function encrypt_password($password)
-		{
-			if (strtolower($GLOBALS['phpgw_info']['server']['ldap_encryption_type']) == 'des')
-			{
+		function encrypt_password($password) {
+			if (strtolower($GLOBALS['phpgw_info']['server']['ldap_encryption_type']) == 'des') {
 				$salt       = $this->randomstring(2);
 				$e_password = $this->des_cryptpasswd($password, $salt);
-				
 				return $e_password;
-			}
-			elseif (strtolower($GLOBALS['phpgw_info']['server']['ldap_encryption_type']) == 'md5')
-			{
+			} elseif (strtolower($GLOBALS['phpgw_info']['server']['ldap_encryption_type']) == 'md5') {
 				$salt       = $this->randomstring(8);
 				$e_password = $this->md5_cryptpasswd($password, $salt);
-				
 				return $e_password;
 			}
-			
 			return false;
 		}
 
@@ -1338,17 +1074,13 @@
 		* @param integer $app Application id to find current position
 		* @return integer Applications position or -1
 		*/
-		function find_portal_order($app)
-		{
-			if(!is_array($GLOBALS['phpgw_info']['user']['preferences']['portal_order']))
-			{
+		function find_portal_order($app) {
+			if(!is_array($GLOBALS['phpgw_info']['user']['preferences']['portal_order'])) {
 				return -1;
 			}
 			@reset($GLOBALS['phpgw_info']['user']['preferences']['portal_order']);
-			while(list($seq,$appid) = each($GLOBALS['phpgw_info']['user']['preferences']['portal_order']))
-			{
-				if($appid == $app)
-				{
+			while(list($seq,$appid) = each($GLOBALS['phpgw_info']['user']['preferences']['portal_order'])) {
+				if($appid == $app) {
 					@reset($GLOBALS['phpgw_info']['user']['preferences']['portal_order']);
 					return $seq;
 				}
@@ -1366,8 +1098,7 @@
 		* @return mixed Result from $GLOBALS['phpgw']->hooks->process()
 		* @deprecated
 		*/
-		function hook($location, $appname = '', $no_permission_check = False)
-		{
+		function hook($location, $appname = '', $no_permission_check = False) {
 			echo '$'."GLOBALS['phpgw']common->hook()".' has been replaced. Please change to the new $'."GLOBALS['phpgw']hooks->process()".'. For now this will act as a wrapper<br>';
 			return $GLOBALS['phpgw']->hooks->process($location, $order, $no_permission_check);
 		}
@@ -1382,8 +1113,7 @@
 		* @deprecated
 		* @internal $no_permission_check should *ONLY* be used when it *HAS* to be. (jengo)
 		*/
-		function hook_single($location, $appname = '', $no_permission_check = False)
-		{
+		function hook_single($location, $appname = '', $no_permission_check = False) {
 			echo '$'."GLOBALS['phpgw']common->hook_single()".' has been replaced. Please change to the new $'."GLOBALS['phpgw']hooks->single()".'. For now this will act as a wrapper<br>';
 			return $GLOBALS['phpgw']->hooks->single($location, $order, $no_permission_check);
 		}
@@ -1395,8 +1125,7 @@
 		* @return mixed Result from $GLOBALS['phpgw']->hooks->count()
 		* @deprecated
 		*/
-		function hook_count($location)
-		{
+		function hook_count($location) {
 			echo '$'."GLOBALS['phpgw']common->hook_count()".' has been replaced. Please change to the new $'."GLOBALS['phpgw']hooks->count()".'. For now this will act as a wrapper<br>';
 			return $GLOBALS['phpgw']->hooks->count($location);
 		}
@@ -1408,11 +1137,8 @@
 		* @return mixed Result of $GLOBALS['phpgw']->session->appsession()
 		* @deprecated
 		*/
-		function appsession($data = '##NOTHING##')
-		{
-			$this->debug_info[] = '$phpgw->common->appsession() is a depreciated function'
-				. ' - use $phpgw->session->appsession() instead';
-
+		function appsession($data = '##NOTHING##') {
+			$this->debug_info[] = '$phpgw->common->appsession() is a depreciated function' . ' - use $phpgw->session->appsession() instead';
 			return $GLOBALS['phpgw']->session->appsession('default','',$data);
 		}
 
@@ -1423,30 +1149,22 @@
 		* @param string $format Date format, defaults to user preferences
 		* @return string Formated date
 		*/
-		function show_date($t = '', $format = '')
-		{
-			if(!is_object($GLOBALS['phpgw']->datetime))
-			{
+		function show_date($t = '', $format = '') {
+			if(!is_object($GLOBALS['phpgw']->datetime)) {
 				$GLOBALS['phpgw']->datetime = createobject('phpgwapi.datetime');
 			}
-			
-			if (!$t || intval($t) <= 0)
-			{
+			if (!$t || intval($t) <= 0) {
 				$t = $GLOBALS['phpgw']->datetime->gmtnow;
 			}
 
 			//  + (date('I') == 1?3600:0)
 			$t += $GLOBALS['phpgw']->datetime->tz_offset;
 			
-			if (! $format)
-			{
+			if (! $format) {
 				$format = $GLOBALS['phpgw_info']['user']['preferences']['common']['dateformat'] . ' - ';
-				if ($GLOBALS['phpgw_info']['user']['preferences']['common']['timeformat'] == '12')
-				{
+				if ($GLOBALS['phpgw_info']['user']['preferences']['common']['timeformat'] == '12') {
 					$format .= 'h:i a';
-				}
-				else
-				{
+				} else {
 					$format .= 'H:i';
 				}
 			}
@@ -1455,15 +1173,13 @@
 
 		/**
 		*
-		*
 		* @param string $yearstr Year
 		* @param string $monthstr Month
 		* @param string $day Day
 		* @param boolean $add_seperator Use separator, defaults to space
 		* @return string Formatted date
 		*/
-		function dateformatorder($yearstr,$monthstr,$daystr,$add_seperator = False)
-		{
+		function dateformatorder($yearstr,$monthstr,$daystr,$add_seperator = False) {
 			$dateformat = strtolower($GLOBALS['phpgw_info']['user']['preferences']['common']['dateformat']);
 			$sep = substr($GLOBALS['phpgw_info']['user']['preferences']['common']['dateformat'],1,1);
 
@@ -1472,12 +1188,9 @@
 			$dlarr[strpos($dateformat,'d')] = $daystr;
 			ksort($dlarr);
 
-			if ($add_seperator)
-			{
+			if ($add_seperator) {
 				return (implode($sep,$dlarr));
-			}
-			else
-			{
+			} else {
 				return (implode(' ',$dlarr));
 			}
 		} 
@@ -1490,41 +1203,29 @@
 		* @param integer $sec Second
 		* @return string Time formatted as hhmmss with am/pm
 		*/
-		function formattime($hour,$min,$sec='')
-		{
+		function formattime($hour,$min,$sec='') {
 			$h12 = $hour;
-			if ($GLOBALS['phpgw_info']['user']['preferences']['common']['timeformat'] == '12')
-			{
-				if ($hour >= 12) 
-				{
+			if ($GLOBALS['phpgw_info']['user']['preferences']['common']['timeformat'] == '12') {
+				if ($hour >= 12) {
 					$ampm = ' pm';
-				}
-				else
-				{
+				} else {
 					$ampm = ' am';
 				}
 
 				$h12 %= 12;
 
-				if ($h12 == 0 && $hour)
-				{
+				if ($h12 == 0 && $hour) {
 					$h12 = 12;
 				}
-				if ($h12 == 0 && !$hour)
-				{
+				if ($h12 == 0 && !$hour) {
 					$h12 = 0;
 				}
-			}
-			else 
-			{
+			} else {
 				$h12 = $hour;
 			}
-
-			if ($sec)
-			{
+			if ($sec) {
 				$sec = ":$sec";
 			}
-
 			return "$h12:$min$sec$ampm";
 		}
 
@@ -1536,31 +1237,23 @@
 		* @internal This is not the best place for it, but it needs to be shared bewteen Aeromail and SM
 		*/
 		/*
-		function get_email_passwd_ex()
-		{
+		function get_email_passwd_ex() {
 			// ----  Create the email Message Class  if needed  -----
-			if (is_object($GLOBALS['phpgw']->msg))
-			{
+			if (is_object($GLOBALS['phpgw']->msg)) {
 				$do_free_me = False;
-			}
-			else
-			{
+			} else {
 				$GLOBALS['phpgw']->msg = CreateObject('email.mail_msg');
 				$do_free_me = True;
 			}
 			// use the Msg class to obtain the appropriate password
 			$tmp_prefs = $GLOBALS['phpgw']->preferences->read();
-			if (!isset($tmp_prefs['email']['passwd']))
-			{
+			if (!isset($tmp_prefs['email']['passwd'])) {
 				$email_passwd = $GLOBALS['phpgw_info']['user']['passwd'];
-			}
-			else
-			{
+			} else {
 				$email_passwd = $GLOBALS['phpgw']->msg->decrypt_email_passwd($tmp_prefs['email']['passwd']);
 			}
 			// cleanup and return
-			if ($do_free_me)
-			{
+			if ($do_free_me) {
 				unset ($GLOBALS['phpgw']->msg);
 			}
 			return $email_passwd;
@@ -1574,16 +1267,12 @@
 		* @param integer $account_id Account id, defaults to phpgw_info['user']['account_id']
 		* @internal This is not the best place for it, but it needs to be shared between Aeromail and SM
 		*/
-		function create_emailpreferences($prefs='',$accountid='')
-		{
+		function create_emailpreferences($prefs='',$accountid='') {
 			return $GLOBALS['phpgw']->preferences->create_email_preferences($accountid);
 			// Create the email Message Class if needed
-			if (is_object($GLOBALS['phpgw']->msg))
-			{
+			if (is_object($GLOBALS['phpgw']->msg)) {
 				$do_free_me = False;
-			}
-			else
-			{
+			} else {
 				$GLOBALS['phpgw']->msg = CreateObject('email.mail_msg');
 				$do_free_me = True;
 			}
@@ -1592,92 +1281,67 @@
 			$GLOBALS['phpgw']->msg->create_email_preferences();
 
 			// cleanup and return
-			if ($do_free_me)
-			{
+			if ($do_free_me) {
 				unset ($GLOBALS['phpgw']->msg);
 			}
 		}
 
 		/*
-		function create_emailpreferences($prefs,$accountid='')
-		{
+		function create_emailpreferences($prefs,$accountid='') {
 			$account_id = get_account_id($accountid);
 			
 			// NEW EMAIL PASSWD METHOD (shared between SM and aeromail)
 			$prefs['email']['passwd'] = $this->get_email_passwd_ex();
 			
 			// Add default preferences info
-			if (!isset($prefs['email']['userid']))
-			{
-				if ($GLOBALS['phpgw_info']['server']['mail_login_type'] == 'vmailmgr')
-				{
+			if (!isset($prefs['email']['userid'])) {
+				if ($GLOBALS['phpgw_info']['server']['mail_login_type'] == 'vmailmgr') {
 					$prefs['email']['userid'] = $GLOBALS['phpgw']->accounts->id2name($account_id)
 						. '@' . $GLOBALS['phpgw_info']['server']['mail_suffix'];
-				}
-				else
-				{
+				} else {
 					$prefs['email']['userid'] = $GLOBALS['phpgw']->accounts->id2name($account_id);
 				}
 			}
 			// Set Server Mail Type if not defined
-			if (empty($GLOBALS['phpgw_info']['server']['mail_server_type']))
-			{
+			if (empty($GLOBALS['phpgw_info']['server']['mail_server_type'])) {
 				$GLOBALS['phpgw_info']['server']['mail_server_type'] = 'imap';
 			}
 			
 			// OLD EMAIL PASSWD METHOD
-			if (!isset($prefs['email']['passwd']))
-			{
+			if (!isset($prefs['email']['passwd'])) {
 				$prefs['email']['passwd'] = $GLOBALS['phpgw_info']['user']['passwd'];
-			}
-			else
-			{
+			} else {
 				$prefs['email']['passwd'] = $this->decrypt($prefs['email']['passwd']);
 			}
 			// NEW EMAIL PASSWD METHOD Located at the begining of this function
 			
-			if (!isset($prefs['email']['address']))
-			{
+			if (!isset($prefs['email']['address'])) {
 				$prefs['email']['address'] = $GLOBALS['phpgw']->accounts->id2name($account_id)
 					. '@' . $GLOBALS['phpgw_info']['server']['mail_suffix'];
 			}
-			if (!isset($prefs['email']['mail_server']))
-			{
+			if (!isset($prefs['email']['mail_server'])) {
 				$prefs['email']['mail_server'] = $GLOBALS['phpgw_info']['server']['mail_server'];
 			}
-			if (!isset($prefs['email']['mail_server_type']))
-			{
+			if (!isset($prefs['email']['mail_server_type'])) {
 				$prefs['email']['mail_server_type'] = $GLOBALS['phpgw_info']['server']['mail_server_type'];
 			}
-			if (!isset($prefs['email']['imap_server_type']))
-			{
+			if (!isset($prefs['email']['imap_server_type'])) {
 				$prefs['email']['imap_server_type'] = $GLOBALS['phpgw_info']['server']['imap_server_type'];
 			}
 			// These sets the mail_port server variable
-			if ($prefs['email']['mail_server_type']=='imap')
-			{
+			if ($prefs['email']['mail_server_type']=='imap') {
 				$prefs['email']['mail_port'] = '143';
-			}
-			elseif ($prefs['email']['mail_server_type']=='pop3')
-			{
+			} elseif ($prefs['email']['mail_server_type']=='pop3') {
 				$prefs['email']['mail_port'] = '110';
-			}
- 			elseif ($prefs['email']['mail_server_type']=='imaps')
- 			{
+			} elseif ($prefs['email']['mail_server_type']=='imaps') {
  				$prefs['email']['mail_port'] = '993';
- 			}
- 			elseif ($prefs['email']['mail_server_type']=='pop3s')
- 			{
+ 			} elseif ($prefs['email']['mail_server_type']=='pop3s') {
  				$prefs['email']['mail_port'] = '995';
  			}
 			// This is going to be used to switch to the nntp class
-			if (isset($phpgw_info['flags']['newsmode']) &&
-				$GLOBALS['phpgw_info']['flags']['newsmode'])
-			{
+			if (isset($phpgw_info['flags']['newsmode']) && $GLOBALS['phpgw_info']['flags']['newsmode']) {
 				$prefs['email']['mail_server_type'] = 'nntp';
 			}
-			// DEBUG
-			//echo "<br>prefs['email']['passwd']: " .$prefs['email']['passwd'] .'<br>';
 			return $prefs;
 		}
 		*/
@@ -1689,11 +1353,9 @@
 		* @return string HTML string with code check result message
 		* @internal This will be moved into the applications area
 		*/
-		function check_code($code)
-		{
+		function check_code($code) {
 			$s = '<br />';
-			switch ($code)
-			{
+			switch ($code) {
 				case 13:	$s .= lang('Your message has been sent');break;
 				case 14:	$s .= lang('New entry added sucessfully');break;
 				case 15:	$s .= lang('Entry updated sucessfully');	break;
@@ -1783,15 +1445,12 @@
 		* @param integer $line Line number of error
 		* @param string $file Filename in which the error occured
 		*/
-		function phpgw_error($error,$line = '', $file = '') 
-		{
+		function phpgw_error($error,$line = '', $file = '') {
 			echo '<p><strong>phpGroupWare internal error:</strong><p>'.$error;
-			if ($line)
-			{
+			if ($line) {
 				echo 'Line: '.$line;
 			}
-			if ($file)
-			{
+			if ($file) {
 				echo 'File: '.$file;
 			}
 			echo '<p>Your session has been halted.';
@@ -1804,42 +1463,28 @@
 		* @param array $array Array with 1-4 key/value pairs for $phpgw_info[]
 		* @return string String with generated $phpgw_info[] code 
 		*/
-		function create_phpcode_from_array($array)
-		{
-			while (list($key, $val) = each($array))
-			{
-				if (is_array($val))
-				{
-					while (list($key2, $val2) = each($val))
-					{
-						if (is_array($val2))
-						{
-							while (list($key3, $val3) = each ($val2))
-							{
-								if (is_array($val3))
-								{
-									while (list($key4, $val4) = each ($val3))
-									{
+		function create_phpcode_from_array($array) {
+			while (list($key, $val) = each($array)) {
+				if (is_array($val)) {
+					while (list($key2, $val2) = each($val)) {
+						if (is_array($val2)) {
+							while (list($key3, $val3) = each ($val2)) {
+								if (is_array($val3)) {
+									while (list($key4, $val4) = each ($val3)) {
 										$s .= '$phpgw_info["' . $key . '"]["' . $key2 . '"]["' . $key3 . '"]["' .$key4 . '"]="' . $val4 . '";';
 										$s .= "\n";
 									}
-								}
-								else
-								{
+								} else {
 									$s .= '$phpgw_info["' . $key . '"]["' . $key2 . '"]["' . $key3 . '"]="' . $val3 . '";';
 									$s .= "\n";
 								}
 							}
-						}
-						else
-						{
+						} else {
 							$s .= '$phpgw_info["' . $key .'"]["' . $key2 . '"]="' . $val2 . '";';
 							$s .= "\n";
 						}
 					}
-				}
-				else
-				{
+				} else {
 					$s .= '$phpgw_info["' . $key . '"]="' . $val . '";';
 					$s .= "\n";
 				}
@@ -1852,39 +1497,25 @@
 		*
 		* @param array $array phpgw_info[]
 		*/
-		function debug_list_array_contents($array)
-		{
-			while (list($key, $val) = each($array))
-			{
-				if (is_array($val))
-				{
-					while (list($key2, $val2) = each($val))
-					{
-						if (is_array($val2))
-						{
-							while (list($key3, $val3) = each ($val2))
-							{
-								if (is_array($val3))
-								{
-									while (list($key4, $val4) = each ($val3))
-									{
+		function debug_list_array_contents($array) {
+			while (list($key, $val) = each($array)) {
+				if (is_array($val)) {
+					while (list($key2, $val2) = each($val)) {
+						if (is_array($val2)) {
+							while (list($key3, $val3) = each ($val2)) {
+								if (is_array($val3)) {
+									while (list($key4, $val4) = each ($val3)) {
 										echo $$array . "[$key][$key2][$key3][$key4]=$val4<br />";
 									}
-								}
-								else
-								{
+								} else {
 									echo $$array . "[$key][$key2][$key3]=$val3<br />";
 								}
 							}
-						}
-						else
-						{
+						} else {
 							echo $$array . "[$key][$key2]=$val2<br />";
 						}
 					}
-				}
-				else
-				{
+				} else {
 					echo $$array . "[$key]=$val<br />";
 				}
 			}
@@ -1895,8 +1526,7 @@
 		*
 		* @internal Works on systems with grep only
 		*/
-		function debug_list_core_functions()
-		{
+		function debug_list_core_functions() {
 			echo '<br /><strong>core functions</strong><br />';
 			echo '<pre>';
 			chdir(PHPGW_INCLUDE_ROOT . '/phpgwapi');
@@ -1912,39 +1542,28 @@
 		* @param integer $max Maximum of id range
 		* @return integer|boolean Next available id or false
 		*/
-		function next_id($appname,$min=0,$max=0)
-		{
-			if (!$appname)
-			{
+		function next_id($appname,$min=0,$max=0) {
+			if (!$appname) {
 				return -1;
 			}
 
 			$GLOBALS['phpgw']->db->query("SELECT id FROM phpgw_nextid WHERE appname='".$appname."'",__LINE__,__FILE__);
-			while( $GLOBALS['phpgw']->db->next_record() )
-			{
+			while( $GLOBALS['phpgw']->db->next_record() ) {
 				$id = $GLOBALS['phpgw']->db->f('id');
 			}
 
-			if (empty($id) || !$id)
-			{
+			if (empty($id) || !$id) {
 				$id = 1;
 				$GLOBALS['phpgw']->db->query("INSERT INTO phpgw_nextid (appname,id) VALUES ('".$appname."',".$id.")",__LINE__,__FILE__);
-			}
-			elseif($id<$min)
-			{
+			} elseif($id<$min) {
 				$id = $min;
 				$GLOBALS['phpgw']->db->query("UPDATE phpgw_nextid SET id=".$id." WHERE appname='".$appname."'",__LINE__,__FILE__);
-			}
-			elseif ($max && ($id > $max))
-			{
+			} elseif ($max && ($id > $max)) {
 				return False;
-			}
-			else
-			{
+			} else {
 				$id = $id + 1;
 				$GLOBALS['phpgw']->db->query("UPDATE phpgw_nextid SET id=".$id." WHERE appname='".$appname."'",__LINE__,__FILE__);
 			}
-
 			return intval($id);
 		}
 
@@ -1956,44 +1575,31 @@
 		* @param integer $max Maximum of id range
 		* @return integer|boolean Last used id or false
 		*/
-		function last_id($appname,$min=0,$max=0)
-		{
-			if (!$appname)
-			{
+		function last_id($appname,$min=0,$max=0) {
+			if (!$appname) {
 				return -1;
 			}
 
 			$GLOBALS['phpgw']->db->query("SELECT id FROM phpgw_nextid WHERE appname='".$appname."'",__LINE__,__FILE__);
-			while( $GLOBALS['phpgw']->db->next_record() )
-			{
+			while( $GLOBALS['phpgw']->db->next_record() ) {
 				$id = $GLOBALS['phpgw']->db->f('id');
 			}
 
-			if (empty($id) || !$id)
-			{
-				if($min)
-				{
+			if (empty($id) || !$id) {
+				if($min) {
 					$id = $min;
-				}
-				else
-				{
+				} else {
 					$id = 1;
 				}
 				$GLOBALS['phpgw']->db->query("INSERT INTO phpgw_nextid (appname,id) VALUES ('".$appname."',".$id.")",__LINE__,__FILE__);
-			}
-			elseif($id<$min)
-			{
+			} elseif($id<$min) {
 				$id = $min;
 				$GLOBALS['phpgw']->db->query("UPDATE phpgw_nextid SET id=".$id." WHERE appname='".$appname."'",__LINE__,__FILE__);
-			}
-			elseif ($max && ($id > $max))
-			{
+			} elseif ($max && ($id > $max)) {
 				return False;
-			}
-			else
-			{
+			} else {
 				return intval($id);
 			}
 		}
-
 	}
+?>

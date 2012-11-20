@@ -1,43 +1,39 @@
 <?php
 	/**
-	* SQL Generator OPERANDS & TYPES - help to create criterias for common queries
-	* @author Edgar Antonio Luna Diaz <eald@co.com.mx>
-	* @author Alejadro Borges
-	* @author Jonathan Alberto Rivera Gomez
-	* @copyright Copyright (C) 2003,2004 Free Software Foundation, Inc. http://www.fsf.org/
-	* @license http://www.fsf.org/licenses/gpl.html GNU General Public License
-	* @package phpgwapi
-	* @subpackage database
-	* @version $Id: class.sql.inc.php,v 1.1.2.10 2004/02/10 13:51:19 ceb Exp $
-	* @internal Development of this application was funded by http://www.sogrp.com
-	* @link http://www.sogrp.com/
-	*/
+	 * SQL Generator OPERANDS & TYPES - help to create criterias for common queries
+	 * @author Edgar Antonio Luna Diaz <eald@co.com.mx>
+	 * @author Alejadro Borges
+	 * @author Jonathan Alberto Rivera Gomez
+	 * @copyright Copyright (C) 2003,2004 Free Software Foundation, Inc. http://www.fsf.org/
+	 * @license http://www.fsf.org/licenses/gpl.html GNU General Public License
+	 * @package phpgwapi
+	 * @subpackage database
+	 * @version $Id: class.sql.inc.php,v 1.1.2.10 2004/02/10 13:51:19 ceb Exp $
+	 * @internal Development of this application was funded by http://www.sogrp.com
+	 * @link http://www.sogrp.com/
+	 */
 
-	if (empty($GLOBALS['s3db_info']['server']['db_type']))
-	{
+	if (empty($GLOBALS['s3db_info']['server']['db_type'])) {
 		$GLOBALS['s3db_info']['server']['db_type'] = 'pgsql';
 	}
 
 	/**
-	* Include concrete database class
-	*/
+	 * Include concrete database class
+	 */
 	include(S3DB_SERVER_ROOT.'/s3dbapi/inc/class.sql_'.$GLOBALS['s3db_info']['server']['db_type'].'.inc.php');
 
-
 	/**
-	* SQL Generator OPERANDS & TYPES - help to create criterias for common queries
-	*
-	* This class provide common methods to set, mantain, an retrive the queries 
-	* to use in a query (for the where clause).
-	* @package phpgwapi
-	* @subpackage database
-	* @abstract
-	*/
+	 * SQL Generator OPERANDS & TYPES - help to create criterias for common queries
+	 *
+	 * This class provide common methods to set, mantain, an retrive the queries 
+	 * to use in a query (for the where clause).
+	 * @package phpgwapi
+	 * @subpackage database
+	 * @abstract
+	 */
 	class sql_
 	{
-		function sql_()
-		{
-		}
+		function sql_() {}
 
 		/*************************************************************\
 		* Usefull low level functions to create queries logically   *
@@ -50,8 +46,7 @@
 		* @param string $right The right operand of the statement
 		* @return string with an equal criteria formated.
 		*/
-		function equal($field, $value)
-		{
+		function equal($field, $value) {
 			return $field.' = '.$value;
 		}
 
@@ -62,8 +57,7 @@
 		* @param string $right Right operand.
 		* @return string with criteria.
 		*/
-		function not_equal($field, $value)
-		{
+		function not_equal($field, $value) {
 			return $field.' <> '.$value;
 		}
 
@@ -74,8 +68,7 @@
   		* @param string $right The right operand of the statement
 		* @return string with an greater than criteria formated.
 		*/
-		function greater($field, $value)
-		{
+		function greater($field, $value) {
 			return $field.' > '.$value;
 		}
 		
@@ -86,8 +79,7 @@
 		* @param string $right The right operand of the statement
 		* @return string with an less than criteria formated.
 		*/
-		function less($field, $value)
-		{
+		function less($field, $value) {
 			return $field.' < '.$value;
 		}
 		
@@ -98,8 +90,7 @@
   		* @param string $right The right operand of the statement
 		* @return string with an greater-equal than criteria formated.
 		*/
-		function greater_equal($field, $value)
-		{
+		function greater_equal($field, $value) {
 			return $field.' >= '.$value;
 		}
 
@@ -110,8 +101,7 @@
 		* @param string $right The right operand of the statement
 		* @return string with an less-equal than criteria formated.
 		*/
-		function less_equal($field, $value)
-		{
+		function less_equal($field, $value) {
 			return $field.' <= '.$value;
 		}
 
@@ -122,8 +112,7 @@
 		* @param string $value That will search.
 		* @return string that use LIKE to search in field.
 		*/
-		function has($field, $value)
-		{
+		function has($field, $value) {
 			return sql_criteria::upper($field).' LIKE '."'%$value%'";
 		}
 
@@ -134,8 +123,7 @@
 		* @param string $value That will search.
 		* @return string that use LIKE to search in field.
 		*/
-		function begin_with($field, $value)
-		{
+		function begin_with($field, $value) {
 			return sql_criteria::upper($field).' LIKE '."'$value%'";
 		}
 
@@ -146,8 +134,7 @@
 		* @param string $value That will search.
 		* @return string that use LIKE to search in field.
 		*/
-		function end_with($field, $value)
-		{
+		function end_with($field, $value) {
 			return sql_criteria::upper($field).' LIKE '."'%$value'";
 		}
 
@@ -159,8 +146,7 @@
 		* @param string $right Right operand.
 		* @return string with (right) and (left)
 		*/
-		function and_($left, $right)
-		{
+		function and_($left, $right) {
 			return '('.$left.' AND '.$right.')';
 		}
 
@@ -171,8 +157,7 @@
 		* @param string $right Right operand.
 		* @return string with (right) or (left)
 		*/
-		function or_($left, $right)
-		{
+		function or_($left, $right) {
 			return ' ('.$left.' OR '.$right.') ';
 		}
 
@@ -182,8 +167,7 @@
 		* @param string $data A field.
 		* @return string with criteria.
 		*/
-		function is_null($data)
-		{
+		function is_null($data) {
 			return $data.' IS NULL';
 		}
 
@@ -193,18 +177,15 @@
 		* @param string $data A field.
 		* @return string with criteria.
 		*/		
-		function not_null($data)
-		{
+		function not_null($data) {
 			return $data.' IS NOT NULL';
 		}
 
-		function upper($value)
-		{
+		function upper($value) {
 			return 'UPPER('.$value.')';
 		}
 
-		function lower($value)
-		{
+		function lower($value) {
 			return 'LOWER('.$value.')';
 		}
 
@@ -215,29 +196,19 @@
 		* @param string $values Array with posible values
 		* @return string with criteria.
 		*/
-		function in($field, $values, $type='integer')
-		{
+		function in($field, $values, $type='integer') {
 			// This must be changed by anything
-			if(count($values) > 1)
-			{
-				if($type != 'integer' && $type != '')
-				{
+			if(count($values) > 1) {
+				if($type != 'integer' && $type != '') {
 					return str_replace(',\'', '\',\'', $field.' IN (\''.implode(",'",$values)."')");
-				}
-				else 
-				{
+				} else {
 					return $field.' IN ('.implode(",", $values) .')';
 				}
-			}
-			else
-			{
+			} else {
 				$type = $type ? $type : 'integer';
-				if (is_array($values))
-				{
+				if (is_array($values)) {
 					return sql::equal($field, sql::$type(current($values)));
-				}
-				else
-				{
+				} else {
 					return sql::equal($field, sql::$type($values));
 				}	
 			}
@@ -250,14 +221,11 @@
 		* @param string $and Array with the list of operators for and.
 		* @return string with many and conjuntions at same level.
 		*/
-		function append_and($clause)
-		{
-			if(is_array($clause))
-			{
+		function append_and($clause) {
+			if(is_array($clause)) {
 				$value = array_shift($clause);
 				$return_value = $value;
-				foreach($clause as $element)
-				{
+				foreach($clause as $element) {
 					$return_value .= empty($element)?'':' AND '.$element;
 				}
 				return '('. $return_value .')';
@@ -271,14 +239,11 @@
 		* @return string with many or conjuntions at same level.
 		* @see append_and
 		*/
-		function append_or($clause)
-		{
-			if(is_array($clause))
-			{
+		function append_or($clause) {
+			if(is_array($clause)) {
 				$value = array_shift($clause);
 				$return_value = $value;
-				foreach($clause as $element)
-				{
+				foreach($clause as $element) {
 					$return_value .= empty($element)?'':' OR '.$element;
 				}
 				return '('. $return_value.')';
@@ -292,14 +257,12 @@
 		* @param str string the value that will be casted for sql type
 		* @return string ready for using for a value with CHARACTER sql type
 		*/
-		function string($str)
-		{
+		function string($str) {
 			$str = db::db_addslashes($str);
 			return "'$str'";
 		}
 
-		function character($str)
-		{
+		function character($str) {
 			return sql::string($str);
 		}
 
@@ -307,36 +270,31 @@
 		* @param integer string the value that will be casted for sql type
 		* @return string ready for using for a value with INTEGER sql type		
 		*/
-		function integer($integer)
-		{
+		function integer($integer) {
 			return intval($integer);
 		}
 
 		/**
 		* Generate a string with date
 		*/
-		function date_($date, $format=False)
-		{
-			switch(gettype($date))
-			{
-			case 'integer':
-				return sql::int_date2str($date, $format);
-			default:
-				return sql::str_date2int($date, $format);
+		function date_($date, $format=False) {
+			switch(gettype($date)) {
+				case 'integer':
+					return sql::int_date2str($date, $format);
+				default:
+					return sql::str_date2int($date, $format);
 			}
 		}
 
 		/**
 		* return a string with time
 		*/
-		function time_($time, $format=False)
-		{
-			switch(gettype($time))
-			{
-			case 'integer':
-				return sql::int_time2str($time, $format);
-			default:
-				return sql::str_time2int($time, $format);
+		function time_($time, $format=False) {
+			switch(gettype($time)) {
+				case 'integer':
+					return sql::int_time2str($time, $format);
+				default:
+					return sql::str_time2int($time, $format);
 			}
 		}
 
@@ -344,26 +302,22 @@
 		* Data types conversion                                      *
 		\*************************************************************/
 
-		function int_date2str($int, $format=False)
-		{
+		function int_date2str($int, $format=False) {
 			$format = $format ? $format : $GLOBALS['phpgw_info']['user']['preferences']['common']['dateformat'];
 			return date($format, intval($int));
 		}
 
-		function int_time2str($int, $format=False)
-		{
+		function int_time2str($int, $format=False) {
 			$format = $format ? $format : $GLOBALS['phpgw_info']['user']['preferences']['common']['timeformat'];
 			return date($format, intval($int));
 		}
 		//note this is not 100% reliable, but close enough
-		function str_date2int($date, $format=False)
-		{
+		function str_date2int($date, $format=False) {
 			$format = $format ? $format : $GLOBALS['phpgw_info']['user']['preferences']['common']['dateformat'];
 			return date($format, intval(strtotime($date)));
 		}
 
-		function str_time2int($time)
-		{
+		function str_time2int($time) {
 			return intval(sql::str_date2int($time));
 		}
 
@@ -374,8 +328,7 @@
 		/**
 		* Return a NULL value
 		*/
-		function null()
-		{
+		function null() {
 			return ' NULL ';
 		}
 		/*************************************************************\
@@ -387,9 +340,7 @@
 		* @param array $elements array with the elemnts that want to concatenate
 		* @return string with $elements concatenated
 		*/
-		function concat($elements)
-		{
-		}
+		function concat($elements) {}
 
 		/**
 		* Return the function that concatenate fields, when any returned value<br />
@@ -398,9 +349,7 @@
 		* @param array $elements array with the elemnts that want to concatenate
 		* @return string with $elements concatenated
 		*/
-		function concat_null($elements)
-		{
-		}
+		function concat_null($elements) {}
 
 		/**
 		* This function change to empty string, a NULL value for select.
@@ -409,14 +358,11 @@
 		* string. use it in SELECT development.
 		* @param string $value Field or expresion to make safe.
 		*/
-		function safe_null($value)
-		{
-			if(empty($value) || !is_array($value))
-			{
+		function safe_null($value) {
+			if(empty($value) || !is_array($value)) {
 				return array();
 			}
-			foreach($value as $data)
-			{
+			foreach($value as $data) {
 				$return_value[] = '(CASE WHEN '.$data.' IS NULL THEN \'\' ELSE '.$data.' END)';
 			}
 			return $return_value;

@@ -1,34 +1,33 @@
 <?php
 	/**
-	* Database abstraction class
-	* @author NetUSE AG Boris Erdmann, Kristian Koehntopp
-   	* @author Dan Kuykendall, Dave Hall and others
-	* @copyright Copyright (C) 1998-2000 NetUSE AG Boris Erdmann, Kristian Koehntopp
-	* @copyright Portions Copyright (C) 2001-2004 Free Software Foundation, Inc. http://www.fsf.org/
-	* @license http://www.fsf.org/licenses/lgpl.html GNU Lesser General Public License
-	* @link http://www.sanisoft.com/phplib/manual/DB_sql.php
-	* @package phpgwapi
-	* @subpackage database
-	* @version $Id: class.db.inc.php,v 1.6.4.5 2004/02/10 13:51:17 ceb Exp $
-	*/
+	 * Database abstraction class
+	 * @author NetUSE AG Boris Erdmann, Kristian Koehntopp
+   	 * @author Dan Kuykendall, Dave Hall and others
+	 * @copyright Copyright (C) 1998-2000 NetUSE AG Boris Erdmann, Kristian Koehntopp
+	 * @copyright Portions Copyright (C) 2001-2004 Free Software Foundation, Inc. http://www.fsf.org/
+	 * @license http://www.fsf.org/licenses/lgpl.html GNU Lesser General Public License
+	 * @link http://www.sanisoft.com/phplib/manual/DB_sql.php
+	 * @package phpgwapi
+	 * @subpackage database
+	 * @version $Id: class.db.inc.php,v 1.6.4.5 2004/02/10 13:51:17 ceb Exp $
+	 */
 
-	if (empty($GLOBALS['s3db_info']['server']['db']['db_type']))
-	{
+	if (empty($GLOBALS['s3db_info']['server']['db']['db_type'])) {
 		$GLOBALS['s3db_info']['server']['db']['db_type'] = 'mysql';
 	}
 	/**
-	* Include concrete database implementation
-	*/
+	 * Include concrete database implementation
+	 */
 	include_once(S3DB_SERVER_ROOT.'/s3dbcore/class.db_'.$GLOBALS['s3db_info']['server']['db']['db_type'].'.inc.php');
 
 
 	/**
-	* Database abstraction class to allow phpGroupWare to use multiple database backends
-	* 
-	* @package phpgwapi
-	* @subpackage database
-	* @abstract
-	*/
+	 * Database abstraction class to allow phpGroupWare to use multiple database backends
+	 * 
+	 * @package phpgwapi
+	 * @subpackage database
+	 * @abstract
+	 */
 	class db_
 	{
 		/**
@@ -111,8 +110,7 @@
 		* Constructor
 		* @param string $query query to be executed (optional)
 		*/
-		function db_($query = '')
-		{
+		function db_($query = '') {
 			$this->query($query);
 		}
 
@@ -120,8 +118,7 @@
 		* Get current connection id
 		* @return int current connection id
 		*/
-		function link_id()
-		{
+		function link_id() {
 			return $this->Link_ID;
 		}
 
@@ -129,8 +126,7 @@
 		* Get current query id
 		* @return int id of current query
 		*/
-		function query_id()
-		{
+		function query_id() {
 			return $this->Query_ID;
 		}
 
@@ -142,14 +138,12 @@
 		* @param string $User name of database user (optional)
 		* @param string $Password password for database user (optional)
 		*/
-		function connect($Database = '', $Host = '', $User = '', $Password = '')
-		{}
+		function connect($Database = '', $Host = '', $User = '', $Password = '') {}
 
 		/**
 		* Close a connection to a database - only needed for persistent connections
 		*/
-		function disconnect()
-		{}
+		function disconnect() {}
 
 		/**
 		* Escape strings before sending them to the database
@@ -157,13 +151,10 @@
 		* @param string $str the string to be escaped
 		* @return string escaped sting
 		*/
-		function db_addslashes($str)
-		{
-			if (!isset($str) || $str == '')
-			{
+		function db_addslashes($str) {
+			if (!isset($str) || $str == '') {
 				return '';
 			}
-
 			return addslashes($str);
 		}
 
@@ -173,8 +164,7 @@
 		* @param int unix timestamp
 		* @return string rdms specific timestamp
 		*/
-		function to_timestamp($epoch)
-		{}
+		function to_timestamp($epoch) {}
 
 		/**
 		* Convert a rdms specific timestamp to a unix timestamp 
@@ -182,8 +172,7 @@
 		* @param string rdms specific timestamp
 		* @return int unix timestamp
 		*/
-		function from_timestamp($timestamp)
-		{}
+		function from_timestamp($timestamp) {}
 
 		/**
 		* Execute a query with limited result set
@@ -191,14 +180,12 @@
 		* @deprecated
 		* @see limit_query()
 		*/
-		function limit($start)
-		{}
+		function limit($start) {}
 
 		/**
 		* Discard the current query result
 		*/
-		function free()
-		{}
+		function free() {}
 
 		/**
 		* Execute a query
@@ -208,8 +195,7 @@
 		* @param string $file the file method was called from - use __FILE__
 		* @return integer current query id if sucesful and null if fails
 		*/
-		function query($Query_String, $line = '', $file = '')
-		{}
+		function query($Query_String, $line = '', $file = '') {}
 
 		/**
 		* Execute a query with limited result set
@@ -221,16 +207,14 @@
 		* @param integer $num_rows number of rows to return (optional), if unset will use $GLOBALS['phpgw_info']['user']['preferences']['common']['maxmatchs']
 		* @return integer current query id if sucesful and null if fails
 		*/
-		function limit_query($Query_String, $offset, $line = '', $file = '', $num_rows = '')
-		{}
+		function limit_query($Query_String, $offset, $line = '', $file = '', $num_rows = '') {}
 		
 		/**
 		* Move to the next row in the results set
 		*
 		* @return bool was another row found?
 		*/
-		function next_record()
-		{}
+		function next_record() {}
 
 		/**
 		* Move to position in result set
@@ -238,16 +222,14 @@
 		* @param int $pos required row (optional), default first row
 		* @return int 1 if sucessful or 0 if not found
 		*/
-		function seek($pos = 0)
-		{}
+		function seek($pos = 0) {}
 
 		/**
 		* Begin transaction
 		*
 		* @return integer|boolean current transaction id
 		*/
-		function transaction_begin()
-		{
+		function transaction_begin() {
 			return True;
 		}
 		
@@ -256,8 +238,7 @@
 		*
 		* @return boolean True if sucessful, False if fails
 		*/ 
-		function transaction_commit()
-		{
+		function transaction_commit() {
 			return True;
 		}
 		
@@ -266,8 +247,7 @@
 		*
 		* @return boolean True if sucessful, False if fails
 		*/
-		function transaction_abort()
-		{
+		function transaction_abort() {
 			return True;
 		}
 
@@ -278,24 +258,15 @@
 		* @param string $field the autoincrement primary key of the table
 		* @return integer the id, -1 if fails
 		*/
-		function last_resource_id()
-
-	{
-		$db = $_SESSION['db'];
-		$sql = 'select max(resource_id) from s3db_resource';
-		$db->query($sql, __LINE__, __FILE__);
-		if($db->next_record())
-		{
-			$last = Array('resource_id'=>$db->f('max(resource_id)'));
+		function last_resource_id() {
+			$db = $_SESSION['db'];
+			$sql = 'select max(resource_id) from s3db_resource';
+			$db->query($sql, __LINE__, __FILE__);
+			if($db->next_record()) {
+				$last = Array('resource_id'=>$db->f('max(resource_id)'));
+			}
+			return $last;
 		}
-
-	  
-		return $last;
-	
-	
-	
-	}
-
 
 		/**
 		* Lock a table
@@ -304,33 +275,28 @@
 		* @param string $mode type of lock required (optional), default write
 		* @return boolean True if sucessful, False if fails
 		*/
-		function lock($table, $mode='write')
-		{}
-		
+		function lock($table, $mode='write') {}
 		
 		/**
 		* Unlock a table
 		*
 		* @return boolean True if sucessful, False if fails
 		*/
-		function unlock()
-		{}
+		function unlock() {}
 
 		/**
 		* Get the number of rows affected by last update
 		*
 		* @return integer number of rows
 		*/
-		function affected_rows()
-		{}
+		function affected_rows() {}
 		
 		/**
 		* Number of rows in current result set
 		*
 		* @return integer number of rows
 		*/
-		function num_rows()
-		{}
+		function num_rows() {}
 
 		/**
 		* Number of fields in current row
@@ -338,24 +304,21 @@
 		* @return integer number of fields
 		*/
 		
-		function num_fields()
-		{}
+		function num_fields() {}
 
 		/**
 		* Short hand for num_rows()
 		* @return integer Number of rows
 		* @see num_rows()
 		*/
-		function nf()
-		{
+		function nf() {
 			return $this->num_rows();
 		}
 
 		/**
 		* Short hand for print @see num_rows
 		*/
-		function np()
-		{
+		function np() {
 			print $this->num_rows();
 		}
 
@@ -366,14 +329,10 @@
 		* @param boolean $strip_slashes string escape chars from field(optional), default false
 		* @return string the field value
 		*/
-		function f($Name, $strip_slashes = False)
-		{
-			if ($strip_slashes || ($this->auto_stripslashes && ! $strip_slashes))
-			{
+		function f($Name, $strip_slashes = False) {
+			if ($strip_slashes || ($this->auto_stripslashes && ! $strip_slashes)) {
 				return stripslashes($this->Record[$Name]);
-			}
-			else
-			{
+			} else {
 				return $this->Record[$Name];
 			}
 		}
@@ -384,8 +343,7 @@
 		* @param string $Name name of field to print
 		* @param bool $strip_slashes string escape chars from field(optional), default false
 		*/
-		function p($Name, $strip_slashes = True)
-		{
+		function p($Name, $strip_slashes = True) {
 			print $this->f($Name, $strip_slashes);
 		}
 
@@ -395,8 +353,7 @@
 		* @param string $seq_name name of the sequence
 		* @return integer sequence id
 		*/
-		function nextid($seq_name)
-		{}
+		function nextid($seq_name) {}
 
 		/**
 		* Get description of a table
@@ -405,8 +362,7 @@
 		* @param boolean $full optional, default False summary information, True full information
 		* @return array Table meta data
 		*/  
-		function metadata($table = '',$full = false)
-		{
+		function metadata($table = '',$full = false) {
 			/*
 			 * Due to compatibility problems with Table we changed the behavior
 			 * of metadata();
@@ -441,24 +397,21 @@
 		* @param int $line line of calling method/function (optional)
 		* @param string $file file of calling method/function (optional)
 		*/
-		function halt($msg, $line = '', $file = '')
-		{}
+		function halt($msg, $line = '', $file = '') {}
 
        	/**
 		* Get a list of table names in the current database
 		*
 		* @return array list of the tables
 		*/
-		function table_names()
-		{}
+		function table_names() {}
 
 		/**
 		* Return a list of indexes in current database
 		*
 		* @return array List of indexes
 		*/
-		function index_names()
-		{
+		function index_names() {
 			return array();
 		}
 		
@@ -468,8 +421,7 @@
 		* @param string $adminname Name of database administrator user (optional)
 		* @param string $adminpasswd Password for the database administrator user (optional)
 		*/
-		function create_database($adminname = '', $adminpasswd = '')
-		{}
+		function create_database($adminname = '', $adminpasswd = '') {}
      
                 
      	/**
@@ -479,13 +431,11 @@
 		 * @return integer|boolean Result identifier for query_prepared_statement() or FALSE
 		 * @see query_prepared_statement()
 		 */
-		function prepare_sql_statement($query)
-		{
-		  if (($query == '') || (!$this->connect()))
-	  	   {
+		function prepare_sql_statement($query) {
+			if (($query == '') || (!$this->connect())) {
+				return(FALSE);
+			}
 			return(FALSE);
-		   }
-		  return(FALSE);
 		}
 
         /**
@@ -496,14 +446,11 @@
          * @return boolean TRUE on success or FALSE on failure
          * @see prepare_sql_statement()
          */
-        function query_prepared_statement($result_id, $parameters_array)
-         {
-		  if ((!$this->connect()) || (!$result_id))
-	  	   {
+        function query_prepared_statement($result_id, $parameters_array) {
+			if ((!$this->connect()) || (!$result_id)) {
+				return(FALSE);
+			}
 			return(FALSE);
-		   }
-		  return(FALSE);
-         }  
-                
+		}
 	}
 ?>

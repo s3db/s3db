@@ -1,29 +1,28 @@
 <?php
 	/**
-	* Setup html
-	* @author Tony Puglisi (Angles) <angles@phpgroupware.org>
-	* @author Miles Lott <milosch@phpgroupware.org>
-	* @copyright Portions Copyright (C) 2004 Free Software Foundation, Inc. http://www.fsf.org/
-	* @license http://www.fsf.org/licenses/gpl.html GNU General Public License
-	* @package phpgwapi
-	* @subpackage application
-	* @version $Id: class.setup_html.inc.php,v 1.7.2.7 2004/02/10 13:51:18 ceb Exp $
-	*/
+	 * Setup html
+	 * @author Tony Puglisi (Angles) <angles@phpgroupware.org>
+	 * @author Miles Lott <milosch@phpgroupware.org>
+	 * @copyright Portions Copyright (C) 2004 Free Software Foundation, Inc. http://www.fsf.org/
+	 * @license http://www.fsf.org/licenses/gpl.html GNU General Public License
+	 * @package phpgwapi
+	 * @subpackage application
+	 * @version $Id: class.setup_html.inc.php,v 1.7.2.7 2004/02/10 13:51:18 ceb Exp $
+	 */
 
 	/**
-	* Setup html
-	* 
-	* @package phpgwapi
-	* @subpackage application
-	*/
+	 * Setup html
+	 * 
+	 * @package phpgwapi
+	 * @subpackage application
+	 */
 	class setup_html
 	{
 		/*!
 		@function generate_header
 		@abstract generate header.inc.php file output - NOT a generic html header function
 		*/
-		function generate_header()
-		{
+		function generate_header() {
 			$GLOBALS['header_template']->set_file(array('header' => 'header.inc.php.template'));
 			$GLOBALS['header_template']->set_block('header','domain','domain');
 			$var = Array();
@@ -31,29 +30,23 @@
 			$deletedomain = get_var('deletedomain',Array('POST'));
 			$domains = get_var('domains',Array('POST'));
 			@reset($domains);
-			while($domains && list($k,$v) = @each($domains))
-			{
-				if(isset($deletedomain[$k]))
-				{
+			while($domains && list($k,$v) = @each($domains)) {
+				if(isset($deletedomain[$k])) {
 					continue;
 				}
 				//$dom = get_var('setting_'.$k,Array('POST'));
 				$dom = $_POST['settings'][$k];
 				$GLOBALS['header_template']->set_var('DB_DOMAIN',$v);
-				while(list($x,$y) = @each($dom))
-				{
+				while(list($x,$y) = @each($dom)) {
 					$GLOBALS['header_template']->set_var(strtoupper($x),$y);
 				}
 				$GLOBALS['header_template']->parse('domains','domain',True);
 			}
-
 			$GLOBALS['header_template']->set_var('domain','');
 
 			$setting = get_var('setting',Array('POST'));
-			if(!empty($setting) && is_array($setting))
-			{
-				foreach($setting as $k => $v)
-				{
+			if(!empty($setting) && is_array($setting)) {
+				foreach($setting as $k => $v) {
 					$var[strtoupper($k)] = $v;
 				}
 			}
@@ -61,25 +54,19 @@
 			return $GLOBALS['header_template']->parse('out','header');
 		}
 
-		function setup_tpl_dir($app_name='setup')
-		{
+		function setup_tpl_dir($app_name='setup') {
 			/* hack to get tpl dir */
-			if (is_dir(PHPGW_SERVER_ROOT))
-			{
+			if (is_dir(PHPGW_SERVER_ROOT)) {
 				$srv_root = PHPGW_SERVER_ROOT . SEP . "$app_name" . SEP;
-			}
-			else
-			{
+			} else {
 				$srv_root = '';
 			}
-
 			$tpl_typical = 'templates' . SEP . 'default';
 			$tpl_root = "$srv_root" ."$tpl_typical";
 			return $tpl_root;
 		}
 
-		function show_header($title='',$nologoutbutton=False, $logoutfrom='config', $configdomain='')
-		{
+		function show_header($title='',$nologoutbutton=False, $logoutfrom='config', $configdomain='') {
 			$GLOBALS['setup_tpl']->set_var('lang_charset',lang('charset'));
 			$style = array('th_bg'		=> '#486591',
 					'th_text'	=> '#FFFFFF',
@@ -89,23 +76,16 @@
 					'msg'		=> '#FF0000',
 					);
 			$GLOBALS['setup_tpl']->set_var($style);
-			if ($nologoutbutton)
-			{
+			if ($nologoutbutton) {
 				$btn_logout = '&nbsp;';
-			}
-			else
-			{
+			} else {
 				$btn_logout = '<a href="index.php?FormLogout=' . $logoutfrom . '" class="link">' . lang('Logout').'</a>';
 			}
-
 			$GLOBALS['setup_tpl']->set_var('lang_setup', lang('setup'));
 			$GLOBALS['setup_tpl']->set_var('page_title',$title);
-			if ($configdomain == '')
-			{
+			if ($configdomain == '') {
 				$GLOBALS['setup_tpl']->set_var('configdomain','');
-			}
-			else
-			{
+			} else {
 				$GLOBALS['setup_tpl']->set_var('configdomain',' - ' . lang('Domain') . ': ' . $configdomain);
 			}
 			$GLOBALS['setup_tpl']->set_var('pgw_ver',@$GLOBALS['phpgw_info']['server']['versions']['phpgwapi']);
@@ -114,21 +94,18 @@
 			/* $setup_tpl->set_var('T_head',''); */
 		}
 
-		function show_footer()
-		{
+		function show_footer() {
 			$GLOBALS['setup_tpl']->pparse('out','T_footer');
 			unset($GLOBALS['setup_tpl']);
 		}
 
-		function show_alert_msg($alert_word='Setup alert',$alert_msg='setup alert (generic)')
-		{
+		function show_alert_msg($alert_word='Setup alert',$alert_msg='setup alert (generic)') {
 			$GLOBALS['setup_tpl']->set_var('V_alert_word',$alert_word);
 			$GLOBALS['setup_tpl']->set_var('V_alert_msg',$alert_msg);
 			$GLOBALS['setup_tpl']->pparse('out','T_alert_msg');
 		}
 
-		function make_frm_btn_simple($pre_frm_blurb='',$frm_method='POST',$frm_action='',$input_type='submit',$input_value='',$post_frm_blurb='')
-		{
+		function make_frm_btn_simple($pre_frm_blurb='',$frm_method='POST',$frm_action='',$input_type='submit',$input_value='',$post_frm_blurb='') {
 			/* a simple form has simple components */
 			$simple_form = $pre_frm_blurb  ."\n"
 				. '<form method="' . $frm_method . '" action="' . $frm_action  . '">' . "\n"
@@ -138,8 +115,7 @@
 			return $simple_form;
 		}
 
-		function make_href_link_simple($pre_link_blurb='',$href_link='',$href_text='default text',$post_link_blurb='')
-		{
+		function make_href_link_simple($pre_link_blurb='',$href_link='',$href_text='default text',$post_link_blurb='') {
 			/* a simple href link has simple components */
 			$simple_link = $pre_link_blurb
 				. '<a href="' . $href_link . '">' . $href_text . '</a> '
@@ -147,8 +123,7 @@
 			return $simple_link;
 		}
 
-		function login_form()
-		{
+		function login_form() {
 			/* begin use TEMPLATE login_main.tpl */
 			$GLOBALS['setup_tpl']->set_var('ConfigLoginMSG',
 				@$GLOBALS['phpgw_info']['setup']['ConfigLoginMSG']
@@ -158,24 +133,18 @@
 				@$GLOBALS['phpgw_info']['setup']['HeaderLoginMSG'] 
 				? $GLOBALS['phpgw_info']['setup']['HeaderLoginMSG'] : '&nbsp;');
 
-			if ($GLOBALS['phpgw_info']['setup']['stage']['header'] == '10')
-			{
+			if ($GLOBALS['phpgw_info']['setup']['stage']['header'] == '10') {
 				/*
 				 Begin use SUB-TEMPLATE login_stage_header,
 				 fills V_login_stage_header used inside of login_main.tpl
 				*/
 				$GLOBALS['setup_tpl']->set_var('lang_select',lang_select());
-				if (count($GLOBALS['phpgw_domain']) > 1)
-				{
-					foreach($GLOBALS['phpgw_domain'] as $domain => $data)
-					{
+				if (count($GLOBALS['phpgw_domain']) > 1) {
+					foreach($GLOBALS['phpgw_domain'] as $domain => $data) {
 						$domains .= "<option value=\"$domain\" ";
-						if($domain == @$GLOBALS['phpgw_info']['setup']['LastDomain'])
-						{
+						if($domain == @$GLOBALS['phpgw_info']['setup']['LastDomain']) {
 							$domains .= ' SELECTED';
-						}
-						elseif($domain == $_SERVER['SERVER_NAME'])
-						{
+						} elseif($domain == $_SERVER['SERVER_NAME']) {
 							$domains .= ' SELECTED';
 						}
 						$domains .= ">$domain</option>\n";
@@ -186,9 +155,7 @@
 					$GLOBALS['setup_tpl']->parse('V_multi_domain','B_multi_domain');
 					// in this case, the single domain block needs to be nothing
 					$GLOBALS['setup_tpl']->set_var('V_single_domain','');
-				}
-				else
-				{
+				} else {
 					reset($GLOBALS['phpgw_domain']);
 					$default_domain = each($GLOBALS['phpgw_domain']);
 					$GLOBALS['setup_tpl']->set_var('default_domain_zero',$default_domain[0]);
@@ -203,9 +170,7 @@
 				 put all this into V_login_stage_header for use inside login_main
 				*/
 				$GLOBALS['setup_tpl']->parse('V_login_stage_header','T_login_stage_header');
-			}
-			else
-			{
+			} else {
 				/* begin SKIP SUB-TEMPLATE login_stage_header */
 				$GLOBALS['setup_tpl']->set_var('V_multi_domain','');
 				$GLOBALS['setup_tpl']->set_var('V_single_domain','');
@@ -218,23 +183,17 @@
 			$GLOBALS['setup_tpl']->pparse('out','T_login_main');
 		}
 
-		function get_template_list()
-		{
+		function get_template_list() {
 			$d = dir(PHPGW_SERVER_ROOT . '/phpgwapi/templates');
 
-			while($entry = $d->read())
-			{
-				if ($entry != 'CVS' && $entry != '.' && $entry != '..')
-				{
+			while($entry = $d->read()) {
+				if ($entry != 'CVS' && $entry != '.' && $entry != '..') {
 					$list[$entry]['name'] = $entry;
 					$f = PHPGW_SERVER_ROOT . '/phpgwapi/templates/' . $entry . '/details.inc.php';
-					if (file_exists ($f))
-					{
+					if (file_exists ($f)) {
 						include($f);
 						$list[$entry]['title'] = 'Use ' . $GLOBALS['phpgw_info']['template'][$entry]['title'] . 'interface';
-					}
-					else
-					{
+					} else {
 						$list[$entry]['title'] = $entry;
 					}
 				}
@@ -244,13 +203,10 @@
 			return $list;
 		}
 
-		function list_themes()
-		{
+		function list_themes() {
 			$dh = dir(PHPGW_SERVER_ROOT . '/phpgwapi/themes');
-			while ($file = $dh->read())
-			{
-				if (eregi("\.theme$", $file))
-				{
+			while ($file = $dh->read()) {
+				if (eregi("\.theme$", $file)) {
 					$list[] = substr($file,0,strpos($file,'.'));
 				}
 			}

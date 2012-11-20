@@ -180,7 +180,7 @@
 	function printVerbRenderStats($verb) {
 		if($_SESSION['previous_verb'] =='') {
 			$_SESSION['previous_verb'] = $verb;
-		} else if(!strsimilar($_SESSION['previous_verb'], $verb)) {
+		} elseif(!strsimilar($_SESSION['previous_verb'], $verb)) {
 			$_SESSION['previous_verb'] = $verb;
 			$_SESSION['current_color'] = intVal($_SESSION['current_color']) + 1;
 		}

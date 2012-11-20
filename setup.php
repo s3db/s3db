@@ -183,7 +183,7 @@
 		}
 	}
 	
-	//	else if($_POST['db_config'])
+	//	elseif($_POST['db_config'])
 	//	{
 	//		if (!createS3DBDatabase($inputs))
 	//		{$tpl->set_var('error', 'Could not create the database. Please check if the database user and password is correct. You might need to install s3db mannually. Refer to README file/http://www.s3db.org for further instructions.');
@@ -328,7 +328,7 @@
 			$return = 'Sserver root';	
 		} elseif($inputs['uri_base'] == '') {
 			$return = 'URI base';	
-		#} else if($inputs['site_title'] == '') {
+		#} elseif($inputs['site_title'] == '') {
 		#	$return =  'Site Title';	
 		#}
 		} elseif($inputs['site_config_admin'] == '') {

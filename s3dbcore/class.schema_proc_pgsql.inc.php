@@ -1,28 +1,28 @@
 <?php
 	/**
-	* Database schema abstraction class for PostgreSQL
-	* @author Tobias Ratschiller <tobias@dnet.it>
-	* @author Dan Wilson <phpPgAdmin@acucore.com>
-	* @author Michael Dean <mdean@users.sourceforge.net>
-	* @author Miles Lott <milosch@phpgroupware.org>
-	* @copyright Copyright (C) 1998-1999 Tobias Ratschiller
-	* @copyright Copyright (C) 1999-2000 Dan Wilson
-	* @copyright Copyright (C) ? Michael Dean, Miles Lott
-	* @copyright Portions Copyright (C) 2003,2004 Free Software Foundation, Inc. http://www.fsf.org/
-	* @license http://www.fsf.org/licenses/gpl.html GNU General Public License
-	* @package phpgwapi
-	* @subpackage database
-	* @version $Id: class.schema_proc_pgsql.inc.php,v 1.5.2.11 2004/02/26 20:20:35 alexbsa Exp $
-	* @link http://www.greatbridge.org/project/phppgadmin
-	* @internal SQL for table properties taken from phpPgAdmin Version 2.2.1
-	*/
+	 * Database schema abstraction class for PostgreSQL
+	 * @author Tobias Ratschiller <tobias@dnet.it>
+	 * @author Dan Wilson <phpPgAdmin@acucore.com>
+	 * @author Michael Dean <mdean@users.sourceforge.net>
+	 * @author Miles Lott <milosch@phpgroupware.org>
+	 * @copyright Copyright (C) 1998-1999 Tobias Ratschiller
+	 * @copyright Copyright (C) 1999-2000 Dan Wilson
+	 * @copyright Copyright (C) ? Michael Dean, Miles Lott
+	 * @copyright Portions Copyright (C) 2003,2004 Free Software Foundation, Inc. http://www.fsf.org/
+	 * @license http://www.fsf.org/licenses/gpl.html GNU General Public License
+	 * @package phpgwapi
+	 * @subpackage database
+	 * @version $Id: class.schema_proc_pgsql.inc.php,v 1.5.2.11 2004/02/26 20:20:35 alexbsa Exp $
+	 * @link http://www.greatbridge.org/project/phppgadmin
+	 * @internal SQL for table properties taken from phpPgAdmin Version 2.2.1
+	 */
 
 	/**
-	* Database schema abstraction class for PostgreSQL
-	* 
-	* @package phpgwapi
-	* @subpackage database
-	*/
+	 * Database schema abstraction class for PostgreSQL
+	 * 
+	 * @package phpgwapi
+	 * @subpackage database
+	 */
 	class schema_proc_pgsql
 	{
 		var $m_sStatementTerminator;
@@ -33,16 +33,13 @@
 		var $ix = array();
 		var $uc = array();
 
-		function schema_proc_pgsql()
-		{
+		function schema_proc_pgsql() {
 			$this->m_sStatementTerminator = ';';
 		}
 
 		/* Return a type suitable for DDL */
-		function TranslateType($sType, $iPrecision = 0, $iScale = 0)
-		{
-			switch($sType)
-			{
+		function TranslateType($sType, $iPrecision = 0, $iScale = 0) {
+			switch($sType) {
 				case 'auto':
 					$sTranslated = 'int4';
 					break;
@@ -50,12 +47,10 @@
 					$sTranslated = 'text';
 					break;
 				case 'char':
-					if ($iPrecision > 0 && $iPrecision < 256)
-					{
+					if ($iPrecision > 0 && $iPrecision < 256) {
 						$sTranslated =  sprintf("char(%d)", $iPrecision);
 					}
-					if ($iPrecision > 255)
-					{
+					if ($iPrecision > 255) {
 						$sTranslated =  'text';
 					}
 					break;
@@ -66,14 +61,12 @@
 					$sTranslated =  sprintf("decimal(%d,%d)", $iPrecision, $iScale);
 					break;
 				case 'float':
-					if ($iPrecision == 4 || $iPrecision == 8)
-					{
+					if ($iPrecision == 4 || $iPrecision == 8) {
 						$sTranslated =  sprintf("float%d", $iPrecision);
 					}
 					break;
 				case 'int':
-					if ($iPrecision == 2 || $iPrecision == 4 || $iPrecision == 8)
-					{
+					if ($iPrecision == 2 || $iPrecision == 4 || $iPrecision == 8) {
 						$sTranslated =  sprintf("int%d", $iPrecision);
 					}
 					break;
@@ -87,12 +80,10 @@
 					$sTranslated = 'timestamp';
 					break;
 				case 'varchar':
-					if ($iPrecision > 0 && $iPrecision < 256)
-					{
+					if ($iPrecision > 0 && $iPrecision < 256) {
 						$sTranslated =  sprintf("varchar(%d)", $iPrecision);
 					}
-					if ($iPrecision > 255)
-					{
+					if ($iPrecision > 255) {
 						$sTranslated =  'text';
 					}
 					break;
@@ -100,10 +91,8 @@
 			return $sTranslated;
 		}
 
-		function TranslateDefault($sDefault)
-		{
-			switch ($sDefault)
-			{
+		function TranslateDefault($sDefault) {
+			switch ($sDefault) {
 				case 'current_date':
 				case 'current_timestamp':
 					return "'now'";
@@ -112,11 +101,9 @@
 		}
 
 		/* Inverse of above, convert sql column types to array info */
-		function rTranslateType($sType, $iPrecision = 0, $iScale = 0)
-		{
+		function rTranslateType($sType, $iPrecision = 0, $iScale = 0) {
 			$sTranslated = '';
-			switch($sType)
-			{
+			switch($sType) {
 				case 'serial':
 					$sTranslated = "'type' => 'auto'";
 					break;
@@ -131,12 +118,10 @@
 					break;
 				case 'bpchar':
 				case 'char':
-					if ($iPrecision > 0 && $iPrecision < 256)
-					{
+					if ($iPrecision > 0 && $iPrecision < 256) {
 						$sTranslated = "'type' => 'char', 'precision' => $iPrecision";
 					}
-					if ($iPrecision > 255)
-					{
+					if ($iPrecision > 255) {
 						$sTranslated =  "'type' => 'text'";
 					}
 					break;
@@ -157,12 +142,10 @@
 					$sTranslated = "'type' => 'timestamp'";
 					break;
 				case 'varchar':
-					if ($iPrecision > 0 && $iPrecision < 256)
-					{
+					if ($iPrecision > 0 && $iPrecision < 256) {
 						$sTranslated =  "'type' => 'varchar', 'precision' => $iPrecision";
 					}
-					if ($iPrecision > 255)
-					{
+					if ($iPrecision > 255) {
 						$sTranslated =  "'type' => 'text'";
 					}
 					break;
@@ -175,36 +158,30 @@
 			return $sTranslated;
 		}
 
-		function GetPKSQL($sFields)
-		{
+		function GetPKSQL($sFields) {
 			return "PRIMARY KEY($sFields)";
 		}
 
-		function GetUCSQL($sFields)
-		{
+		function GetUCSQL($sFields) {
 			return "UNIQUE($sFields)";
 		}
 
-		function GetIXSQL($sFields)
-		{
+		function GetIXSQL($sFields) {
 			$this->indexes_sql[$sFields] = "CREATE INDEX __index_name__ ON __table_name__ USING btree ($sFields)";
 			return '';
 		}
 
+		function GetFKSQL($sFields) {
+			if (ereg("\((.*)\)", $sFields, $regs)) {
+				$ret = "FOREIGN KEY (".$regs[1].")\n" .
+					   "  REFERENCES ".$sFields;
+				return $ret;
+			} else {
+				return ""; // incorrect FK declaration found
+			}
+		}
 			
-               function GetFKSQL($sFields)
-               {
-                 if (ereg("\((.*)\)", $sFields, $regs))
-                 {
-                   $ret = "FOREIGN KEY (".$regs[1].")\n" .
-                     "  REFERENCES ".$sFields;
-                   return $ret;
-                 } else
-                   return ""; // incorrect FK declaration found
-               }
-			
-		function _GetColumns($oProc, $sTableName, &$sColumns, $sDropColumn = '', $sAlteredColumn = '', $sAlteredColumnType = '')
-		{
+		function _GetColumns($oProc, $sTableName, &$sColumns, $sDropColumn = '', $sAlteredColumn = '', $sAlteredColumnType = '') {
 			$sdb = $oProc->m_odb;
 			$sdc = $oProc->m_odb;
 
@@ -216,24 +193,20 @@
 
 			$query = "SELECT a.attname,a.attnum FROM pg_attribute a,pg_class b WHERE ";
 			$query .= "b.oid=a.attrelid AND a.attnum>0 and b.relname='$sTableName'";
-			if ($sDropColumn != '')
-			{
+			if ($sDropColumn != '') {
 				$query .= " AND a.attname != '$sDropColumn'";
 			}
 			$query .= ' ORDER BY a.attnum';
 
 			$oProc->m_odb->query($query);
-			while ($oProc->m_odb->next_record())
-			{
-				if ($sColumns != '')
-				{
+			while ($oProc->m_odb->next_record()) {
+				if ($sColumns != '') {
 					$sColumns .= ',';
 				}
 
 				$sFieldName = $oProc->m_odb->f(0);
 				$sColumns .= $sFieldName;
-				if ($sAlteredColumn == $sFieldName && $sAlteredColumnType != '')
-				{
+				if ($sAlteredColumn == $sFieldName && $sAlteredColumnType != '') {
 					$sColumns .= '::' . $sAlteredColumnType;
 				}
 			}
@@ -259,41 +232,29 @@
 					ORDER BY a.attnum";
 			/* attnum field type length lengthvar notnull(Yes/No) */
 			$sdb->query($sql_get_fields);
-			while ($sdb->next_record())
-			{
+			while ($sdb->next_record()) {
 				$colnum  = $sdb->f(0);
 				$colname = $sdb->f(1);
 
-				if ($sdb->f(5) == 'Yes')
-				{
+				if ($sdb->f(5) == 'Yes') {
 					$null = "'nullable' => True";
-				}
-				else
-				{
+				} else {
 					$null = "'nullable' => False";
 				}
 
-				if ($sdb->f(2) == 'numeric')
-				{
+				if ($sdb->f(2) == 'numeric') {
 					$prec  = $sdb->f(3);
 					$scale = $sdb->f(4);
-				}
-				elseif ($sdb->f(3) > 0)
-				{
+				} elseif ($sdb->f(3) > 0) {
 					$prec  = $sdb->f(3);
 					$scale = 0;
-				}
-				elseif ($sdb->f(4) > 0)
-				{
+				} elseif ($sdb->f(4) > 0) {
 					$prec = $sdb->f(4) - 4;
 					$scale = 0;
-				}
-				else
-				{
+				} else {
 					$prec = 0;
 					$scale = 0;
 				}
-
 				$type = $this->rTranslateType($sdb->f(2), $prec, $scale);
 
 				$sql_get_default = "
@@ -306,26 +267,19 @@
 					";
 				$sdc->query($sql_get_default);
 				$sdc->next_record();
-				if ($sdc->f(0))
-				{
-					if (ereg('nextval',$sdc->f(0)))
-					{
+				if ($sdc->f(0)) {
+					if (ereg('nextval',$sdc->f(0))) {
 						$default = '';
 						$nullcomma = '';
-					}
-					else
-					{
+					} else {
 						$default = "'default' => '".$sdc->f(0)."'";
 						$nullcomma = ',';
 					}
-				}
-				else
-				{
+				} else {
 					$default = '';
 					$nullcomma = '';
 				}
 				$default = ereg_replace("''","'",$default);
-
 				$this->sCol[] = "\t\t\t\t'" . $colname . "' => array(" . $type . ',' . $null . $nullcomma . $default . '),' . "\n";
 			}
 			$sql_pri_keys = "
@@ -352,40 +306,31 @@
 				ORDER BY
 					index_name, tab_name, column_name";
 			$sdc->query($sql_pri_keys);
-			while ($sdc->next_record())
-			{
+			while ($sdc->next_record()) {
 				//echo '<br> checking: ' . $sdc->f(4);
-				if ($sdc->f(4) == 't')
-				{
+				if ($sdc->f(4) == 't') {
 					$this->pk[] = $sdc->f(2);
 				}
-				if ($sdc->f(3) == 't')
-				{
+				if ($sdc->f(3) == 't') {
 					$this->uc[] = $sdc->f(2);
 				}
 			}
 			/* ugly as heck, but is here to chop the trailing comma on the last element (for php3) */
 			$this->sCol[count($this->sCol) - 1] = substr($this->sCol[count($this->sCol) - 1],0,-2) . "\n";
-
 			return false;
 		}
 
-		function _CopyAlteredTable($oProc, &$aTables, $sSource, $sDest)
-		{
+		function _CopyAlteredTable($oProc, &$aTables, $sSource, $sDest) {
 			$oDB = $oProc->m_odb;
 			$oProc->m_odb->query("select * from $sSource");
-			while ($oProc->m_odb->next_record())
-			{
+			while ($oProc->m_odb->next_record()) {
 				$sSQL = "INSERT INTO $sDest (";
 				$i=0;
 				@reset($aTables[$sDest]['fd']);
-				while (list($name,$arraydef) = @each($aTables[$sDest]['fd']))
-				{
-					if ($i > 0)
-					{
+				while (list($name,$arraydef) = @each($aTables[$sDest]['fd'])) {
+					if ($i > 0) {
 						$sSQL .= ',';
 					}
-
 					$sSQL .= $name;
 					$i++;
 				}
@@ -393,17 +338,13 @@
 				$sSQL .= ') VALUES (';
 				@reset($aTables[$sDest]['fd']);
 				$i=0;
-				while (list($name,$arraydef) = @each($aTables[$sDest]['fd']))
-				{
-					if ($i > 0)
-					{
+				while (list($name,$arraydef) = @each($aTables[$sDest]['fd'])) {
+					if ($i > 0) {
 						$sSQL .= ',';
 					}
 
-					if ($oProc->m_odb->f($name) != null)
-					{
-						switch ($arraydef['type'])
-						{
+					if ($oProc->m_odb->f($name) != null) {
+						switch ($arraydef['type']) {
 							case 'blob':
 							case 'char':
 							case 'date':
@@ -415,89 +356,71 @@
 							default:
 								$sSQL .= intval($oProc->m_odb->f($name));
 						}
-					}
-					else
-					{
+					} else {
 						$sSQL .= 'null';
 					}
 					$i++;
 				}
 				$sSQL .= ')';
-
 				$oDB->query($sSQL);
 			}
-
 			return true;
 		}
 
-		function GetSequenceForTable($oProc,$table,&$sSequenceName)
-		{
+		function GetSequenceForTable($oProc,$table,&$sSequenceName) {
 			global $DEBUG;
 			if($DEBUG) { echo '<br>GetSequenceForTable: ' . $table; }
 
 			$oProc->m_odb->query("SELECT relname FROM pg_class WHERE NOT relname ~ 'pg_.*' AND relname LIKE 'seq_$table' AND relkind='S' ORDER BY relname",__LINE__,__FILE__);
 			$oProc->m_odb->next_record();
-			if ($oProc->m_odb->f('relname'))
-			{
+			if ($oProc->m_odb->f('relname')) {
 				$sSequenceName = $oProc->m_odb->f('relname');
 			}
 			return True;
 		}
 
-		function GetSequenceFieldForTable($oProc,$table,&$sField)
-		{
+		function GetSequenceFieldForTable($oProc,$table,&$sField) {
 			global $DEBUG;
 			if($DEBUG) { echo '<br>GetSequenceFieldForTable: You rang?'; }
 			$oProc->m_odb->query("SELECT a.attname FROM pg_attribute a, pg_class c, pg_attrdef d WHERE c.relname='$table' AND c.oid=d.adrelid AND d.adsrc LIKE '%seq_$table%' AND a.attrelid=c.oid AND d.adnum=a.attnum");
 			$oProc->m_odb->next_record();
-			if ($oProc->m_odb->f('attname'))
-			{
+			if ($oProc->m_odb->f('attname')) {
 				$sField = $oProc->m_odb->f('attname');
 			}
 			return True;
 		}
 
-		function DropSequenceForTable($oProc,$table)
-		{
+		function DropSequenceForTable($oProc,$table) {
 			global $DEBUG;
 			if($DEBUG) { echo '<br>DropSequenceForTable: ' . $table; }
 
 			$this->GetSequenceForTable($oProc,$table,$sSequenceName);
-			if ($sSequenceName)
-			{
+			if ($sSequenceName) {
 				$oProc->m_odb->query("DROP SEQUENCE " . $sSequenceName,__LINE__,__FILE__);
 			}
 			return True;
 		}
 
-		function DropTable($oProc, &$aTables, $sTableName)
-		{
+		function DropTable($oProc, &$aTables, $sTableName) {
 			$this->DropSequenceForTable($oProc,$sTableName);
-
 			return $oProc->m_odb->query("DROP TABLE " . $sTableName) &&
 			       $this->DropSequenceForTable($oProc, $sTableName);
 		}
 
-		function DropColumn($oProc, &$aTables, $sTableName, $aNewTableDef, $sColumnName, $bCopyData = true)
-		{
-			if ($bCopyData)
-			{
+		function DropColumn($oProc, &$aTables, $sTableName, $aNewTableDef, $sColumnName, $bCopyData = true) {
+			if ($bCopyData) {
 				$oProc->m_odb->query("SELECT * INTO $sTableName" . "_tmp FROM $sTableName");
 			}
-
 			$this->DropTable($oProc, $aTables, $sTableName);
 
 			$oProc->_GetTableSQL($sTableName, $aNewTableDef, $sTableSQL, $sSequenceSQL);
-			if($sSequenceSQL)
-			{
+			if($sSequenceSQL) {
 				$oProc->m_odb->query($sSequenceSQL);
 			}
 			$query = "CREATE TABLE $sTableName ($sTableSQL)";
-			if (!$bCopyData)
-			{
+			if (!$bCopyData) {
 				return !!($oProc->m_odb->query($query));
 			}
-
 			$oProc->m_odb->query($query);
 			$this->_GetColumns($oProc, $sTableName . '_tmp', $sColumns, $sColumnName);
 			$query = "INSERT INTO $sTableName SELECT $sColumns FROM $sTableName" . '_tmp';
@@ -505,8 +428,7 @@
 			return ($bRet && $this->DropTable($oProc, $aTables, $sTableName . '_tmp'));
 		}
 
-		function RenameTable($oProc, &$aTables, $sOldTableName, $sNewTableName)
-		{
+		function RenameTable($oProc, &$aTables, $sOldTableName, $sNewTableName) {
 			global $DEBUG;
 			if ($DEBUG) { echo '<br>RenameTable(): Fetching old sequence for: ' . $sOldTableName; }
 			$this->GetSequenceForTable($oProc,$sOldTableName,$sSequenceName);
@@ -515,8 +437,7 @@
 			$this->GetSequenceFieldForTable($oProc,$sOldTableName,$sField);
 			if ($DEBUG) { echo ' - ' . $sField; }
 
-			if ($sSequenceName)
-			{
+			if ($sSequenceName) {
 				$oProc->m_odb->query("SELECT last_value FROM seq_$sOldTableName",__LINE__,__FILE__);
 				$oProc->m_odb->next_record();
 				$lastval = $oProc->m_odb->f(0);
@@ -524,8 +445,7 @@
 				if ($DEBUG) { echo '<br>RenameTable(): dropping old sequence: ' . $sSequenceName . ' used on field: ' . $sField; }
 				$this->DropSequenceForTable($oProc,$sOldTableName);
 
-				if ($lastval)
-				{
+				if ($lastval) {
 					$lastval = ' start ' . $lastval;
 				}
 				$this->GetSequenceSQL($sNewTableName,$sSequenceSQL);
@@ -536,40 +456,29 @@
 			}
 
 			$indexnames = $oProc->m_odb->index_names();
-			while(list($key,$val) = @each($indexnames))
-			{
+			while(list($key,$val) = @each($indexnames)) {
 				$indexes[] = $val['index_name'];
 			}
-			if(!in_array($sOldTableName . '_pkey',$indexes))	// no idea how this can happen
-			{
+			if(!in_array($sOldTableName . '_pkey',$indexes)) {		// no idea how this can happen
 				$oProc->m_odb->query("DROP INDEX " . $sOldTableName . "_pkey",__LINE__,__FILE__);
-			}
-			else	// rename the index
-			{
+			} else {		// rename the index
 				$oProc->m_odb->query('ALTER TABLE '.$sOldTableName.'_pkey RENAME TO '.$sNewTableName.'_pkey');
 			}
-
 			return !!($oProc->m_odb->query("ALTER TABLE $sOldTableName RENAME TO $sNewTableName"));
 		}
 
-		function RenameColumn($oProc, &$aTables, $sTableName, $sOldColumnName, $sNewColumnName, $bCopyData = true)
-		{
+		function RenameColumn($oProc, &$aTables, $sTableName, $sOldColumnName, $sNewColumnName, $bCopyData = true) {
 			/*
 			 This really needs testing - it can affect primary keys, and other table-related objects
 			 like sequences and such
 			*/
-			if ($bCopyData)
-			{
+			if ($bCopyData) {
 				$oProc->m_odb->query("SELECT * INTO $sTableName" . "_tmp FROM $sTableName");
 			}
-
 			$this->DropTable($oProc, $aTables, $sTableName);
-
-			if (!$bCopyData)
-			{
+			if (!$bCopyData) {
 				return $this->CreateTable($oProc, $aTables, $sTableName, $oProc->m_aTables[$sTableName], false);
 			}
-
 			$this->CreateTable($oProc, $aTables, $sTableName, $aTables[$sTableName], True);
 			$this->_GetColumns($oProc, $sTableName . "_tmp", $sColumns);
 			$query = "INSERT INTO $sTableName SELECT $sColumns FROM $sTableName" . "_tmp";
@@ -578,20 +487,14 @@
 			return ($bRet && $this->DropTable($oProc, $aTables, $sTableName . "_tmp"));
 		}
 
-		function AlterColumn($oProc, &$aTables, $sTableName, $sColumnName, &$aColumnDef, $bCopyData = true)
-		{
-			if ($bCopyData)
-			{
+		function AlterColumn($oProc, &$aTables, $sTableName, $sColumnName, &$aColumnDef, $bCopyData = true) {
+			if ($bCopyData) {
 				$oProc->m_odb->query("SELECT * INTO $sTableName" . "_tmp FROM $sTableName");
 			}
-
 			$this->DropTable($oProc, $aTables, $sTableName);
-
-			if (!$bCopyData)
-			{
+			if (!$bCopyData) {
 				return $this->CreateTable($oProc, $aTables, $sTableName, $aTables[$sTableName], True);
 			}
-
 			$this->CreateTable($oProc, $aTables, $sTableName, $aTables[$sTableName], True);
 			$this->_GetColumns($oProc, $sTableName . "_tmp", $sColumns, '', $sColumnName, $aColumnDef['type'] == 'auto' ? 'int4' : $aColumnDef['type']);
 
@@ -603,35 +506,26 @@
 			*/
 
 			$bRet = $this->_CopyAlteredTable($oProc, $aTables, $sTableName . '_tmp', $sTableName);
-
 			return ($bRet && $this->DropTable($oProc, $aTables, $sTableName . "_tmp"));
 		}
 
-		function AddColumn($oProc, &$aTables, $sTableName, $sColumnName, &$aColumnDef)
-		{
-			if (isset($aColumnDef['default']))	// pgsql cant add a colum with a default
-			{
+		function AddColumn($oProc, &$aTables, $sTableName, $sColumnName, &$aColumnDef) {
+			if (isset($aColumnDef['default'])) {		// pgsql cant add a colum with a default
 				$default = $aColumnDef['default'];
 				unset($aColumnDef['default']);
 			}
-			if (isset($aColumnDef['nullable']) && !$aColumnDef['nullable'])	// pgsql cant add a column not nullable
-			{
+			if (isset($aColumnDef['nullable']) && !$aColumnDef['nullable']) {		// pgsql cant add a column not nullable
 				$notnull = !$aColumnDef['nullable'];
 				unset($aColumnDef['nullable']);
 			}
 			$oProc->_GetFieldSQL($aColumnDef, $sFieldSQL);
 			$query = "ALTER TABLE $sTableName ADD COLUMN $sColumnName $sFieldSQL";
 
-			if (($Ok = !!($oProc->m_odb->query($query))) && isset($default))
-			{
+			if (($Ok = !!($oProc->m_odb->query($query))) && isset($default)) {
 				$query = "ALTER TABLE $sTableName ALTER COLUMN $sColumnName SET DEFAULT '$default';\n";
-
 				$query .= "UPDATE $sTableName SET $sColumnName='$default';\n";
-
 				$Ok = !!($oProc->m_odb->query($query));
-
-				if ($OK && $notnull)
-				{
+				if ($OK && $notnull) {
 					// unfortunally this is pgSQL >= 7.3
 					//$query .= "ALTER TABLE $sTableName ALTER COLUMN $sColumnName SET NOT NULL;\n";
 					//$Ok = !!($oProc->m_odb->query($query));
@@ -642,42 +536,31 @@
 			return $Ok;
 		}
 
-		function GetSequenceSQL($sTableName, &$sSequenceSQL)
-		{
+		function GetSequenceSQL($sTableName, &$sSequenceSQL) {
 			$sSequenceSQL = sprintf("CREATE SEQUENCE seq_%s", $sTableName);
 			return true;
 		}
 
-		function CreateTable($oProc, $aTables, $sTableName, $aTableDef, $bCreateSequence = true)
-		{
+		function CreateTable($oProc, $aTables, $sTableName, $aTableDef, $bCreateSequence = true) {
 			global $DEBUG;
 			unset($this->indexes_sql);
-			if ($oProc->_GetTableSQL($sTableName, $aTableDef, $sTableSQL, $sSequenceSQL))
-			{
+			if ($oProc->_GetTableSQL($sTableName, $aTableDef, $sTableSQL, $sSequenceSQL)) {
 				/* create sequence first since it will be needed for default */
-				if ($bCreateSequence && $sSequenceSQL != '')
-				{
+				if ($bCreateSequence && $sSequenceSQL != '') {
 					if ($DEBUG) { echo '<br>Making sequence using: ' . $sSequenceSQL; }
 					$oProc->m_odb->query($sSequenceSQL);
 				}
-
 				$query = "CREATE TABLE $sTableName ($sTableSQL)";
-				//echo 'sql' .$query . "\n";
 
 				$result = !!($oProc->m_odb->query($query));
-				if($result==True)
-				{
-					if ($DEBUG)
-					{
+				if($result==True) {
+					if ($DEBUG) {
 						echo  '<pre>';
 						print_r($this->indexes_sql);
 						echo '</pre>';
 					}
-
-					if(is_array($this->indexes_sql) && count($this->indexes_sql)>0)
-					{
-						foreach($this->indexes_sql as $key => $sIndexSQL)
-						{
+					if(is_array($this->indexes_sql) && count($this->indexes_sql)>0) {
+						foreach($this->indexes_sql as $key => $sIndexSQL) {
 							$ix_name = str_replace(',','_',$key).'_'.$sTableName.'_idx';
 							$IndexSQL = str_replace(array('__index_name__','__table_name__'), array($ix_name,$sTableName), $sIndexSQL);
 							$oProc->m_odb->query($IndexSQL);
@@ -687,7 +570,6 @@
 				return $result;
 				//return !!($oProc->m_odb->query($query));				
 			}
-
 			return false;
 		}
 	}

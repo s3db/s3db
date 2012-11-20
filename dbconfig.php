@@ -73,7 +73,7 @@
 		} else {
 			$tpl->set_var('updated', 'Could not update URL, please check 1) if you are online and 2) if this deployment ID ('.$Did.') is registered in '.$mothership);	
 		}
-	#} else if (!empty($_GET['action']) && $_GET['action']=='droptables') {
+	#} elseif (!empty($_GET['action']) && $_GET['action']=='droptables') {
 	} elseif (!empty($_POST['droptables'])) {
 		$tpl->set_var('db_action_text', 'Are you sure you want to drop all the tables? You will lose all your data in the database');
 		$tpl->set_var('db_action', '<input type="submit" name="confirmdroptables" value="&nbsp;&nbsp;OK&nbsp;&nbsp;">&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="rejectdroptables" value="Cancel">');
