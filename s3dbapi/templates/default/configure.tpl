@@ -145,11 +145,12 @@ function hideAndShow() {
 	<font color="navy" size="2">{db_host_message}</font>
 	</td>
    </tr>
+<!-- 
    <tr>
-     <!-- <td align="right"><sup><font color="red">{db_host_required}</font></sup>Host Name</td> -->
+     <td align="right"><sup><font color="red">{db_host_required}</font></sup>Host Name</td>
      <td><div class="advanced"><input type="hidden" name="db_host" style="background: lightyellow" size="30" value="{db_host}"></div></td>
    </tr>
-   
+-->   
    <tr>
      <td align="right"><div class="advanced"><sup><font color="red">{db_name_required}</font></sup>Database Name</div></td>
      <td><div class="advanced"><input name="db_name" style="background: lightyellow" size="30" value="{db_name}"></div></td>
