@@ -243,7 +243,7 @@
 		$tpl->set_var('site_logo', $cwd.'/images/s3db.png');
 		$tpl->set_var('site_title', '');
 		$tpl->set_var('site_intro', 'The motivation for this work is the increasing complexity and the constantly changing nature of this type of data, which represents a difficult obstacle for the more conventional use of relational or XML paradigms.');
-		$tpl->set_var('db_host', 'localhost');
+		#$tpl->set_var('db_host', 'localhost');
 		$tpl->set_var('db_name', 's3db');
 		#$tpl->set_var('mothership', 'http://s3db.virtual.vps-host.net/central/');
 		###Add more motherships here/create the function to find motherships here
