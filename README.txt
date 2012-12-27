@@ -5,5 +5,5 @@ Documentation
 Please see http://www.s3db.org for installation, use and requirements
 
 Contact
-Jonas S. Almeida or Helena Deus at: 
-jalmeida@uab.edu or helenadeus@gmail.com .
+Jonas S Almeida, Egiebade Iriabho or Helena F Deus at: 
+jalmeida@uab.edu, bade@uab.edu or helenadeus@gmail.com .
