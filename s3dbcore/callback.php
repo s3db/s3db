@@ -2194,9 +2194,9 @@
 		return ($return);
 	}
 
-	function scriptInputs($_REQUEST, $argv) {
-		if(!empty($_REQUEST)) {
-			$inputs = $_REQUEST;
+	function scriptInputs($REQUEST, $argv) {
+		if(!empty($REQUEST)) {
+			$inputs = $REQUEST;
 		} else {
 			$tmp = $argv;
 			foreach($tmp as $key_arg) {
