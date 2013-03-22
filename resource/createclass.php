@@ -115,7 +115,7 @@
 		</tr>';
 		<script type="text/javascript">
 			// Grab the specific onto widget scripts we need and fires at start event
-			jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+			jQuery.getScript("https://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
 				formComplete_setup_functions();
 			});
 		</script>

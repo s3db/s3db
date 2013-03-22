@@ -424,7 +424,7 @@
 				document.getElementById('verb_holder').innerHTML = '<input type="text" name="verb" id="verb" class="bp_form_complete-all-name" size="30">Type 3 or more letters<input type="button" name="edit_item_verb" value="Choose from Items" onClick="window.location=window.location.href.replace(\'literal_verb=1\',\'\').replace(\'item_verb=0\',\'\')">';
 	
 				// Grab the specific scripts we need and fires it start event
-				jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+				jQuery.getScript("https://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
 					formComplete_setup_functions();
 				});
 			}
@@ -440,7 +440,7 @@
 				document.getElementById('validation').disabled = false;
 				
 				// Grab the specific scripts we need and fires it start event
-				jQuery.getScript("http://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
+				jQuery.getScript("https://bioportal.bioontology.org/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js", function(){
 					formComplete_setup_functions();
 				});
 	

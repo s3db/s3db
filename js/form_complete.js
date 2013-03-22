@@ -30,7 +30,7 @@ var BP_FORM_COMPLETE_LOADED = true;
 
 // Set the defaults if they haven't been set yet
 if (typeof BP_SEARCH_SERVER === 'undefined') {
-  var BP_SEARCH_SERVER = "http://bioportal.bioontology.org";
+  var BP_SEARCH_SERVER = "https://bioportal.bioontology.org";
 }
 if (typeof BP_SITE === 'undefined') {
   var BP_SITE = "BioPortal";
