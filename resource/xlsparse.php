@@ -2,9 +2,9 @@
 	#xlsparse.php accepts a tab delimited file formatted according to a rule template and writes the retreived statements and instances to s3db
 	#Helena F Deus (helenadeus@gmail.com)
 	ini_set('display_errors',0);
-	if($_REQUEST['su3d']) {
-		ini_set('display_errors',1);
-	}
+	if($_REQUEST['su3d']) { ini_set('display_errors',1); }
+	ini_set('auto_detect_line_endings',1);
+	
 	if($_SERVER['HTTP_X_FORWARDED_HOST']!='') {
 		$def = $_SERVER['HTTP_X_FORWARDED_HOST'];
 	} else {
@@ -117,29 +117,36 @@
 		extract($F);
 		$regexp = $GLOBALS['regexp'];
 
-		#1.Create $lines by separating each line of the uploaded file
-		$lines = file($file);
-		$lines = array_filter($lines, 'remove_empty_lines');
-		
-		for($i=0;$i<count($lines);$i++) {
-			$lines[$i] = rtrim($lines[$i]);	//this is a fix to remove the pragraph at the end of the line
+		$lines = array();
+		if($h=@fopen($file, "r")) {
+			$row = 1;
+			while($data = fgetcsv($h,9999,"\t")) {
+				if($row == 1) {
+					$subjects = $data;
+				} elseif($row == 2) {
+					$verbs = $data;
+				} elseif($row == 3) {
+					$objects = $data;
+				} else {
+					$lines[] = $data;
+				}
+				$row++;
+			}
+			fclose($h);
 		}
-		
-		#2.Separate EACH cell from the first line in the uploaded file - These will give the program the field  names and verbs
-		$subjects = explode("	", $lines[0]);
-		$verbs = explode("	", $lines[1]);
-		$objects = explode("	", $lines[2]);
-		
+
 		#eliminate the trailing blanks
-		$verbs[count($verbs)-1] = trim($verbs[count($verbs)-1]);
-		$objects[count($verbs)-1] = trim($objects[count($verbs)-1]);
+		$countV = count($verbs);
+		$verbs[$countV-1] = trim($verbs[$countV-1]);
+		$objects[$countV-1] = trim($objects[$countV-1]);
 		
 		#remove parenthesis
 		$verbs = array_map('clean_inputs', $verbs);
 		$objects = array_map('clean_inputs', $objects);
 
 		#4.now for the rule info
-		for($col=0;$col<count($objects);$col++) {
+		$countO = count($objects);
+		for($col=0;$col<$countO;$col++) {
 			$cells['rules'][$col]['subject'] = $subjects[$col];
 			$cells['rules'][$col]['verb'] = $verbs[$col];
 			$cells['rules'][$col]['object'] = $objects[$col];
@@ -167,8 +174,9 @@
 		}
 
 		#now go for the instances, start collecting them from rows
-		for($row=3;$row<count($lines);$row++) { #row 1 is for verbs, 2 for objects
-			$cells['data'][$row] = explode ("	", $lines[$row]); #booom
+		$countL = count($lines);
+		for($row=0;$row<$countL;$row++) { #row 1 is for verbs, 2 for objects
+			$cells['data'][$row] = $lines[$row];	//explode ("\t", $lines[$row]); #booom
 			$cells['data'][$row] = array_map('trim_quotes', $cells['data'][$row]); #clean the quotes we needed to add for excel
 			$cells['data'][$row]['UID'] = $cells['data'][$row][0];
 			$instance_info = URIinfo('I'.$cells['data'][$row]['UID'], $user_id, $key, $db);
@@ -180,7 +188,8 @@
 				$cells['data'][$row]['instance_info'] = '';
 			}
 			#new loop, this time to get the statement info
-			for($col=2;$col<count($objects);$col++) {	
+			$countO = count($objects);
+			for($col=2;$col<$countO;$col++) {	
 				#read the existing statements
 				$rule_info = $cells['rules'][$col]['rule_info'];
 				$rule_id = $rule_info['rule_id'];
