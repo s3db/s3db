@@ -36,7 +36,7 @@ class db extends db_
         if ($Password == '') { $Password = $this->Password; }
 
         /* establish connection, select database */
-        if (!$this->Link_ID) {
+        if (!isset($this->Link_ID) || $this->Link_ID == 0) {
             if ($GLOBALS['phpgw_info']['server']['db_persistent']) {
                 $this->Link_ID=mysqli_connect("p:$Host", $User, $Password, $Database);
             } else {
